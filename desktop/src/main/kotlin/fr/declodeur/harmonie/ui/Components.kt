@@ -78,16 +78,16 @@ private fun HelpIcon(modifier: Modifier) {
     Canvas(modifier) {
         val s = size.minDimension
         val c = Offset(size.width / 2, size.height / 2)
-        val stroke = s * 0.085f
-        drawCircle(Palette.muted, radius = s / 2 - stroke / 2, center = c, style = Stroke(stroke))
+        val stroke = s * 0.075f
+        drawCircle(Palette.helpIcon, radius = s / 2 - stroke / 2, center = c, style = Stroke(stroke))
         val r = s * 0.15f
         val arcCenter = Offset(c.x, c.y - s * 0.11f)
         val hook = Path().apply {
             addArc(Rect(arcCenter, r), 180f, 270f)
             lineTo(c.x, arcCenter.y + r + s * 0.09f)
         }
-        drawPath(hook, Palette.muted, style = Stroke(stroke, cap = StrokeCap.Round))
-        drawCircle(Palette.muted, radius = stroke * 0.7f, center = Offset(c.x, c.y + s * 0.27f))
+        drawPath(hook, Palette.helpIcon, style = Stroke(stroke, cap = StrokeCap.Round))
+        drawCircle(Palette.helpIcon, radius = stroke * 0.7f, center = Offset(c.x, c.y + s * 0.27f))
     }
 }
 

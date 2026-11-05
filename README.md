@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.4 (étapes 1 et 2)
+## Version 0.4.1 (étapes 1 et 2)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -21,7 +21,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Pédale de sustain (incluse ou non).
 - Deux modes : analyse complète, ou accords + mélodie séparés par canal MIDI.
 - Clavier 88 touches coloré selon le rôle des notes, cliquable pour tester sans instrument.
-- Historique des accords avec leur chiffrage, bulles d'aide.
+- Historique des accords avec leur chiffrage coloré par fonction (légende), regroupés par tonalité (séparateur et nom de la tonalité sous chaque groupe), bulles d'aide.
 - Tonalité probable en continu (profils de Temperley, mémoire réglable, renfort des cadences), avec les trois tonalités les plus probables.
 - Chiffrage romain (suffixes Yamaha), fonction harmonique (tonique, sous-dominante, dominante) et nature de l'accord : diatonique, dominante secondaire (V7/II), substitution tritonique (SubV7), emprunt modal (IVm, ♭VII7), diminué de passage, dominante altérée, napolitain, couleur blues (style Blues).
 - Orthographe des notes selon la tonalité (D♯ en E majeur, D♭ en A♭ majeur).

@@ -1,6 +1,8 @@
 package fr.declodeur.harmonie.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -341,6 +343,7 @@ private fun NoteChip(name: String, degree: String?, color: Color, sustained: Boo
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
     Panel(
@@ -353,34 +356,89 @@ private fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
             Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
         } else {
             val scroll = rememberScrollState()
-            Row(Modifier.horizontalScroll(scroll), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                history.forEachIndexed { i, entry ->
-                    val last = i == history.lastIndex
-                    val sp = entry.analysis?.key?.spelling ?: Spelling.DEFAULT
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Palette.surfaceHigh,
-                        border = BorderStroke(if (last) 2.dp else 1.dp, if (last) Palette.accent else Palette.border),
-                    ) {
-                        Column(
-                            Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                entry.chord.best?.symbolIn(sp) ?: "?",
-                                fontSize = 18.sp,
-                                fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
-                            )
-                            Text(
-                                entry.analysis?.numeral ?: "·",
-                                fontSize = 13.sp,
-                                color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
-                            )
+            // Accords regroupés par tonalité : un séparateur à chaque changement,
+            // et sous chaque groupe un trait avec le nom de la tonalité.
+            val groups = groupByKey(history)
+            Row(Modifier.horizontalScroll(scroll), verticalAlignment = Alignment.Top) {
+                groups.forEachIndexed { g, group ->
+                    if (g > 0) {
+                        Box(
+                            Modifier.padding(horizontal = 10.dp).width(1.dp).height(78.dp)
+                                .background(Palette.border),
+                        )
+                    }
+                    Column(Modifier.width(IntrinsicSize.Max)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            group.entries.forEach { (i, entry) ->
+                                HistoryChip(entry, last = i == history.lastIndex)
+                            }
                         }
+                        Spacer(Modifier.height(6.dp))
+                        Box(
+                            Modifier.fillMaxWidth().height(2.dp)
+                                .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
+                        )
+                        Text(
+                            group.key?.name ?: "Tonalité indéterminée",
+                            modifier = Modifier.padding(top = 3.dp),
+                            fontSize = 12.sp,
+                            color = Palette.muted,
+                            maxLines = 1,
+                        )
                     }
                 }
             }
             LaunchedScrollToEnd(scroll, history.size)
+            Spacer(Modifier.height(8.dp))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                LegendItem(Palette.tonic, "Tonique (T)")
+                LegendItem(Palette.subdominant, "Sous-dominante (SD)")
+                LegendItem(Palette.dominant, "Dominante (D)")
+                LegendItem(Palette.muted, "Sans fonction (chromatique)")
+            }
+        }
+    }
+}
+
+private data class KeyGroup(val key: Key?, val entries: List<IndexedValue<HistoryEntry>>)
+
+/** Regroupe les accords consécutifs joués dans la même tonalité. */
+private fun groupByKey(history: List<HistoryEntry>): List<KeyGroup> {
+    val groups = mutableListOf<KeyGroup>()
+    history.withIndex().forEach { iv ->
+        val key = iv.value.analysis?.key
+        val lastGroup = groups.lastOrNull()
+        if (lastGroup != null && lastGroup.key == key) {
+            groups[groups.lastIndex] = lastGroup.copy(entries = lastGroup.entries + iv)
+        } else {
+            groups += KeyGroup(key, listOf(iv))
+        }
+    }
+    return groups
+}
+
+@Composable
+private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
+    val sp = entry.analysis?.key?.spelling ?: Spelling.DEFAULT
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = Palette.surfaceHigh,
+        border = BorderStroke(if (last) 2.dp else 1.dp, if (last) Palette.accent else Palette.border),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                entry.chord.best?.symbolIn(sp) ?: "?",
+                fontSize = 18.sp,
+                fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
+            )
+            Text(
+                entry.analysis?.numeral ?: "·",
+                fontSize = 13.sp,
+                color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
+            )
         }
     }
 }

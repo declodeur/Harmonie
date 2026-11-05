@@ -12,6 +12,8 @@ object Palette {
     val text = Color(0xFFECEEF2)
     val muted = Color(0xFF9AA1AD)
     val accent = Color(0xFF5B9BFF)
+    /** Icône « ? » des bulles d'aide, volontairement discrète. */
+    val helpIcon = Color(0xFF5C6370)
 
     // Rôles des notes, utilisés partout de la même façon (clavier, listes, légende)
     val root = Color(0xFF3D7EFF)
