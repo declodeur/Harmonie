@@ -204,7 +204,10 @@ private fun ChordDetails(best: ChordCandidate, result: ChordResult) {
     InfoLine(
         "Notes",
         result.pitchClasses.sortedBy { Notes.pc(it - best.root) }.joinToString("   ") { pc ->
-            Notes.name(pc) + (best.degreeOf(pc)?.let { " ($it)" } ?: "")
+            Notes.name(pc) + when {
+                best.roleOf(pc) == ToneRole.BASS -> " (basse)"
+                else -> best.degreeOf(pc)?.let { " ($it)" } ?: ""
+            }
         },
     )
     if (best.omittedFifth) {
@@ -250,7 +253,11 @@ private fun NotesPanel(snap: EngineSnapshot, modifier: Modifier) {
                     val role = if (chord != null && n.analysed) chord.roleOf(n.note) else ToneRole.NONE
                     NoteChip(
                         name = Notes.nameWithOctave(n.note),
-                        degree = if (n.analysed) chord?.degreeOf(n.note) else null,
+                        degree = when {
+                            !n.analysed -> null
+                            role == ToneRole.BASS -> "basse"
+                            else -> chord?.degreeOf(n.note)
+                        },
                         color = roleColor(role),
                         sustained = n.sustained,
                     )
@@ -339,6 +346,7 @@ private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit) {
             LegendItem(Palette.chordTone, "Note de l'accord")
             LegendItem(Palette.tension, "Tension (9, 11, 13)")
             LegendItem(Palette.extra, "Note étrangère")
+            LegendItem(Palette.bass, "Basse détachée hors accord")
             LegendItem(Palette.pending, "Non analysée")
             LegendItem(Palette.melody, "Mélodie")
             LegendItem(Palette.chordTone.copy(alpha = 0.5f), "Tenue par la pédale (couleur pâle)")

@@ -60,6 +60,7 @@ fun roleColor(role: ToneRole): Color = when (role) {
     ToneRole.CHORD_TONE -> Palette.chordTone
     ToneRole.TENSION -> Palette.tension
     ToneRole.EXTRA -> Palette.extra
+    ToneRole.BASS -> Palette.bass
     ToneRole.NONE -> Palette.pending
 }
 

@@ -12,11 +12,11 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.2 (étape 1)
+## Version 0.3 (étape 1)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
-- Renversement serré noté comme l'accord à l'état fondamental (Cm plutôt que Cm/G) ; la basse n'est notée que si elle est détachée de l'accord (écart réglable, une quinte par défaut).
+- Renversement serré noté comme l'accord à l'état fondamental (Cm plutôt que Cm/G) ; la basse n'est notée que si elle est détachée de l'accord (écart réglable, une quinte par défaut). Une basse détachée n'est pas comptée dans la lecture : F♯ grave sous C E♭ G = Cm/F♯ ; mais A grave sous C E G = Am7.
 - Délai de stabilité réglable (60 ms par défaut) ; un accord n'est validé qu'après une nouvelle note.
 - Pédale de sustain (incluse ou non).
 - Deux modes : analyse complète, ou accords + mélodie séparés par canal MIDI.

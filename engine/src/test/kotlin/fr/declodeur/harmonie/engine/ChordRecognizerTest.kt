@@ -65,6 +65,32 @@ class ChordRecognizerTest {
     }
 
     @Test
+    fun detachedForeignBassIsNotCountedInTheChord() {
+        val r = ChordRecognizer.recognize(listOf(54, 72, 75, 79), 7) // F♯3 + C5 E♭5 G5
+        val b = assertNotNull(r.best)
+        assertEquals("Cm/F♯", b.symbol)
+        assertTrue(b.isExact)
+        assertTrue(b.foreignBass)
+        assertEquals(ToneRole.BASS, b.roleOf(54))
+        assertEquals("accord sur basse F♯ (basse étrangère à l'accord)", b.inversion)
+        assertEquals("C/D", ChordRecognizer.recognize(listOf(38, 60, 64, 67), 7).best?.symbol)
+    }
+
+    @Test
+    fun detachedBassThatIsTheRootKeepsTheFullReading() {
+        val am7 = ChordRecognizer.recognize(listOf(45, 60, 64, 67), 7) // A2 + C4 E4 G4
+        assertEquals("Am7", am7.best?.symbol)
+        assertTrue(am7.alternatives.any { it.symbol == "C/A" }, "C/A attendu en alternative")
+        assertEquals("C7", ChordRecognizer.recognize(listOf(36, 64, 67, 70), 7).best?.symbol)
+        assertEquals("FM7(9)", ChordRecognizer.recognize(listOf(41, 57, 60, 64, 67), 7).best?.symbol)
+    }
+
+    @Test
+    fun detachedBassUnderAnIncompleteUpperPartKeepsTheFullReading() {
+        assertEquals("C/E", ChordRecognizer.recognize(listOf(52, 60, 67), 7).best?.symbol) // E3 + C4 G4
+    }
+
+    @Test
     fun secondAndThirdInversions() {
         assertEquals("2e renversement (quinte à la basse)", best(55, 60, 64).inversion)
         assertEquals("3e renversement (septième à la basse)", best(58, 60, 64, 67).inversion)

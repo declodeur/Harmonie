@@ -39,7 +39,10 @@ object Help {
     const val SLASH_GAP =
         "Écart minimal, en demi-tons, entre la note la plus grave et la note suivante pour noter la basse " +
             "(accord sur basse, par exemple Cm/G avec un sol grave sous l'accord). En dessous, un renversement " +
-            "serré est noté Cm. 7 demi-tons (une quinte) par défaut ; 12 = une octave ; 0 = basse toujours notée."
+            "serré est noté Cm. 7 demi-tons (une quinte) par défaut ; 12 = une octave ; 0 = basse toujours notée.\n\n" +
+            "Une basse détachée n'est pas comptée dans la lecture de l'accord : un F♯ grave sous C E♭ G donne " +
+            "Cm/F♯. Exception : si la basse est la fondamentale d'un accord complet formé avec les notes du " +
+            "dessus, cette lecture est gardée (un A grave sous C E G donne Am7, avec C/A en autre lecture)."
 
     const val ALTERNATIVES =
         "Les mêmes notes peuvent se nommer de plusieurs façons : C6 et Am7/C contiennent exactement les mêmes " +

@@ -19,6 +19,7 @@ object Palette {
     val tension = Color(0xFFFFB547)
     val extra = Color(0xFFFF6B6B)
     val melody = Color(0xFF4FD1A1)
+    val bass = Color(0xFFB98CFF)
     val pending = Color(0xFFB8BEC8)
 
     val success = Color(0xFF4FD1A1)
