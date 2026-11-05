@@ -46,8 +46,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.sp
 import fr.declodeur.harmonie.AppController
+import fr.declodeur.harmonie.LayoutPrefs
 import fr.declodeur.harmonie.BuildInfo
 import fr.declodeur.harmonie.engine.AnalysisMode
 import fr.declodeur.harmonie.engine.AnalysisSettings
@@ -72,13 +75,13 @@ fun App(controller: AppController) {
     val devices by controller.devices.collectAsState()
     val connected by controller.connected.collectAsState()
     val error by controller.error.collectAsState()
+    val layoutPrefs by controller.layout.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
 
     MaterialTheme(colorScheme = Palette.scheme) {
         Surface(Modifier.fillMaxSize(), color = Palette.background) {
             Column(
                 Modifier.fillMaxSize().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 TopBar(
                     settings = settings,
@@ -90,32 +93,28 @@ fun App(controller: AppController) {
                     onOpenSettings = { showSettings = true },
                     onReleaseAll = controller::releaseAll,
                 )
+                Spacer(Modifier.height(12.dp))
                 val spelling = snap.key?.current?.spelling ?: Spelling.DEFAULT
-                Row(
-                    Modifier.fillMaxWidth().weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    CurrentChordPanel(
-                        snap.current,
-                        snap.currentAnalysis,
-                        spelling,
-                        Modifier.weight(1.15f).fillMaxHeight(),
-                    )
-                    KeyPanel(snap.key, Modifier.weight(1f).fillMaxHeight())
-                }
-                HistoryPanel(snap.history, onClear = controller::clearHistory)
-                Row(
-                    Modifier.fillMaxWidth().height(206.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    KeyboardPanel(snap, onKeyClick = controller::toggleKey, modifier = Modifier.weight(1f).fillMaxHeight())
-                    NotesPanel(snap, spelling, Modifier.width(330.dp).fillMaxHeight())
-                }
+                MainArea(
+                    snap = snap,
+                    spelling = spelling,
+                    savedLayout = layoutPrefs,
+                    onLayoutChanged = controller::saveLayout,
+                    onClearHistory = controller::clearHistory,
+                    onKeyClick = controller::toggleKey,
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                )
+                Spacer(Modifier.height(10.dp))
                 StatusBar(connected, error)
             }
         }
         if (showSettings) {
-            SettingsDialog(settings, controller::updateSettings, onClose = { showSettings = false })
+            SettingsDialog(
+                settings,
+                controller::updateSettings,
+                onResetLayout = controller::resetLayout,
+                onClose = { showSettings = false },
+            )
         }
     }
 }
@@ -363,7 +362,7 @@ private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modif
             notes = snap.notes,
             chord = snap.current?.best,
             onKeyClick = onKeyClick,
-            modifier = Modifier.fillMaxWidth().height(92.dp),
+            modifier = Modifier.fillMaxWidth().weight(1f).heightIn(min = 48.dp),
         )
         Spacer(Modifier.height(8.dp))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -398,106 +397,150 @@ private fun StatusBar(connected: String?, error: String?) {
     }
 }
 
+/**
+ * Zone principale : accord courant | tonalité, historique, clavier | notes jouées.
+ * Les frontières entre cadres se déplacent à la souris (curseur ↔ ou ↕ au survol).
+ */
 @Composable
-private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettings) -> Unit, onClose: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onClose,
-        confirmButton = { TextButton(onClick = onClose) { Text("Fermer") } },
-        title = { Text("Réglages") },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.width(500.dp).heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
-            ) {
-                Column {
-                    Label("Délai de stabilité : ${settings.stabilityMs} ms", Help.STABILITY)
-                    Slider(
-                        value = settings.stabilityMs.toFloat(),
-                        onValueChange = { onChange(settings.copy(stabilityMs = ((it / 10f).roundToInt() * 10))) },
-                        valueRange = 20f..200f,
-                        steps = 17,
-                    )
-                }
-                Column {
-                    val gap = settings.slashMinGap
-                    Label(
-                        if (gap == 0) "Accord sur basse : basse toujours notée"
-                        else "Accord sur basse : basse détachée d'au moins $gap demi-tons",
-                        Help.SLASH_GAP,
-                    )
-                    Slider(
-                        value = gap.toFloat(),
-                        onValueChange = { onChange(settings.copy(slashMinGap = it.roundToInt())) },
-                        valueRange = 0f..24f,
-                        steps = 23,
-                    )
-                }
-                SwitchLine("Inclure les notes tenues par la pédale", Help.SUSTAIN, settings.includeSustain) {
-                    onChange(settings.copy(includeSustain = it))
-                }
-                SwitchLine(
-                    "Basse fondamentale : garder la lecture complète (Am7 plutôt que C/A)",
-                    Help.KEEP_ROOT_POSITION,
-                    settings.bassOptions.keepRootPositionReading,
-                ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepRootPositionReading = it))) }
-                SwitchLine(
-                    "Dessus incomplet : compter la basse (C/E plutôt que C1+5/E)",
-                    Help.KEEP_FULL_WHEN_INCOMPLETE,
-                    settings.bassOptions.keepFullReadingWhenUpperIncomplete,
-                ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
-                SwitchLine("Reconnaître les accords arpégés", Help.ARPEGGIO, settings.arpeggioDetection) {
-                    onChange(settings.copy(arpeggioDetection = it))
-                }
-                Column {
-                    Label(
-                        "Arpèges : remonter jusqu'à ${settings.arpeggioMaxNotes} notes et " +
-                            "${"%.1f".format(settings.arpeggioWindowMs / 1000.0)} s en arrière",
-                        Help.ARPEGGIO_WINDOW,
-                    )
-                    Slider(
-                        value = settings.arpeggioMaxNotes.toFloat(),
-                        onValueChange = { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) },
-                        valueRange = 3f..12f,
-                        steps = 8,
-                        enabled = settings.arpeggioDetection,
-                    )
-                    Slider(
-                        value = settings.arpeggioWindowMs.toFloat(),
-                        onValueChange = { onChange(settings.copy(arpeggioWindowMs = ((it / 250f).roundToInt() * 250))) },
-                        valueRange = 500f..5000f,
-                        steps = 17,
-                        enabled = settings.arpeggioDetection,
-                    )
-                }
-                Column {
-                    Label("Poids de la mélodie pour la tonalité : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT)
-                    Slider(
-                        value = settings.melodyWeightPercent.toFloat(),
-                        onValueChange = { onChange(settings.copy(melodyWeightPercent = ((it / 10f).roundToInt() * 10))) },
-                        valueRange = 0f..100f,
-                        steps = 9,
-                    )
-                }
-                Column {
-                    Label("Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY)
-                    Slider(
-                        value = settings.keyMemorySeconds.toFloat(),
-                        onValueChange = { onChange(settings.copy(keyMemorySeconds = ((it / 2f).roundToInt() * 2))) },
-                        valueRange = 4f..60f,
-                        steps = 27,
-                    )
-                }
+private fun MainArea(
+    snap: EngineSnapshot,
+    spelling: Spelling,
+    savedLayout: LayoutPrefs,
+    onLayoutChanged: (LayoutPrefs) -> Unit,
+    onClearHistory: () -> Unit,
+    onKeyClick: (Int) -> Unit,
+    modifier: Modifier,
+) {
+    var layout by remember(savedLayout) { mutableStateOf(savedLayout) }
+    val save = { onLayoutChanged(layout) }
+    BoxWithConstraints(modifier) {
+        val total = maxHeight
+        val width = maxWidth
+        val gap = 12.dp
+        val bottomH = layout.bottomHeightDp.dp.coerceIn(120.dp, maxOf(120.dp, total * 0.55f))
+        val topMax = maxOf(160.dp, total - bottomH - gap * 2 - 110.dp)
+        val topAuto = total - bottomH - gap * 2 - 170.dp
+        val topH = (if (layout.topHeightDp < 0) topAuto else layout.topHeightDp.dp).coerceIn(160.dp, topMax)
+        val ratio = layout.chordRatio.coerceIn(0.25f, 0.75f)
+        val notesW = layout.notesWidthDp.dp.coerceIn(200.dp, maxOf(200.dp, width * 0.5f))
+
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().height(topH)) {
+                CurrentChordPanel(snap.current, snap.currentAnalysis, spelling, Modifier.weight(ratio).fillMaxHeight())
+                VerticalSplitter(
+                    onDrag = { dx ->
+                        val newRatio = (ratio + dx.value / (width - gap).value).coerceIn(0.25f, 0.75f)
+                        layout = layout.copy(chordRatio = newRatio)
+                    },
+                    onDragEnd = save,
+                )
+                KeyPanel(snap.key, Modifier.weight(1f - ratio).fillMaxHeight())
             }
-        },
-    )
+            HorizontalSplitter(
+                onDrag = { dy -> layout = layout.copy(topHeightDp = (topH + dy).coerceIn(160.dp, topMax).value) },
+                onDragEnd = save,
+            )
+            HistoryPanel(snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f))
+            HorizontalSplitter(
+                onDrag = { dy ->
+                    layout = layout.copy(bottomHeightDp = (bottomH - dy).coerceIn(120.dp, maxOf(120.dp, total * 0.55f)).value)
+                },
+                onDragEnd = save,
+            )
+            Row(Modifier.fillMaxWidth().height(bottomH)) {
+                KeyboardPanel(snap, onKeyClick = onKeyClick, modifier = Modifier.weight(1f).fillMaxHeight())
+                VerticalSplitter(
+                    onDrag = { dx ->
+                        layout = layout.copy(notesWidthDp = (notesW - dx).coerceIn(200.dp, maxOf(200.dp, width * 0.5f)).value)
+                    },
+                    onDragEnd = save,
+                )
+                NotesPanel(snap, spelling, Modifier.width(notesW).fillMaxHeight())
+            }
+        }
+    }
 }
 
+/** Réglages : deux colonnes thématiques, curseurs et interrupteurs compacts. */
 @Composable
-private fun SwitchLine(label: String, help: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) { Label(label, help) }
-        Spacer(Modifier.width(12.dp))
-        Switch(checked = checked, onCheckedChange = onChange)
+private fun SettingsDialog(
+    settings: AnalysisSettings,
+    onChange: (AnalysisSettings) -> Unit,
+    onResetLayout: () -> Unit,
+    onClose: () -> Unit,
+) {
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Palette.surface,
+            border = BorderStroke(1.dp, Palette.border),
+            modifier = Modifier.width(900.dp),
+        ) {
+            Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text("Réglages", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionTitle("Reconnaissance des accords")
+                        SliderSetting(
+                            "Délai de stabilité : ${settings.stabilityMs} ms", Help.STABILITY,
+                            settings.stabilityMs.toFloat(), 20f..200f, 10f,
+                        ) { onChange(settings.copy(stabilityMs = it.roundToInt())) }
+                        val gap = settings.slashMinGap
+                        SliderSetting(
+                            if (gap == 0) "Accord sur basse : basse toujours notée"
+                            else "Accord sur basse : basse détachée d'au moins $gap demi-tons",
+                            Help.SLASH_GAP, gap.toFloat(), 0f..24f, 1f,
+                        ) { onChange(settings.copy(slashMinGap = it.roundToInt())) }
+                        SwitchSetting("Inclure les notes tenues par la pédale", Help.SUSTAIN, settings.includeSustain) {
+                            onChange(settings.copy(includeSustain = it))
+                        }
+                        SwitchSetting(
+                            "Basse fondamentale : lecture complète (Am7 plutôt que C/A)",
+                            Help.KEEP_ROOT_POSITION,
+                            settings.bassOptions.keepRootPositionReading,
+                        ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepRootPositionReading = it))) }
+                        SwitchSetting(
+                            "Dessus incomplet : compter la basse (C/E plutôt que C1+5/E)",
+                            Help.KEEP_FULL_WHEN_INCOMPLETE,
+                            settings.bassOptions.keepFullReadingWhenUpperIncomplete,
+                        ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionTitle("Accords arpégés")
+                        SwitchSetting("Reconnaître les accords arpégés", Help.ARPEGGIO, settings.arpeggioDetection) {
+                            onChange(settings.copy(arpeggioDetection = it))
+                        }
+                        SliderSetting(
+                            "Remonter jusqu'à ${settings.arpeggioMaxNotes} notes en arrière", Help.ARPEGGIO_WINDOW,
+                            settings.arpeggioMaxNotes.toFloat(), 3f..12f, 1f, enabled = settings.arpeggioDetection,
+                        ) { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) }
+                        SliderSetting(
+                            "… et au plus ${"%.2f".format(settings.arpeggioWindowMs / 1000.0).trimEnd('0').trimEnd(',', '.')} s en arrière",
+                            Help.ARPEGGIO_WINDOW,
+                            settings.arpeggioWindowMs.toFloat(), 500f..5000f, 250f, enabled = settings.arpeggioDetection,
+                        ) { onChange(settings.copy(arpeggioWindowMs = it.roundToInt())) }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Tonalité")
+                        SliderSetting(
+                            "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
+                            settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,
+                        ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
+                        SliderSetting(
+                            "Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
+                            settings.keyMemorySeconds.toFloat(), 4f..60f, 2f,
+                        ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = onResetLayout) { Text("Réinitialiser la disposition de l'écran") }
+                    HelpBubble(Help.LAYOUT)
+                    Spacer(Modifier.weight(1f))
+                    OutlinedButton(onClick = onClose) { Text("Fermer") }
+                }
+            }
+        }
     }
 }
 

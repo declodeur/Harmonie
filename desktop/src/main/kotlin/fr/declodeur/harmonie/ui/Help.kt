@@ -146,4 +146,9 @@ object Help {
         "Jusqu'où remonter pour reconnaître un arpège : nombre maximal de notes (premier curseur) et durée " +
             "maximale (second curseur). Plus loin : arpèges lents ou longs reconnus, mais risque de mélanger " +
             "deux accords successifs."
+
+    const val LAYOUT =
+        "Les frontières entre les cadres de l'écran principal se déplacent à la souris : survolez l'espace " +
+            "entre deux cadres (le curseur devient une double flèche) puis faites glisser. La disposition est " +
+            "mémorisée. Ce bouton revient à la disposition d'origine."
 }

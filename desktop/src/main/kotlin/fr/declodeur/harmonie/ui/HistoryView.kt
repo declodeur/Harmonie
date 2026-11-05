@@ -54,10 +54,10 @@ private val GROUP_FOOTER = 22.dp
  * - regroupement par tonalité, séparateur à chaque changement, espace libre à droite.
  */
 @Composable
-fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
+fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
     Panel(
         "Historique",
-        Modifier.fillMaxWidth(),
+        modifier,
         help = Help.HISTORY,
         action = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {

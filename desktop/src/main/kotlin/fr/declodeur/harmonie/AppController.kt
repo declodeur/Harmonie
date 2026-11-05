@@ -18,6 +18,17 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.prefs.Preferences
 
+/**
+ * Disposition de l'écran principal, ajustée en déplaçant les frontières des cadres.
+ * [topHeightDp] < 0 : hauteur automatique de la rangée du haut.
+ */
+data class LayoutPrefs(
+    val chordRatio: Float = 0.535f,
+    val topHeightDp: Float = -1f,
+    val bottomHeightDp: Float = 206f,
+    val notesWidthDp: Float = 330f,
+)
+
 /** Relie l'entrée MIDI, le moteur d'analyse et l'interface. */
 class AppController(scope: CoroutineScope) {
     private val prefs: Preferences = Preferences.userRoot().node("fr/declodeur/harmonie")
@@ -38,6 +49,9 @@ class AppController(scope: CoroutineScope) {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _layout = MutableStateFlow(loadLayout())
+    val layout: StateFlow<LayoutPrefs> = _layout.asStateFlow()
 
     init {
         refreshDevices(autoConnect = true)
@@ -119,6 +133,26 @@ class AppController(scope: CoroutineScope) {
         publish()
     }
 
+    fun saveLayout(l: LayoutPrefs) {
+        _layout.value = l
+        prefs.putFloat(KEY_L_RATIO, l.chordRatio)
+        prefs.putFloat(KEY_L_TOP, l.topHeightDp)
+        prefs.putFloat(KEY_L_BOTTOM, l.bottomHeightDp)
+        prefs.putFloat(KEY_L_NOTES, l.notesWidthDp)
+    }
+
+    fun resetLayout() = saveLayout(LayoutPrefs())
+
+    private fun loadLayout(): LayoutPrefs {
+        val d = LayoutPrefs()
+        return LayoutPrefs(
+            chordRatio = prefs.getFloat(KEY_L_RATIO, d.chordRatio),
+            topHeightDp = prefs.getFloat(KEY_L_TOP, d.topHeightDp),
+            bottomHeightDp = prefs.getFloat(KEY_L_BOTTOM, d.bottomHeightDp),
+            notesWidthDp = prefs.getFloat(KEY_L_NOTES, d.notesWidthDp),
+        )
+    }
+
     fun dispose() {
         midi.close()
     }
@@ -180,6 +214,10 @@ class AppController(scope: CoroutineScope) {
         const val KEY_KEY_MEMORY = "keyMemorySeconds"
         const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
         const val KEY_ARPEGGIO = "arpeggioDetection"
+        const val KEY_L_RATIO = "layoutChordRatio"
+        const val KEY_L_TOP = "layoutTopHeight"
+        const val KEY_L_BOTTOM = "layoutBottomHeight"
+        const val KEY_L_NOTES = "layoutNotesWidth"
         const val KEY_ARPEGGIO_WINDOW = "arpeggioWindowMs"
         const val KEY_ARPEGGIO_NOTES = "arpeggioMaxNotes"
     }
