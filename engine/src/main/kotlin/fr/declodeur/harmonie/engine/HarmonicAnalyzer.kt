@@ -155,6 +155,19 @@ object HarmonicAnalyzer {
             "Accord hors de $keyName. S'il se confirme, il peut annoncer une modulation.")
     }
 
+    /** Nombre de notes de l'accord hors de la gamme de la tonalité (mineur : naturel ∪ harmonique ∪ mélodique). */
+    fun notesOutsideKey(chord: ChordCandidate, key: Key): Int {
+        val scale = if (key.minor) MINOR_SCALES.flatten().toSet() else MAJOR_SCALE
+        return chord.chordPitchClasses.count { Notes.pc(it - key.tonic) !in scale }
+    }
+
+    /**
+     * L'accord sort franchement de la tonalité : au moins deux notes hors gamme, et aucune
+     * fonction ne l'explique (ni dominante secondaire, ni emprunt, ni substitution…).
+     */
+    fun breaksKey(chord: ChordCandidate, key: Key, style: MusicStyle): Boolean =
+        notesOutsideKey(chord, key) >= 2 && analyze(chord, key, style).category == HarmonicCategory.CHROMATIC
+
     /** Chiffre romain du degré + suffixe Yamaha. */
     fun numeral(interval: Int, type: ChordType): String {
         val iv = Notes.pc(interval)

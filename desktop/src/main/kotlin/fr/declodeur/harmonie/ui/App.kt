@@ -522,6 +522,11 @@ private fun SettingsDialog(
                         ) { onChange(settings.copy(arpeggioWindowMs = it.roundToInt())) }
                         Spacer(Modifier.height(4.dp))
                         SectionTitle("Tonalité")
+                        SwitchSetting(
+                            "Changement immédiat sur un accord hors tonalité",
+                            Help.FAST_KEY_CHANGE,
+                            settings.fastKeyChange,
+                        ) { onChange(settings.copy(fastKeyChange = it)) }
                         SliderSetting(
                             "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
                             settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,

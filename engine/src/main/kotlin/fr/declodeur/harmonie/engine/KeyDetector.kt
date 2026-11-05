@@ -128,6 +128,20 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         if (melodic) melody[Notes.pc(note)] += ATTACK_WEIGHT else harmony[Notes.pc(note)] += ATTACK_WEIGHT
     }
 
+    /**
+     * Rupture : un accord sort franchement de la tonalité. On oublie l'essentiel du passé
+     * (il n'en reste que [keep]) et la tonalité retenue est abandonnée, pour que la nouvelle
+     * s'impose dès cet accord.
+     */
+    fun forget(keep: Double = FORGET_KEEP) {
+        for (i in 0 until 12) {
+            harmony[i] *= keep
+            melody[i] *= keep
+        }
+        for (i in bonus.indices) bonus[i] *= keep
+        current = null
+    }
+
     /** Un accord vient d'être reconnu ; [previous] est l'accord précédent. */
     fun addChord(chord: ChordCandidate, previous: ChordCandidate?) {
         for (pc in chord.chordPitchClasses) harmony[pc] += CHORD_WEIGHT
@@ -233,6 +247,7 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         const val SOFTMAX_BETA = 30.0
         const val MIN_TOTAL_WEIGHT = 1.0
         const val COMPATIBLE_FIT = 0.97
+        const val FORGET_KEEP = 0.0
 
         /** Quantité d'indices (≈ secondes de notes cumulées) pour une confiance pleine. */
         const val FULL_EVIDENCE_WEIGHT = 40.0

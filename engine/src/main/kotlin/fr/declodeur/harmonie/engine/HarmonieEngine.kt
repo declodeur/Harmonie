@@ -36,6 +36,8 @@ data class AnalysisSettings(
     val keyMemorySeconds: Int = 12,
     /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
     val melodyWeightPercent: Int = 70,
+    /** Changement de tonalité immédiat quand un accord sort franchement de la tonalité. */
+    val fastKeyChange: Boolean = true,
     /** Reconnaître les accords arpégés quand aucun accord n'est tenu. */
     val arpeggioDetection: Boolean = true,
     /** Arpèges : on remonte au plus ce nombre de millisecondes en arrière. */
@@ -267,6 +269,10 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         current = result
         val best = result.best
         if (best != null) {
+            val key = keyEstimate?.current
+            if (settings.fastKeyChange && key != null && HarmonicAnalyzer.breaksKey(best, key, settings.style)) {
+                keyDetector.forget()
+            }
             keyDetector.addChord(best, previous)
             refreshKey()
             val last = history.lastOrNull()

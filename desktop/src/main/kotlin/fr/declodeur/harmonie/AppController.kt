@@ -173,6 +173,7 @@ class AppController(scope: CoroutineScope) {
             ),
             keyMemorySeconds = prefs.getInt(KEY_KEY_MEMORY, d.keyMemorySeconds).coerceIn(4, 60),
             melodyWeightPercent = prefs.getInt(KEY_MELODY_WEIGHT, d.melodyWeightPercent).coerceIn(0, 100),
+            fastKeyChange = prefs.getBoolean(KEY_FAST_KEY, d.fastKeyChange),
             arpeggioDetection = prefs.getBoolean(KEY_ARPEGGIO, d.arpeggioDetection),
             arpeggioWindowMs = prefs.getInt(KEY_ARPEGGIO_WINDOW, d.arpeggioWindowMs).coerceIn(500, 5000),
             arpeggioMaxNotes = prefs.getInt(KEY_ARPEGGIO_NOTES, d.arpeggioMaxNotes).coerceIn(3, 12),
@@ -190,6 +191,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_KEEP_FULL, s.bassOptions.keepFullReadingWhenUpperIncomplete)
         prefs.putInt(KEY_KEY_MEMORY, s.keyMemorySeconds)
         prefs.putInt(KEY_MELODY_WEIGHT, s.melodyWeightPercent)
+        prefs.putBoolean(KEY_FAST_KEY, s.fastKeyChange)
         prefs.putBoolean(KEY_ARPEGGIO, s.arpeggioDetection)
         prefs.putInt(KEY_ARPEGGIO_WINDOW, s.arpeggioWindowMs)
         prefs.putInt(KEY_ARPEGGIO_NOTES, s.arpeggioMaxNotes)
@@ -214,6 +216,7 @@ class AppController(scope: CoroutineScope) {
         const val KEY_KEY_MEMORY = "keyMemorySeconds"
         const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
         const val KEY_ARPEGGIO = "arpeggioDetection"
+        const val KEY_FAST_KEY = "fastKeyChange"
         const val KEY_L_RATIO = "layoutChordRatio"
         const val KEY_L_TOP = "layoutTopHeight"
         const val KEY_L_BOTTOM = "layoutBottomHeight"

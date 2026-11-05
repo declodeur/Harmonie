@@ -225,6 +225,46 @@ class HarmonyTest {
         assertTrue(pop.probabilityOf(Key(9, true)) > classical.probabilityOf(Key(9, true)) + 0.15)
     }
 
+    private val cProgression = listOf(
+        listOf(48, 52, 55), listOf(53, 57, 60), listOf(43, 47, 50, 53), listOf(48, 52, 55),
+        listOf(45, 48, 52), listOf(50, 53, 57), listOf(43, 47, 50, 53), listOf(48, 52, 55),
+    )
+
+    @Test
+    fun aChordThatClearlyLeavesTheKeyChangesItAtOnce() {
+        val fSharp = listOf(54, 58, 61)
+        val e = play(cProgression + listOf(fSharp))
+        val key = e.snapshot().key!!
+        assertTrue(key.current != cMajor, "C majeur ne doit plus être retenu après F♯")
+        assertTrue(key.probabilityOf(cMajor) < 0.02, "C majeur à ${key.probabilityOf(cMajor)}")
+        assertTrue(key.current in key.compatible, "la nouvelle tonalité doit contenir F♯")
+        val last = e.snapshot().history.last()
+        assertTrue(last.analysis?.key != cMajor, "F♯ doit être rangé dans la nouvelle tonalité")
+    }
+
+    @Test
+    fun functionalChromaticChordsDoNotChangeTheKey() {
+        val a7 = listOf(45, 49, 52, 55); val bb7 = listOf(46, 50, 53, 56); val db7 = listOf(49, 53, 56, 59)
+        val fm = listOf(53, 56, 60)
+        for (chord in listOf(a7, bb7, db7, fm)) {
+            val e = play(cProgression + listOf(chord))
+            assertEquals(cMajor, e.snapshot().key?.current, "tonalité perdue après ${chord}")
+        }
+    }
+
+    @Test
+    fun fastKeyChangeCanBeDisabled() {
+        val e = HarmonieEngine(AnalysisSettings(fastKeyChange = false))
+        var t = 0L
+        for (c in cProgression + listOf(listOf(54, 58, 61))) {
+            c.forEach { e.noteOn(0, it, 90, t) }
+            val end = t + 900
+            while (t < end) { t += 10; e.tick(t) }
+            c.forEach { e.noteOff(0, it, t) }
+        }
+        assertEquals(cMajor, e.snapshot().key?.current)
+    }
+
     @Test
     fun clearingHistoryResetsTheKey() {
         val c = listOf(48, 52, 55); val g7 = listOf(43, 47, 50, 53)

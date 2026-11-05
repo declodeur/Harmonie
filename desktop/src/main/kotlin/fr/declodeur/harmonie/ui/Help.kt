@@ -99,9 +99,16 @@ object Help {
 
     const val KEY_MEMORY =
         "Durée au bout de laquelle le poids des notes jouées est divisé par deux. Courte : l'analyse suit " +
-            "vite les modulations, mais s'égare plus facilement. Longue : plus stable, mais plus lente à suivre " +
-            "un changement de tonalité. La mémoire ne s'efface que pendant que l'on joue : un silence ne fait " +
-            "pas oublier la tonalité."
+            "vite les modulations progressives, mais s'égare plus facilement. Longue : plus stable. La mémoire " +
+            "ne s'efface que pendant que l'on joue : un silence ne fait pas oublier la tonalité. Les ruptures " +
+            "franches sont traitées à part (voir « Changement immédiat »)."
+
+    const val FAST_KEY_CHANGE =
+        "Comme à l'oreille : dès qu'un accord sort franchement de la tonalité, on sait qu'elle a changé. " +
+            "Un accord est une rupture s'il a au moins deux notes hors de la gamme et qu'aucune fonction ne " +
+            "l'explique (ni dominante secondaire, ni emprunt, ni substitution tritonique, ni diminué de passage). " +
+            "Exemple : F♯ en C majeur. La mémoire de tonalité est alors effacée et la nouvelle tonalité se " +
+            "construit à partir de cet accord. A7, Fm, B♭7 ou D♭7 en C majeur ne déclenchent rien."
 
     const val NUMERAL =
         "Chiffrage romain : degré de la fondamentale dans la tonalité, suivi du suffixe de l'accord en " +
