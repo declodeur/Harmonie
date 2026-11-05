@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -359,36 +360,44 @@ private fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
             // Accords regroupés par tonalité : un séparateur à chaque changement,
             // et sous chaque groupe un trait avec le nom de la tonalité.
             val groups = groupByKey(history)
-            Row(Modifier.horizontalScroll(scroll), verticalAlignment = Alignment.Top) {
-                groups.forEachIndexed { g, group ->
-                    if (g > 0) {
-                        Box(
-                            Modifier.padding(horizontal = 10.dp).width(1.dp).height(78.dp)
-                                .background(Palette.border),
-                        )
-                    }
-                    Column(Modifier.width(IntrinsicSize.Max)) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            group.entries.forEach { (i, entry) ->
-                                HistoryChip(entry, last = i == history.lastIndex)
-                            }
+            // Défilement ancré à droite (reverseScrolling) : le dernier accord reste toujours visible,
+            // suivi d'un espace vide de 25 % de la largeur qui symbolise l'avenir.
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val future = maxWidth * 0.25f
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(scroll, reverseScrolling = true),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    groups.forEachIndexed { g, group ->
+                        if (g > 0) {
+                            Box(
+                                Modifier.padding(horizontal = 10.dp).width(1.dp).height(78.dp)
+                                    .background(Palette.border),
+                            )
                         }
-                        Spacer(Modifier.height(6.dp))
-                        Box(
-                            Modifier.fillMaxWidth().height(2.dp)
-                                .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
-                        )
-                        Text(
-                            group.key?.name ?: "Tonalité indéterminée",
-                            modifier = Modifier.padding(top = 3.dp),
-                            fontSize = 12.sp,
-                            color = Palette.muted,
-                            maxLines = 1,
-                        )
+                        Column(Modifier.width(IntrinsicSize.Max)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                group.entries.forEach { (i, entry) ->
+                                    HistoryChip(entry, last = i == history.lastIndex)
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Box(
+                                Modifier.fillMaxWidth().height(2.dp)
+                                    .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
+                            )
+                            Text(
+                                group.key?.name ?: "Tonalité indéterminée",
+                                modifier = Modifier.padding(top = 3.dp),
+                                fontSize = 12.sp,
+                                color = Palette.muted,
+                                maxLines = 1,
+                            )
+                        }
                     }
+                    Spacer(Modifier.width(future))
                 }
             }
-            LaunchedScrollToEnd(scroll, history.size)
             Spacer(Modifier.height(8.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 LegendItem(Palette.tonic, "Tonique (T)")
@@ -441,11 +450,6 @@ private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
             )
         }
     }
-}
-
-@Composable
-private fun LaunchedScrollToEnd(scroll: androidx.compose.foundation.ScrollState, key: Int) {
-    androidx.compose.runtime.LaunchedEffect(key) { scroll.animateScrollTo(scroll.maxValue) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

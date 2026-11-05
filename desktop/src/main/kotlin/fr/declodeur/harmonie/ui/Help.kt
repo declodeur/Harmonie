@@ -60,6 +60,8 @@ object Help {
             "Un même accord rejoué n'est pas répété. Sous chaque accord : son chiffrage dans la tonalité du " +
             "moment, coloré selon sa fonction (voir la légende). Les accords sont regroupés par tonalité : un " +
             "séparateur marque chaque changement de tonalité, et le nom de la tonalité court sous ses accords. " +
+            "Le dernier accord reste toujours visible, suivi d'un espace libre pour la suite ; faites défiler " +
+            "vers la gauche (Maj + molette, ou pavé tactile) pour revoir les accords plus anciens. " +
             "« Effacer » vide l'historique et repart de zéro pour la tonalité " +
             "(utile pour commencer un nouveau morceau). Les flèches de résolution et crochets des II-V viendront " +
             "à l'étape suivante."
