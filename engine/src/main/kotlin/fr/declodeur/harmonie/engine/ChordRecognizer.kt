@@ -82,8 +82,27 @@ data class ChordCandidate(
         }
     }
 
-    /** La même lecture placée sur une autre basse (détachée). */
-    internal fun onBass(newBass: Int): ChordCandidate = copy(bass = Notes.pc(newBass), bassDetached = true)
+    /**
+     * La même lecture placée sur une autre basse (détachée), avec un score recalculé pour cette
+     * basse : bonus si c'est la fondamentale, aucune pénalité si elle est hors de l'accord
+     * (c'est justement un accord sur basse).
+     */
+    internal fun onBass(newBass: Int): ChordCandidate {
+        val b = Notes.pc(newBass)
+        val tones = chordPitchClasses
+        val oldTerm = when {
+            bass == root -> ROOT_BASS_BONUS
+            bass in tones -> 0
+            else -> FOREIGN_BASS_PENALTY
+        }
+        val newTerm = if (b == root) ROOT_BASS_BONUS else 0
+        return copy(bass = b, bassDetached = true, score = score - oldTerm + newTerm)
+    }
+
+    internal companion object {
+        const val ROOT_BASS_BONUS = 15
+        const val FOREIGN_BASS_PENALTY = -10
+    }
 }
 
 /** Exceptions à la règle « une basse détachée n'est pas comptée dans la lecture ». */
@@ -162,9 +181,11 @@ object ChordRecognizer {
             val upperIsSolid = upperBest != null && upperBest.isExact &&
                 (upperComplete || !options.keepFullReadingWhenUpperIncomplete)
             ranked = when {
-                // La lecture du dessus (C/A sous Am7) remplace la lecture complète de même nom
+                // La lecture du dessus (C/A sous Am7) remplace la lecture complète de même nom,
+                // puis tout est retrié par score (sinon FM7 sous un F grave passait en dernier).
                 rootPosition && options.keepRootPositionReading ->
                     upper.take(1).let { u -> full.filter { f -> u.none { it.symbol == f.symbol } } + u }
+                        .sortedByDescending { it.score }
                 upperIsSolid || (fullBest == null && upperBest != null) -> upper
                 else -> full
             }
@@ -209,9 +230,9 @@ object ChordRecognizer {
                     if (omitted) score -= 12
                     score -= 35 * extra.size
                     score += when {
-                        bass == root -> 15
+                        bass == root -> ChordCandidate.ROOT_BASS_BONUS
                         bass in tones -> 0
-                        else -> -10
+                        else -> ChordCandidate.FOREIGN_BASS_PENALTY
                     }
                     candidates += ChordCandidate(root, type, bass, omitted, extra, score, detached)
                 }

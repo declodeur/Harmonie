@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.5 (étapes 1 et 2)
+## Version 0.5.1 (étapes 1 et 2)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.

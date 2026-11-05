@@ -86,6 +86,33 @@ class ChordRecognizerTest {
     }
 
     @Test
+    fun doublingTheRootInTheBassKeepsTheChord() {
+        // Signalé par l'utilisateur : F3 sous F4 A4 C5 E5 donnait « F + note étrangère E »
+        val fm7 = ChordRecognizer.recognize(listOf(53, 65, 69, 72, 76), 7)
+        assertEquals("FM7", fm7.best?.symbol)
+        assertTrue(fm7.best!!.isExact)
+        // et F3 sous F4 A4 C5 D5 donnait Dm7/F au lieu de F6
+        assertEquals("F6", ChordRecognizer.recognize(listOf(53, 65, 69, 72, 74), 7).best?.symbol)
+        // la basse fondamentale garde la priorité sur la lecture du dessus
+        assertEquals("Am7", ChordRecognizer.recognize(listOf(45, 60, 64, 67, 72), 7).best?.symbol)
+    }
+
+    @Test
+    fun doublingTheRootLowNeverChangesTheChordName() {
+        for (root in 0 until 12) {
+            for (type in ChordType.entries) {
+                if (type == ChordType.ONE_PLUS_EIGHT) continue
+                val upper = type.intervals.sorted().map { 60 + root + it }
+                val expected = assertNotNull(ChordRecognizer.recognize(upper, 7).best).symbol
+                for (bass in listOf(36 + root, 48 + root)) {
+                    val got = ChordRecognizer.recognize(listOf(bass) + upper, 7).best?.symbol
+                    assertEquals(expected, got, "basse ${Notes.nameWithOctave(bass)} sous ${Notes.name(root)}${type.suffix}")
+                }
+            }
+        }
+    }
+
+    @Test
     fun detachedBassUnderAnIncompleteUpperPartKeepsTheFullReading() {
         assertEquals("C/E", ChordRecognizer.recognize(listOf(52, 60, 67), 7).best?.symbol) // E3 + C4 G4
     }

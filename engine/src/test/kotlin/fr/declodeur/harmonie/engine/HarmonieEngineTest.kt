@@ -113,6 +113,19 @@ class HarmonieEngineTest {
     }
 
     @Test
+    fun addingALowRootUnderAHeldChordKeepsTheChord() {
+        for ((top, expected) in listOf(listOf(65, 69, 72, 76) to "FM7", listOf(65, 69, 72, 74) to "F6")) {
+            val e = HarmonieEngine()
+            top.forEach { e.noteOn(0, it, 90, 0) }
+            e.tick(100)
+            assertEquals(expected, e.symbol())
+            e.noteOn(0, 53, 90, 200) // F3
+            e.tick(300)
+            assertEquals(expected, e.symbol())
+        }
+    }
+
+    @Test
     fun sameChordTwiceIsNotDuplicatedInHistory() {
         val e = HarmonieEngine()
         repeat(2) { i ->

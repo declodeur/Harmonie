@@ -99,13 +99,18 @@ fun App(controller: AppController) {
                         snap.current,
                         snap.currentAnalysis,
                         spelling,
-                        Modifier.weight(1.3f).fillMaxHeight(),
+                        Modifier.weight(1.15f).fillMaxHeight(),
                     )
                     KeyPanel(snap.key, Modifier.weight(1f).fillMaxHeight())
-                    NotesPanel(snap, spelling, Modifier.weight(0.75f).fillMaxHeight())
                 }
                 HistoryPanel(snap.history, onClear = controller::clearHistory)
-                KeyboardPanel(snap, onKeyClick = controller::toggleKey)
+                Row(
+                    Modifier.fillMaxWidth().height(246.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    KeyboardPanel(snap, onKeyClick = controller::toggleKey, modifier = Modifier.weight(1f).fillMaxHeight())
+                    NotesPanel(snap, spelling, Modifier.width(330.dp).fillMaxHeight())
+                }
                 StatusBar(connected, error)
             }
         }
@@ -449,8 +454,8 @@ private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit) {
-    Panel("Clavier", Modifier.fillMaxWidth(), help = Help.KEYBOARD) {
+private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modifier: Modifier) {
+    Panel("Clavier", modifier, help = Help.KEYBOARD) {
         PianoKeyboard(
             notes = snap.notes,
             chord = snap.current?.best,
@@ -592,7 +597,6 @@ private fun FunctionBadge(f: HarmonicFunction) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
     Panel("Tonalité probable", modifier, help = Help.KEY) {
@@ -600,28 +604,32 @@ private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
         if (estimate == null || current == null) {
             Text("Jouez quelques accords…", fontSize = 18.sp, color = Palette.muted)
         } else {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(current.name, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    "${(estimate.probabilityOf(current) * 100).roundToInt()} %",
-                    fontSize = 16.sp,
-                    color = Palette.muted,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-            }
-            Text(
-                "Relative : ${current.relative.name} · ${estimate.compatible.size} tonalité(s) compatible(s)",
-                fontSize = 13.sp,
-                color = Palette.muted,
-            )
-            Box(Modifier.fillMaxWidth().weight(1f).padding(vertical = 6.dp)) {
-                CircleOfFifths(estimate, Modifier.fillMaxSize())
-            }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                LegendItem(Palette.accent, "Probabilité")
-                LegendOutline(Palette.compatible, "Compatible")
-                LegendOutline(Palette.text, "Retenue")
+            // Texte à gauche, cercle à droite sur toute la hauteur disponible
+            Row(Modifier.fillMaxSize()) {
+                Column(Modifier.width(200.dp).fillMaxHeight()) {
+                    Text(current.name, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, lineHeight = 30.sp)
+                    Text(
+                        "${(estimate.probabilityOf(current) * 100).roundToInt()} %",
+                        fontSize = 18.sp,
+                        color = Palette.muted,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text("Relative : ${current.relative.name}", fontSize = 13.sp, color = Palette.muted)
+                    Text(
+                        "${estimate.compatible.size} tonalité(s) compatible(s)",
+                        fontSize = 13.sp,
+                        color = Palette.muted,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        LegendItem(Palette.accent, "Probabilité")
+                        LegendOutline(Palette.compatible, "Compatible")
+                        LegendOutline(Palette.text, "Retenue")
+                    }
+                }
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    CircleOfFifths(estimate, Modifier.fillMaxSize())
+                }
             }
         }
     }
