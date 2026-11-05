@@ -98,6 +98,7 @@ fun App(controller: AppController) {
                 MainArea(
                     snap = snap,
                     spelling = spelling,
+                    style = settings.style,
                     savedLayout = layoutPrefs,
                     onLayoutChanged = controller::saveLayout,
                     onClearHistory = controller::clearHistory,
@@ -405,6 +406,7 @@ private fun StatusBar(connected: String?, error: String?) {
 private fun MainArea(
     snap: EngineSnapshot,
     spelling: Spelling,
+    style: MusicStyle,
     savedLayout: LayoutPrefs,
     onLayoutChanged: (LayoutPrefs) -> Unit,
     onClearHistory: () -> Unit,
@@ -419,7 +421,7 @@ private fun MainArea(
         val gap = 12.dp
         val bottomH = layout.bottomHeightDp.dp.coerceIn(120.dp, maxOf(120.dp, total * 0.55f))
         val topMax = maxOf(160.dp, total - bottomH - gap * 2 - 110.dp)
-        val topAuto = total - bottomH - gap * 2 - 170.dp
+        val topAuto = total - bottomH - gap * 2 - 260.dp
         val topH = (if (layout.topHeightDp < 0) topAuto else layout.topHeightDp.dp).coerceIn(160.dp, topMax)
         val ratio = layout.chordRatio.coerceIn(0.25f, 0.75f)
         val notesW = layout.notesWidthDp.dp.coerceIn(200.dp, maxOf(200.dp, width * 0.5f))
@@ -440,7 +442,17 @@ private fun MainArea(
                 onDrag = { dy -> layout = layout.copy(topHeightDp = (topH + dy).coerceIn(160.dp, topMax).value) },
                 onDragEnd = save,
             )
-            HistoryPanel(snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f))
+            HistoryPanel(
+                history = snap.history,
+                predictions = snap.predictions,
+                style = style,
+                spelling = spelling,
+                futureRatio = layout.futureRatio,
+                onFutureRatio = { r -> layout = layout.copy(futureRatio = r) },
+                onFutureRatioEnd = save,
+                onClear = onClearHistory,
+                modifier = Modifier.fillMaxWidth().weight(1f),
+            )
             HorizontalSplitter(
                 onDrag = { dy ->
                     layout = layout.copy(bottomHeightDp = (bottomH - dy).coerceIn(120.dp, maxOf(120.dp, total * 0.55f)).value)
@@ -505,6 +517,34 @@ private fun SettingsDialog(
                             Help.KEEP_FULL_WHEN_INCOMPLETE,
                             settings.bassOptions.keepFullReadingWhenUpperIncomplete,
                         ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Suites probables")
+                        val pr = settings.prediction
+                        SliderSetting(
+                            "Contexte : ${pr.contextSize} accord(s) précédent(s)", Help.PREDICTION_CONTEXT,
+                            pr.contextSize.toFloat(), 1f..4f, 1f,
+                        ) { onChange(settings.copy(prediction = pr.copy(contextSize = it.roundToInt()))) }
+                        Label("Forme de l'arbre : ${pr.level1}-${pr.level2}-${pr.level3}", Help.PREDICTION_SHAPE)
+                        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Niveau 1 : ${pr.level1}", fontSize = 12.sp, color = Palette.muted)
+                                CompactSlider(pr.level1.toFloat(), { onChange(settings.copy(prediction = pr.copy(level1 = it.roundToInt()))) }, 1f..6f, 1f)
+                            }
+                            Column(Modifier.weight(1f)) {
+                                Text("Niveau 2 : ${pr.level2}", fontSize = 12.sp, color = Palette.muted)
+                                CompactSlider(pr.level2.toFloat(), { onChange(settings.copy(prediction = pr.copy(level2 = it.roundToInt()))) }, 0f..4f, 1f)
+                            }
+                            Column(Modifier.weight(1f)) {
+                                Text("Niveau 3 : ${pr.level3}", fontSize = 12.sp, color = Palette.muted)
+                                CompactSlider(
+                                    pr.level3.toFloat(),
+                                    { onChange(settings.copy(prediction = pr.copy(level3 = it.roundToInt()))) },
+                                    0f..3f,
+                                    1f,
+                                    enabled = pr.level2 > 0,
+                                )
+                            }
+                        }
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         SectionTitle("Accords arpégés")

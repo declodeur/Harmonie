@@ -65,8 +65,9 @@ object Help {
             "Crochet : II-V, un accord mineur suivi d'une dominante une quarte plus haut (Dm7 – G7).\n" +
             "Bordure pointillée : accord arpégé, reconstitué à partir de notes jouées successivement.\n\n" +
             "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
-            "la tonalité court sous ses accords. Le dernier accord reste visible, suivi d'un espace libre pour " +
-            "la suite ; Maj + molette ou pavé tactile pour revoir les accords plus anciens. « Effacer » vide " +
+            "la tonalité court sous ses accords. Le dernier accord reste visible ; Maj + molette ou pavé tactile " +
+            "pour revoir les accords plus anciens. À droite, l'avenir : l'arbre des suites probables (la " +
+            "frontière entre passé et avenir se déplace à la souris). « Effacer » vide " +
             "l'historique et remet la tonalité à zéro (nouveau morceau)."
 
     const val KEYBOARD =
@@ -158,4 +159,27 @@ object Help {
         "Les frontières entre les cadres de l'écran principal se déplacent à la souris : survolez l'espace " +
             "entre deux cadres (le curseur devient une double flèche) puis faites glisser. La disposition est " +
             "mémorisée. Ce bouton revient à la disposition d'origine."
+
+    const val PREDICTIONS =
+        "Les accords qui peuvent suivre, en éventail : au premier niveau les suites les plus probables, " +
+            "avec leur pourcentage et un mini clavier qui montre comment les jouer ; puis, pour chacune, les " +
+            "suites suivantes. L'intensité de chaque case suit la probabilité du chemin ; le chiffrage est " +
+            "coloré selon la fonction.\n\n" +
+            "C'est une estimation fondée sur la théorie (en attendant un corpus de morceaux) : une table " +
+            "d'enchaînements par style et par mode (pop/rock, jazz, blues, classique), des règles de contexte " +
+            "(un II-V appelle son I, une dominante secondaire sa cible, une substitution tritonique résout un " +
+            "demi-ton plus bas) et la mémoire du morceau : si les derniers accords ont déjà été joués dans le " +
+            "même ordre, ce qui les suivait devient plus probable.\n\n" +
+            "Mini clavier : la position choisie bouge le moins possible depuis l'accord que vous jouez " +
+            "(conduite des voix minimale). Couleurs comme sur le grand clavier."
+
+    const val PREDICTION_CONTEXT =
+        "Nombre d'accords précédents pris en compte pour prédire la suite (1 à 4). Avec 1, seul l'accord " +
+            "courant compte ; avec plus, les enchaînements typiques (II-V-I) et les boucles du morceau déjà " +
+            "jouées sont mieux reconnus."
+
+    const val PREDICTION_SHAPE =
+        "Nombre de propositions à chaque niveau de l'arbre : niveau 1 = accords qui peuvent suivre tout de " +
+            "suite (avec mini clavier), niveau 2 = suites de chacun, niveau 3 = suite de ces suites. 0 au " +
+            "niveau 2 n'affiche que le premier niveau. Par défaut 4-2-1."
 }

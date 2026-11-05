@@ -6,6 +6,7 @@ import fr.declodeur.harmonie.engine.BassReadingOptions
 import fr.declodeur.harmonie.engine.EngineSnapshot
 import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
+import fr.declodeur.harmonie.engine.PredictionSettings
 import fr.declodeur.harmonie.midi.MidiInputInfo
 import fr.declodeur.harmonie.midi.MidiInputManager
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,8 @@ data class LayoutPrefs(
     val topHeightDp: Float = -1f,
     val bottomHeightDp: Float = 206f,
     val notesWidthDp: Float = 330f,
+    /** Part de la largeur de l'historique réservée à l'avenir (arbre des suites). */
+    val futureRatio: Float = 0.4f,
 )
 
 /** Relie l'entrée MIDI, le moteur d'analyse et l'interface. */
@@ -139,6 +142,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putFloat(KEY_L_TOP, l.topHeightDp)
         prefs.putFloat(KEY_L_BOTTOM, l.bottomHeightDp)
         prefs.putFloat(KEY_L_NOTES, l.notesWidthDp)
+        prefs.putFloat(KEY_L_FUTURE, l.futureRatio)
     }
 
     fun resetLayout() = saveLayout(LayoutPrefs())
@@ -150,6 +154,7 @@ class AppController(scope: CoroutineScope) {
             topHeightDp = prefs.getFloat(KEY_L_TOP, d.topHeightDp),
             bottomHeightDp = prefs.getFloat(KEY_L_BOTTOM, d.bottomHeightDp),
             notesWidthDp = prefs.getFloat(KEY_L_NOTES, d.notesWidthDp),
+            futureRatio = prefs.getFloat(KEY_L_FUTURE, d.futureRatio),
         )
     }
 
@@ -177,6 +182,12 @@ class AppController(scope: CoroutineScope) {
             arpeggioDetection = prefs.getBoolean(KEY_ARPEGGIO, d.arpeggioDetection),
             arpeggioWindowMs = prefs.getInt(KEY_ARPEGGIO_WINDOW, d.arpeggioWindowMs).coerceIn(500, 5000),
             arpeggioMaxNotes = prefs.getInt(KEY_ARPEGGIO_NOTES, d.arpeggioMaxNotes).coerceIn(3, 12),
+            prediction = PredictionSettings(
+                contextSize = prefs.getInt(KEY_P_CONTEXT, d.prediction.contextSize).coerceIn(1, 4),
+                level1 = prefs.getInt(KEY_P_L1, d.prediction.level1).coerceIn(1, 6),
+                level2 = prefs.getInt(KEY_P_L2, d.prediction.level2).coerceIn(0, 4),
+                level3 = prefs.getInt(KEY_P_L3, d.prediction.level3).coerceIn(0, 3),
+            ),
         )
     }
 
@@ -195,6 +206,10 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_ARPEGGIO, s.arpeggioDetection)
         prefs.putInt(KEY_ARPEGGIO_WINDOW, s.arpeggioWindowMs)
         prefs.putInt(KEY_ARPEGGIO_NOTES, s.arpeggioMaxNotes)
+        prefs.putInt(KEY_P_CONTEXT, s.prediction.contextSize)
+        prefs.putInt(KEY_P_L1, s.prediction.level1)
+        prefs.putInt(KEY_P_L2, s.prediction.level2)
+        prefs.putInt(KEY_P_L3, s.prediction.level3)
     }
 
     private object ShortCommands {
@@ -221,6 +236,11 @@ class AppController(scope: CoroutineScope) {
         const val KEY_L_TOP = "layoutTopHeight"
         const val KEY_L_BOTTOM = "layoutBottomHeight"
         const val KEY_L_NOTES = "layoutNotesWidth"
+        const val KEY_L_FUTURE = "layoutFutureRatio"
+        const val KEY_P_CONTEXT = "predictionContext"
+        const val KEY_P_L1 = "predictionLevel1"
+        const val KEY_P_L2 = "predictionLevel2"
+        const val KEY_P_L3 = "predictionLevel3"
         const val KEY_ARPEGGIO_WINDOW = "arpeggioWindowMs"
         const val KEY_ARPEGGIO_NOTES = "arpeggioMaxNotes"
     }

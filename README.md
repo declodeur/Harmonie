@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.6.2 (étapes 1 à 3)
+## Version 0.7 (étapes 1 à 4)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -28,6 +28,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Options pour les deux exceptions de lecture de la basse détachée.
 - Frontières des cadres déplaçables à la souris (disposition mémorisée) ; réglages compacts en deux colonnes.
 - Historique annoté : flèche pleine (dominante qui résout une quinte plus bas), flèche pointillée (substitution tritonique), crochet sous les II-V, bordure pointillée des accords arpégés.
+- Arbre des suites probables à droite de l'historique (forme réglable, 4-2-1 par défaut) : modèle théorique par style et mode, règles de contexte (II-V, dominantes, substitutions), mémoire des boucles du morceau sur 1 à 4 accords, mini clavier avec conduite des voix minimale.
 - Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
 ## Organisation
@@ -41,7 +42,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 1. ~~Squelette, entrée MIDI, clavier, accord courant~~
 2. ~~Tonalité probable et chiffrage romain~~
 3. ~~Historique annoté (flèches, crochets II-V, accords tenus / arpégés)~~
-4. Arbre des accords suivants (modèle théorique par style, puis statistique)
+4. ~~Arbre des accords suivants (modèle théorique par style)~~ ; statistiques réelles avec le futur corpus
 5. Analyses avancées : gammes d'accord, conduite des voix, voicings, séparation harmonie / mélodie
 
 Backlog : outil de création de corpus (à partir de fichiers MIDI) pour les statistiques d'enchaînements ; choix dièses / bémols pour les tonalités et accords enharmoniques (F♯ / G♭…).

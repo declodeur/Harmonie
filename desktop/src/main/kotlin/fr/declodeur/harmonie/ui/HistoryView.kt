@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.declodeur.harmonie.engine.HistoryEntry
+import fr.declodeur.harmonie.engine.MusicStyle
+import fr.declodeur.harmonie.engine.PredictionNode
 import fr.declodeur.harmonie.engine.Key
 import fr.declodeur.harmonie.engine.Resolution
 import fr.declodeur.harmonie.engine.Spelling
@@ -54,7 +58,17 @@ private val GROUP_FOOTER = 22.dp
  * - regroupement par tonalité, séparateur à chaque changement, espace libre à droite.
  */
 @Composable
-fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
+fun HistoryPanel(
+    history: List<HistoryEntry>,
+    predictions: List<PredictionNode>,
+    style: MusicStyle,
+    spelling: Spelling,
+    futureRatio: Float,
+    onFutureRatio: (Float) -> Unit,
+    onFutureRatioEnd: () -> Unit,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+) {
     Panel(
         "Historique",
         modifier,
@@ -73,49 +87,67 @@ fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Mod
             }
         },
     ) {
-        if (history.isEmpty()) {
-            Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
-        } else {
-            val scroll = rememberScrollState()
-            val groups = groupByKey(history)
-            // Défilement ancré à droite : le dernier accord reste visible, suivi de 25 % d'espace libre.
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val future = maxWidth * 0.25f
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(scroll, reverseScrolling = true),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    groups.forEachIndexed { g, group ->
-                        if (g > 0) Connector(group.entries.first().value, keyChange = true)
-                        Column(Modifier.width(IntrinsicSize.Max)) {
-                            Row {
-                                group.entries.forEachIndexed { j, (i, entry) ->
-                                    if (j > 0) Connector(entry, keyChange = false)
-                                    AnnotatedChip(
-                                        entry = entry,
-                                        opensTwoFive = history.getOrNull(i + 1)?.closesTwoFive == true,
-                                        last = i == history.lastIndex,
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.height(2.dp))
-                            Box(
-                                Modifier.fillMaxWidth().height(2.dp)
-                                    .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
-                            )
-                            Text(
-                                group.key?.name ?: "Tonalité indéterminée",
-                                modifier = Modifier.padding(top = 2.dp),
-                                fontSize = 12.sp,
-                                color = Palette.muted,
-                                maxLines = 1,
-                            )
-                        }
+        // À gauche le passé (défilement ancré à droite), à droite l'avenir : l'arbre des suites.
+        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
+            val width = maxWidth
+            val ratio = futureRatio.coerceIn(0.2f, 0.7f)
+            val futureW = width * ratio
+            val pastW = (width - futureW - 12.dp).coerceAtLeast(0.dp)
+            Row(Modifier.fillMaxSize()) {
+                Box(Modifier.width(pastW).fillMaxHeight()) {
+                    if (history.isEmpty()) {
+                        Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
+                    } else {
+                        PastChords(history)
                     }
-                    Spacer(Modifier.width(future))
                 }
+                VerticalSplitter(
+                    onDrag = { dx -> onFutureRatio((ratio - dx.value / width.value).coerceIn(0.2f, 0.7f)) },
+                    onDragEnd = onFutureRatioEnd,
+                )
+                PredictionTree(predictions, style, spelling, Modifier.width(futureW).fillMaxHeight())
             }
         }
+    }
+}
+
+/** Les accords joués, regroupés par tonalité, le plus récent toujours visible à droite. */
+@Composable
+private fun PastChords(history: List<HistoryEntry>) {
+    val scroll = rememberScrollState()
+    val groups = groupByKey(history)
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(scroll, reverseScrolling = true),
+        verticalAlignment = Alignment.Top,
+    ) {
+        groups.forEachIndexed { g, group ->
+            if (g > 0) Connector(group.entries.first().value, keyChange = true)
+            Column(Modifier.width(IntrinsicSize.Max)) {
+                Row {
+                    group.entries.forEachIndexed { j, (i, entry) ->
+                        if (j > 0) Connector(entry, keyChange = false)
+                        AnnotatedChip(
+                            entry = entry,
+                            opensTwoFive = history.getOrNull(i + 1)?.closesTwoFive == true,
+                            last = i == history.lastIndex,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(2.dp))
+                Box(
+                    Modifier.fillMaxWidth().height(2.dp)
+                        .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
+                )
+                Text(
+                    group.key?.name ?: "Tonalité indéterminée",
+                    modifier = Modifier.padding(top = 2.dp),
+                    fontSize = 12.sp,
+                    color = Palette.muted,
+                    maxLines = 1,
+                )
+            }
+        }
+        Spacer(Modifier.width(16.dp))
     }
 }
 

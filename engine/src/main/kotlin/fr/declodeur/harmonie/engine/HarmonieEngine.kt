@@ -44,6 +44,8 @@ data class AnalysisSettings(
     val arpeggioWindowMs: Int = 2000,
     /** Arpèges : on remonte au plus ce nombre de notes en arrière. */
     val arpeggioMaxNotes: Int = 6,
+    /** Prédictions : forme de l'arbre et taille du contexte. */
+    val prediction: PredictionSettings = PredictionSettings(),
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -108,6 +110,8 @@ data class EngineSnapshot(
     val key: KeyEstimate?,
     /** Accords successifs, du plus ancien au plus récent. */
     val history: List<HistoryEntry>,
+    /** Arbre des suites probables (vide tant que la tonalité est inconnue). */
+    val predictions: List<PredictionNode> = emptyList(),
 )
 
 /**
@@ -149,6 +153,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     private var burstLastMs = 0L
     private var keyEstimate: KeyEstimate? = null
     private var keySignature: String = EMPTY_KEY_SIGNATURE
+    private var predictions: List<PredictionNode> = emptyList()
     private var lastKeyRefreshMs = Long.MIN_VALUE / 2
 
     @Synchronized
@@ -194,6 +199,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         attackSinceCommit = true
         peakSet = emptySet()
         analysisSet = emptySet()
+        recomputePredictions()
         onChange(nowMs)
     }
 
@@ -215,6 +221,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         burst.clear()
         keyEstimate = null
         keySignature = EMPTY_KEY_SIGNATURE
+        predictions = emptyList()
         version++
     }
 
@@ -289,7 +296,22 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 while (history.size > MAX_HISTORY) history.removeFirst()
             }
         }
+        recomputePredictions()
         return true
+    }
+
+    /** Recalcule l'arbre des suites probables d'après l'historique et la tonalité retenue. */
+    private fun recomputePredictions() {
+        val key = keyEstimate?.current
+        val cur = current
+        if (key == null || cur?.best == null) {
+            predictions = emptyList()
+            return
+        }
+        val degrees = history.mapNotNull { it.chord.best?.let { b -> Predictor.degreeOf(b, key) } }
+        // Notes de départ pour la conduite des voix : l'accord joué, sans une basse détachée
+        val notes = cur.notes.let { n -> if (n.size >= 4 && n[1] - n[0] >= 7) n.drop(1) else n }
+        predictions = Predictor.tree(degrees, key, settings.style, settings.prediction, notes)
     }
 
     /**
@@ -321,7 +343,9 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
             .joinToString { it.key.name + ":" + (it.probability * 100).toInt() }
         keyEstimate = if (estimate.ranking.isEmpty()) keyEstimate else estimate
         if (signature == keySignature) return false
+        val keyChanged = keySignature.substringBefore('|') != signature.substringBefore('|')
         keySignature = signature
+        if (keyChanged) recomputePredictions()
         return true
     }
 
@@ -342,7 +366,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
             )
         }
         val currentAnalysis = current?.best?.let { analyze(it) }
-        return EngineSnapshot(version, notes, current, currentAnalysis, keyEstimate, history.toList())
+        return EngineSnapshot(version, notes, current, currentAnalysis, keyEstimate, history.toList(), predictions)
     }
 
     private fun isChordChannel(channel: Int): Boolean =
