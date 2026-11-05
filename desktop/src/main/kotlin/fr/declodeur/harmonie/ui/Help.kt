@@ -51,9 +51,10 @@ object Help {
             "ce choix dans les versions suivantes."
 
     const val NOTES =
-        "Chaque note qui sonne, avec son degré dans l'accord : 1 = fondamentale, 3 ou ♭3 = tierce majeure " +
-            "ou mineure, 5 = quinte, 7 ou ♭7 = septième majeure ou mineure, 9 / 11 / 13 = tensions " +
-            "(notes ajoutées au-dessus de la septième). « pédale » : touche relâchée, note tenue par la pédale."
+        "Les notes de l'accord, avec leur octave (C4 = do central) et leur degré : 1 = fondamentale, 3 ou ♭3 = " +
+            "tierce majeure ou mineure, 5 = quinte, 7 ou ♭7 = septième majeure ou mineure, 9 / 11 / 13 = tensions " +
+            "(notes ajoutées au-dessus de la septième). Couleurs comme sur le clavier ; couleur pâle : note tenue " +
+            "par la pédale. En mode « Accords + mélodie », les notes de la mélodie s'affichent en dessous, en vert."
 
     const val HISTORY =
         "Les accords reconnus successivement, du plus ancien (à gauche) au plus récent (encadré). Un même " +
@@ -66,8 +67,7 @@ object Help {
             "Bordure pointillée : accord arpégé, reconstitué à partir de notes jouées successivement.\n\n" +
             "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
             "la tonalité court sous ses accords. Le dernier accord reste visible ; Maj + molette ou pavé tactile " +
-            "pour revoir les accords plus anciens. À droite, l'avenir : l'arbre des suites probables (la " +
-            "frontière entre passé et avenir se déplace à la souris). « Effacer » vide " +
+            "pour revoir les accords plus anciens. « Effacer » vide " +
             "l'historique et remet la tonalité à zéro (nouveau morceau)."
 
     const val KEYBOARD =
@@ -182,4 +182,9 @@ object Help {
         "Nombre de propositions à chaque niveau de l'arbre : niveau 1 = accords qui peuvent suivre tout de " +
             "suite (avec mini clavier), niveau 2 = suites de chacun, niveau 3 = suite de ces suites. 0 au " +
             "niveau 2 n'affiche que le premier niveau. Par défaut 4-2-1."
+
+    const val MINI_KEYBOARDS =
+        "Affiche sous chaque proposition du premier niveau un mini clavier montrant une position à jouer, " +
+            "choisie pour bouger le moins possible depuis l'accord courant. Masqué par défaut pour gagner de " +
+            "la place et de la lisibilité."
 }

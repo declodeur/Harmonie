@@ -30,6 +30,8 @@ data class PredictionSettings(
     val level1: Int = 4,
     val level2: Int = 2,
     val level3: Int = 1,
+    /** Afficher un mini clavier sous les propositions du premier niveau (masqué par défaut). */
+    val showMiniKeyboards: Boolean = false,
 )
 
 /**

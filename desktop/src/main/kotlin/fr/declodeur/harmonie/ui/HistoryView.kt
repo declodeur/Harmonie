@@ -58,17 +58,7 @@ private val GROUP_FOOTER = 22.dp
  * - regroupement par tonalité, séparateur à chaque changement, espace libre à droite.
  */
 @Composable
-fun HistoryPanel(
-    history: List<HistoryEntry>,
-    predictions: List<PredictionNode>,
-    style: MusicStyle,
-    spelling: Spelling,
-    futureRatio: Float,
-    onFutureRatio: (Float) -> Unit,
-    onFutureRatioEnd: () -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth(),
-) {
+fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
     Panel(
         "Historique",
         modifier,
@@ -87,26 +77,10 @@ fun HistoryPanel(
             }
         },
     ) {
-        // À gauche le passé (défilement ancré à droite), à droite l'avenir : l'arbre des suites.
-        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
-            val width = maxWidth
-            val ratio = futureRatio.coerceIn(0.2f, 0.7f)
-            val futureW = width * ratio
-            val pastW = (width - futureW - 12.dp).coerceAtLeast(0.dp)
-            Row(Modifier.fillMaxSize()) {
-                Box(Modifier.width(pastW).fillMaxHeight()) {
-                    if (history.isEmpty()) {
-                        Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
-                    } else {
-                        PastChords(history)
-                    }
-                }
-                VerticalSplitter(
-                    onDrag = { dx -> onFutureRatio((ratio - dx.value / width.value).coerceIn(0.2f, 0.7f)) },
-                    onDragEnd = onFutureRatioEnd,
-                )
-                PredictionTree(predictions, style, spelling, Modifier.width(futureW).fillMaxHeight())
-            }
+        if (history.isEmpty()) {
+            Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
+        } else {
+            PastChords(history)
         }
     }
 }

@@ -54,27 +54,34 @@ private data class Placed(val node: PredictionNode, val level: Int, val x: Dp, v
  * mini clavier (comment jouer l'accord), niveaux suivants plus petits. L'intensité de chaque
  * case suit la probabilité du chemin ; le chiffrage est coloré selon la fonction.
  */
+/** Cadre « Suites probables » : l'arbre part du bord gauche, c'est-à-dire de l'accord courant. */
 @Composable
-fun PredictionTree(nodes: List<PredictionNode>, style: MusicStyle, spelling: Spelling, modifier: Modifier = Modifier) {
-    Column(modifier.padding(start = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Suites probables · estimation (${style.label})", fontSize = 12.sp, color = Palette.muted)
-            Spacer(Modifier.width(6.dp))
-            HelpBubble(Help.PREDICTIONS)
-        }
+fun PredictionPanel(
+    nodes: List<PredictionNode>,
+    style: MusicStyle,
+    spelling: Spelling,
+    showMiniKeyboards: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Panel(
+        "Suites probables",
+        modifier,
+        help = Help.PREDICTIONS,
+        action = { Text("estimation · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
+    ) {
         if (nodes.isEmpty()) {
-            Text("Jouez quelques accords…", fontSize = 13.sp, color = Palette.muted, modifier = Modifier.padding(top = 8.dp))
+            Text("Jouez quelques accords…", fontSize = 15.sp, color = Palette.muted)
         } else {
-            TreeBody(nodes, spelling)
+            TreeBody(nodes, spelling, showMiniKeyboards)
         }
     }
 }
 
 @Composable
-private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling) {
+private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling, showMiniKeyboards: Boolean) {
     run {
         BoxWithConstraints(Modifier.fillMaxSize().padding(top = 4.dp).clipToBounds()) {
-            val placed = layoutTree(nodes, maxHeight)
+            val placed = layoutTree(nodes, maxHeight, maxWidth, showMiniKeyboards)
             val top1 = nodes.maxOf { it.pathProbability }.coerceAtLeast(1e-9)
 
             // Liens entre les cases
@@ -110,7 +117,7 @@ private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling) {
                     if (p.level == 1) {
                         Column {
                             FirstLevelChip(p.node, alpha, spelling, Modifier.size(p.w, CHIP1_H))
-                            if (p.h >= CHIP1_H + KEYBOARD_H + 4.dp && p.node.voicing.isNotEmpty()) {
+                            if (showMiniKeyboards && p.h >= CHIP1_H + KEYBOARD_H + 4.dp && p.node.voicing.isNotEmpty()) {
                                 Spacer(Modifier.size(4.dp))
                                 MiniKeyboard(p.node, Modifier.size(p.w, KEYBOARD_H))
                             }
@@ -125,33 +132,39 @@ private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling) {
 }
 
 /** Calcule la position de chaque case : chaque branche du premier niveau occupe une bande verticale. */
-private fun layoutTree(nodes: List<PredictionNode>, height: Dp): List<Placed> {
+private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showKeyboards: Boolean): List<Placed> {
     val rowsPerBranch = nodes.map { n -> maxOf(1, n.children.size) }
     val totalRows = rowsPerBranch.sum()
     val withKeyboard = CHIP1_H + KEYBOARD_H + 6.dp
     // Hauteur d'une ligne de petites cases, et place pour le mini clavier si possible
-    var rowH = (height / totalRows).coerceIn(18.dp, 30.dp)
-    var blockMin = withKeyboard
+    var rowH = (height / totalRows).coerceIn(18.dp, 34.dp)
+    var blockMin = if (showKeyboards) withKeyboard else CHIP1_H + 4.dp
     fun total() = rowsPerBranch.fold(0.dp) { acc, r -> acc + maxOf(rowH * r, blockMin) }
     if (total() > height) blockMin = CHIP1_H + 4.dp
     if (total() > height) rowH = ((height - 0.dp) / totalRows).coerceAtLeast(14.dp)
 
-    val x1 = LEFT_MARGIN
-    val x2 = x1 + COL1_W + GAP_12
-    val x3 = x2 + COL2_W + GAP_23
+    // Colonnes élargies quand la place le permet (jusqu'à +60 %)
+    val natural = LEFT_MARGIN + COL1_W + GAP_12 + COL2_W + GAP_23 + COL3_W
+    val k = (width / natural).coerceIn(1f, 1.6f)
+    val w1 = COL1_W * k
+    val w2 = COL2_W * k
+    val w3 = COL3_W * k
+    val x1 = LEFT_MARGIN * k
+    val x2 = x1 + w1 + GAP_12 * k
+    val x3 = x2 + w2 + GAP_23 * k
     val result = mutableListOf<Placed>()
     var y = 0.dp
     nodes.forEachIndexed { i, n ->
         val bandH = maxOf(rowH * rowsPerBranch[i], blockMin)
-        result += Placed(n, 1, x1, y, COL1_W, bandH)
+        result += Placed(n, 1, x1, y, w1, bandH)
         val i1 = result.lastIndex
         val childH = (rowH - 4.dp).coerceAtLeast(14.dp)
         val childrenTop = y + (bandH - rowH * n.children.size) / 2
         n.children.forEachIndexed { j, c ->
             val cy = childrenTop + rowH * j + 2.dp
-            result += Placed(c, 2, x2, cy, COL2_W, childH, parent = i1)
+            result += Placed(c, 2, x2, cy, w2, childH, parent = i1)
             val i2 = result.lastIndex
-            c.children.firstOrNull()?.let { g -> result += Placed(g, 3, x3, cy, COL3_W, childH, parent = i2) }
+            c.children.firstOrNull()?.let { g -> result += Placed(g, 3, x3, cy, w3, childH, parent = i2) }
         }
         y += bandH
     }
