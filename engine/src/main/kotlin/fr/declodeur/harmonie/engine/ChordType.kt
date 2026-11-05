@@ -60,8 +60,11 @@ enum class ChordType(
 
     val intervals: Set<Int> = ivs.toSet()
 
-    /** La quinte juste peut manquer (voicing courant) pour les accords de 4 sons et plus. */
-    val canOmitFifth: Boolean = 7 in intervals && intervals.size >= 4
+    /**
+     * La quinte juste peut manquer (voicing courant) pour les accords de 4 sons et plus.
+     * Pas pour 6 et m6 : sans quinte, ce ne sont que des renversements d'accords parfaits.
+     */
+    val canOmitFifth: Boolean = 7 in intervals && intervals.size >= 4 && suffix != "6" && suffix != "m6"
 
     private val labels: Map<Int, String> = DEFAULT_LABELS + labelOverrides
 

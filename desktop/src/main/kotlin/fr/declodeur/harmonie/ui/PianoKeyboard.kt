@@ -16,6 +16,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.declodeur.harmonie.engine.ChordCandidate
 import fr.declodeur.harmonie.engine.Notes
@@ -108,11 +109,14 @@ fun PianoKeyboard(
             if (c != null) drawKey(r, c)
             drawRect(Palette.keyBorder, r.topLeft, r.size, style = Stroke(1f))
             if (Notes.pc(n) == 0) {
+                // Étiquette mesurée puis centrée en bas de la touche (quelle que soit l'échelle Windows)
+                val layout = measurer.measure(Notes.nameWithOctave(n), labelStyle)
                 drawText(
-                    measurer,
-                    Notes.nameWithOctave(n),
-                    topLeft = Offset(r.left + 2f, r.bottom - 16f),
-                    style = labelStyle,
+                    layout,
+                    topLeft = Offset(
+                        r.left + (r.width - layout.size.width) / 2f,
+                        r.bottom - layout.size.height - 4.dp.toPx(),
+                    ),
                 )
             }
         }

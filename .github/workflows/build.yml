@@ -45,6 +45,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "build-${{ github.run_number }}" "Harmonie-windows-build-${{ github.run_number }}.zip" \
-            --title "Harmonie 0.1 (build ${{ github.run_number }})" \
+            --title "Harmonie (build ${{ github.run_number }})" \
             --notes "Compilation automatique du commit ${{ github.sha }}. Dézippez, puis lancez Harmonie\\Harmonie.exe." \
             --target "${{ github.sha }}"

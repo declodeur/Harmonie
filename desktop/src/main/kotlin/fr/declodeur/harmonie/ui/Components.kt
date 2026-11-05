@@ -1,7 +1,13 @@
 package fr.declodeur.harmonie.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.TooltipPlacement
 import androidx.compose.foundation.border
@@ -59,12 +65,29 @@ fun HelpBubble(text: String) {
         delayMillis = 250,
         tooltipPlacement = TooltipPlacement.CursorPoint(offset = DpOffset(8.dp, 16.dp)),
     ) {
-        Box(
-            Modifier.size(18.dp).border(1.dp, Palette.muted, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("?", fontSize = 11.sp, color = Palette.muted)
+        HelpIcon(Modifier.size(18.dp))
+    }
+}
+
+/**
+ * Icône « ? » dessinée (cercle + point d'interrogation tracé), pour être parfaitement
+ * centrée quelle que soit la police du système.
+ */
+@Composable
+private fun HelpIcon(modifier: Modifier) {
+    Canvas(modifier) {
+        val s = size.minDimension
+        val c = Offset(size.width / 2, size.height / 2)
+        val stroke = s * 0.085f
+        drawCircle(Palette.muted, radius = s / 2 - stroke / 2, center = c, style = Stroke(stroke))
+        val r = s * 0.15f
+        val arcCenter = Offset(c.x, c.y - s * 0.11f)
+        val hook = Path().apply {
+            addArc(Rect(arcCenter, r), 180f, 270f)
+            lineTo(c.x, arcCenter.y + r + s * 0.09f)
         }
+        drawPath(hook, Palette.muted, style = Stroke(stroke, cap = StrokeCap.Round))
+        drawCircle(Palette.muted, radius = stroke * 0.7f, center = Offset(c.x, c.y + s * 0.27f))
     }
 }
 

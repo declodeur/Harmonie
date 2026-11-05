@@ -130,6 +130,7 @@ class AppController(scope: CoroutineScope) {
             chordChannel = prefs.getInt(KEY_CHANNEL, d.chordChannel).coerceIn(0, 15),
             stabilityMs = prefs.getInt(KEY_STABILITY, d.stabilityMs).coerceIn(20, 200),
             includeSustain = prefs.getBoolean(KEY_SUSTAIN, d.includeSustain),
+            slashMinGap = prefs.getInt(KEY_SLASH_GAP, d.slashMinGap).coerceIn(0, 24),
         )
     }
 
@@ -139,6 +140,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putInt(KEY_CHANNEL, s.chordChannel)
         prefs.putInt(KEY_STABILITY, s.stabilityMs)
         prefs.putBoolean(KEY_SUSTAIN, s.includeSustain)
+        prefs.putInt(KEY_SLASH_GAP, s.slashMinGap)
     }
 
     private object ShortCommands {
@@ -154,5 +156,6 @@ class AppController(scope: CoroutineScope) {
         const val KEY_CHANNEL = "chordChannel"
         const val KEY_STABILITY = "stabilityMs"
         const val KEY_SUSTAIN = "includeSustain"
+        const val KEY_SLASH_GAP = "slashMinGap"
     }
 }

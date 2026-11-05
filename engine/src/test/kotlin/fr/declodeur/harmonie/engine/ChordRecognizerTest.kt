@@ -45,6 +45,26 @@ class ChordRecognizerTest {
     }
 
     @Test
+    fun closeInversionIsWrittenWithoutSlash() {
+        val r = ChordRecognizer.recognize(listOf(67, 72, 75), slashMinGap = 7) // G4 C5 E♭5
+        val b = assertNotNull(r.best)
+        assertEquals("Cm", b.symbol)
+        assertTrue(!b.bassDetached)
+        assertEquals("2e renversement (quinte à la basse)", b.inversion)
+        assertTrue(r.alternatives.none { it.symbol.startsWith("E♭6") }, "E♭6 sans quinte ne doit plus apparaître")
+    }
+
+    @Test
+    fun detachedBassIsWrittenWithSlash() {
+        assertEquals("Cm/G", ChordRecognizer.recognize(listOf(43, 60, 63, 67), 7).best?.symbol) // G2 + C4 E♭4 G4
+        assertEquals("C/E", ChordRecognizer.recognize(listOf(52, 60, 67), 7).best?.symbol) // écart 8
+        assertEquals("C/E", ChordRecognizer.recognize(listOf(52, 60, 67), 8).best?.symbol) // écart = seuil
+        assertEquals("C", ChordRecognizer.recognize(listOf(52, 60, 67), 9).best?.symbol)
+        // Basse doublée à l'octave : on mesure jusqu'à la première note d'un autre nom
+        assertEquals("Cm/G", ChordRecognizer.recognize(listOf(55, 67, 72, 75), 7).best?.symbol)
+    }
+
+    @Test
     fun secondAndThirdInversions() {
         assertEquals("2e renversement (quinte à la basse)", best(55, 60, 64).inversion)
         assertEquals("3e renversement (septième à la basse)", best(58, 60, 64, 67).inversion)

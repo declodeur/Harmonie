@@ -14,12 +14,17 @@ data class ChordCandidate(
     /** Classes de hauteur jouées qui n'appartiennent pas à l'accord. */
     val extraNotes: Set<Int>,
     val score: Int,
+    /**
+     * La basse est assez éloignée du reste de l'accord pour être notée (« /E »).
+     * Sinon l'accord est noté comme à l'état fondamental, même s'il est renversé.
+     */
+    val bassDetached: Boolean = true,
 ) {
     val isExact: Boolean get() = !omittedFifth && extraNotes.isEmpty()
     val rootName: String get() = Notes.name(root)
 
-    /** Basse d'un accord renversé ou sur basse (« /E »), sinon null. */
-    val slash: String? get() = if (bass != root) Notes.name(bass) else null
+    /** Basse notée d'un accord sur basse (« /E »), sinon null. */
+    val slash: String? get() = if (bass != root && bassDetached) Notes.name(bass) else null
 
     /** Symbole complet en notation Yamaha, par exemple « CM7 », « Am7/G ». */
     val symbol: String get() = rootName + type.suffix + (slash?.let { "/$it" } ?: "")
@@ -94,16 +99,24 @@ object ChordRecognizer {
     private const val MAX_EXTRA = 1
     private const val ALT_WINDOW = 20
 
-    fun recognize(notes: Collection<Int>): ChordResult {
+    /**
+     * [slashMinGap] : écart minimal, en demi-tons, entre la note la plus grave et la note
+     * suivante (d'un autre nom) pour que la basse soit notée (accord sur basse « Cm/G »).
+     * En dessous, un renversement serré est noté comme l'accord à l'état fondamental.
+     * 0 : la basse est toujours notée.
+     */
+    fun recognize(notes: Collection<Int>, slashMinGap: Int = 0): ChordResult {
         val sorted = notes.distinct().sorted()
         if (sorted.isEmpty()) return ChordResult(emptyList(), emptySet(), null, null, emptyList())
         val pcs = sorted.map(Notes::pc).toSet()
         val bass = Notes.pc(sorted.first())
+        val nextOther = sorted.firstOrNull { Notes.pc(it) != bass }
+        val detached = nextOther == null || nextOther - sorted.first() >= slashMinGap
         val candidates = mutableListOf<ChordCandidate>()
 
         if (pcs.size == 1) {
             if (sorted.size >= 2) {
-                candidates += ChordCandidate(bass, ChordType.ONE_PLUS_EIGHT, bass, false, emptySet(), 100)
+                candidates += ChordCandidate(bass, ChordType.ONE_PLUS_EIGHT, bass, false, emptySet(), 100, detached)
             }
         } else {
             for (root in pcs) {
@@ -127,7 +140,7 @@ object ChordRecognizer {
                         bass in tones -> 0
                         else -> -10
                     }
-                    candidates += ChordCandidate(root, type, bass, omitted, extra, score)
+                    candidates += ChordCandidate(root, type, bass, omitted, extra, score, detached)
                 }
             }
         }
@@ -136,8 +149,11 @@ object ChordRecognizer {
             .sortedWith(compareByDescending<ChordCandidate> { it.score }.thenBy { it.type.complexity })
             .distinctBy { it.symbol }
         val best = ranked.firstOrNull()
+        // Si la meilleure lecture est exacte, les lectures approximatives n'apportent rien
         val alternatives = if (best == null) emptyList()
-        else ranked.drop(1).filter { it.score >= best.score - ALT_WINDOW }.take(3)
+        else ranked.drop(1)
+            .filter { it.score >= best.score - ALT_WINDOW && (!best.isExact || it.isExact) }
+            .take(3)
         return ChordResult(sorted, pcs, bass, best, alternatives)
     }
 }

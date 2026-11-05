@@ -31,7 +31,15 @@ object Help {
     const val INVERSION =
         "Quelle note de l'accord est à la basse. État fondamental : la fondamentale. 1er renversement : la tierce. " +
             "2e renversement : la quinte. 3e renversement : la septième. Le renversement change la couleur " +
-            "et la conduite de la basse, pas la fonction de l'accord."
+            "et la conduite de la basse, pas la fonction de l'accord.\n\n" +
+            "Renversement serré : la basse est proche des autres notes. L'accord est alors noté comme à l'état " +
+            "fondamental (Cm plutôt que Cm/G), pour ne pas encombrer l'historique. La basse n'est notée que si " +
+            "elle est détachée de l'accord (voir Réglages)."
+
+    const val SLASH_GAP =
+        "Écart minimal, en demi-tons, entre la note la plus grave et la note suivante pour noter la basse " +
+            "(accord sur basse, par exemple Cm/G avec un sol grave sous l'accord). En dessous, un renversement " +
+            "serré est noté Cm. 7 demi-tons (une quinte) par défaut ; 12 = une octave ; 0 = basse toujours notée."
 
     const val ALTERNATIVES =
         "Les mêmes notes peuvent se nommer de plusieurs façons : C6 et Am7/C contiennent exactement les mêmes " +

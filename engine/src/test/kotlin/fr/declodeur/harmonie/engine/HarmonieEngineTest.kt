@@ -99,6 +99,20 @@ class HarmonieEngineTest {
     }
 
     @Test
+    fun closeInversionsOfTheSameChordAreOneHistoryEntry() {
+        val e = HarmonieEngine(AnalysisSettings(slashMinGap = 7))
+        val voicings = listOf(listOf(60, 63, 67), listOf(67, 72, 75), listOf(63, 67, 72))
+        voicings.forEachIndexed { i, v ->
+            val t = i * 1000L
+            v.forEach { e.noteOn(0, it, 90, t) }
+            e.tick(t + 100)
+            v.forEach { e.noteOff(0, it, t + 200) }
+            e.tick(t + 300)
+        }
+        assertEquals(listOf("Cm"), e.snapshot().history.map { it.best?.symbol })
+    }
+
+    @Test
     fun sameChordTwiceIsNotDuplicatedInHistory() {
         val e = HarmonieEngine()
         repeat(2) { i ->

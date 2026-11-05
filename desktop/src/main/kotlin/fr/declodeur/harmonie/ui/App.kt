@@ -174,7 +174,7 @@ private fun CurrentChordPanel(result: ChordResult?, modifier: Modifier) {
                 InfoLine("Notes", result.pitchClasses.sorted().joinToString("  ") { Notes.name(it) })
                 if (result.intervalDescription == null) {
                     Text(
-                        "Ces notes ne correspondent à aucun accord du dictionnaire Yamaha.",
+                        "Ces notes ne correspondent à aucun accord de mon dictionnaire.",
                         fontSize = 14.sp,
                         color = Palette.muted,
                     )
@@ -198,7 +198,9 @@ private fun ChordDetails(best: ChordCandidate, result: ChordResult) {
     )
     Text(best.type.frenchName.replaceFirstChar { it.uppercase() }, fontSize = 16.sp, color = Palette.muted)
     Spacer(Modifier.height(12.dp))
-    InfoLine("Renversement", best.inversion, Help.INVERSION)
+    val inversion = if (best.bass != best.root && !best.bassDetached) "${best.inversion}, serré (basse non notée)"
+    else best.inversion
+    InfoLine("Renversement", inversion, Help.INVERSION)
     InfoLine(
         "Notes",
         result.pitchClasses.sortedBy { Notes.pc(it - best.root) }.joinToString("   ") { pc ->
@@ -378,6 +380,20 @@ private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettin
                         onValueChange = { onChange(settings.copy(stabilityMs = ((it / 10f).roundToInt() * 10))) },
                         valueRange = 20f..200f,
                         steps = 17,
+                    )
+                }
+                Column {
+                    val gap = settings.slashMinGap
+                    Label(
+                        if (gap == 0) "Accord sur basse : basse toujours notée"
+                        else "Accord sur basse : basse détachée d'au moins $gap demi-tons",
+                        Help.SLASH_GAP,
+                    )
+                    Slider(
+                        value = gap.toFloat(),
+                        onValueChange = { onChange(settings.copy(slashMinGap = it.roundToInt())) },
+                        valueRange = 0f..24f,
+                        steps = 23,
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {

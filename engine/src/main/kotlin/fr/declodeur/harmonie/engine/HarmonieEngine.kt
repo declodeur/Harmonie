@@ -25,6 +25,11 @@ data class AnalysisSettings(
     val stabilityMs: Int = 60,
     /** Les notes tenues par la pédale de sustain font partie de l'accord. */
     val includeSustain: Boolean = true,
+    /**
+     * Écart minimal (demi-tons) entre la basse et la note suivante pour noter un accord
+     * sur basse (« Cm/G »). En dessous, le renversement serré est noté « Cm ». 0 = toujours.
+     */
+    val slashMinGap: Int = 7,
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -126,7 +131,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         if (!attackSinceCommit) return false
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
-        val result = ChordRecognizer.recognize(set)
+        val result = ChordRecognizer.recognize(set, settings.slashMinGap)
         if (result.best == null && result.pitchClasses.size < 2) return false
         attackSinceCommit = false
         peakSet = emptySet()
