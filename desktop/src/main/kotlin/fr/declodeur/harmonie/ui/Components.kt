@@ -178,3 +178,13 @@ fun LegendItem(color: Color, text: String) {
         Text(text, fontSize = 12.sp, color = Palette.muted)
     }
 }
+
+/** Carré vide au contour coloré suivi d'un texte, pour les légendes de contours. */
+@Composable
+fun LegendOutline(color: Color, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(12.dp).border(2.dp, color, RoundedCornerShape(2.dp)))
+        Spacer(Modifier.width(6.dp))
+        Text(text, fontSize = 12.sp, color = Palette.muted)
+    }
+}

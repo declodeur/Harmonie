@@ -34,6 +34,8 @@ data class AnalysisSettings(
     val bassOptions: BassReadingOptions = BassReadingOptions(),
     /** Mémoire de la tonalité : demi-vie, en secondes, du poids des notes passées. */
     val keyMemorySeconds: Int = 12,
+    /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
+    val melodyWeightPercent: Int = 70,
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -91,7 +93,17 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     private var current: ChordResult? = null
     private val history = ArrayDeque<HistoryEntry>()
     private var version = 0L
-    private val keyDetector = KeyDetector(settings.keyMemorySeconds * 1000L)
+    private val keyDetector = KeyDetector(settings.keyMemorySeconds * 1000L).apply {
+        style = settings.style
+        melodyWeight = settings.melodyWeightPercent / 100.0
+    }
+
+    /** Notes (canal, note) considérées comme mélodie pour la tonalité. */
+    private val melodicNotes = HashSet<Pair<Int, Int>>()
+
+    /** Attaques récentes sur les canaux d'accords, pas encore classées accord / note seule. */
+    private val burst = ArrayList<Pair<Int, Int>>()
+    private var burstLastMs = 0L
     private var keyEstimate: KeyEstimate? = null
     private var keySignature: String = EMPTY_KEY_SIGNATURE
     private var lastKeyRefreshMs = Long.MIN_VALUE / 2
@@ -100,8 +112,15 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     fun noteOn(channel: Int, note: Int, velocity: Int, nowMs: Long) {
         tracker.noteOn(channel, note, velocity)
         if (velocity > 0) {
-            keyDetector.addAttack(note)
-            if (isChordChannel(channel)) attackSinceCommit = true
+            melodicNotes.remove(channel to note)
+            if (isChordChannel(channel)) {
+                attackSinceCommit = true
+                burst += channel to note
+                burstLastMs = nowMs
+            } else {
+                melodicNotes += channel to note
+                keyDetector.addAttack(note, melodic = true)
+            }
         }
         onChange(nowMs)
     }
@@ -125,6 +144,8 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     fun updateSettings(newSettings: AnalysisSettings, nowMs: Long) {
         settings = newSettings
         keyDetector.halfLifeMs = newSettings.keyMemorySeconds * 1000L
+        keyDetector.style = newSettings.style
+        keyDetector.melodyWeight = newSettings.melodyWeightPercent / 100.0
         attackSinceCommit = true
         peakSet = emptySet()
         analysisSet = emptySet()
@@ -144,6 +165,8 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         history.clear()
         current = null
         keyDetector.reset()
+        melodicNotes.clear()
+        burst.clear()
         keyEstimate = null
         keySignature = EMPTY_KEY_SIGNATURE
         version++
@@ -155,7 +178,10 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
      */
     @Synchronized
     fun tick(nowMs: Long): Boolean {
-        keyDetector.advance(nowMs, tracker.sounding().map { it.note })
+        resolveBurst(nowMs)
+        val (melodic, harmonic) = tracker.sounding()
+            .partition { (it.channel to it.note) in melodicNotes || !isChordChannel(it.channel) }
+        keyDetector.advance(nowMs, harmonic.map { it.note }, melodic.map { it.note })
         var changed = commitIfStable(nowMs)
         if (nowMs - lastKeyRefreshMs >= KEY_REFRESH_MS) {
             lastKeyRefreshMs = nowMs
@@ -163,6 +189,21 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         }
         if (changed) version++
         return changed
+    }
+
+    /**
+     * Classe les attaques récentes : en mode Complète, une note attaquée seule (sans autre
+     * attaque dans le délai de stabilité) est considérée comme mélodie ; plusieurs notes
+     * attaquées ensemble forment l'harmonie.
+     */
+    private fun resolveBurst(nowMs: Long) {
+        if (burst.isEmpty() || nowMs - burstLastMs < settings.stabilityMs) return
+        val melodic = settings.mode == AnalysisMode.FULL && burst.size == 1
+        for ((ch, note) in burst) {
+            keyDetector.addAttack(note, melodic)
+            if (melodic && tracker.isHeld(ch, note)) melodicNotes += ch to note
+        }
+        burst.clear()
     }
 
     private fun commitIfStable(nowMs: Long): Boolean {

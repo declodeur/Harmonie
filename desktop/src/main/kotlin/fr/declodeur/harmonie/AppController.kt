@@ -138,6 +138,7 @@ class AppController(scope: CoroutineScope) {
                     prefs.getBoolean(KEY_KEEP_FULL, d.bassOptions.keepFullReadingWhenUpperIncomplete),
             ),
             keyMemorySeconds = prefs.getInt(KEY_KEY_MEMORY, d.keyMemorySeconds).coerceIn(4, 60),
+            melodyWeightPercent = prefs.getInt(KEY_MELODY_WEIGHT, d.melodyWeightPercent).coerceIn(0, 100),
         )
     }
 
@@ -151,6 +152,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_KEEP_ROOT, s.bassOptions.keepRootPositionReading)
         prefs.putBoolean(KEY_KEEP_FULL, s.bassOptions.keepFullReadingWhenUpperIncomplete)
         prefs.putInt(KEY_KEY_MEMORY, s.keyMemorySeconds)
+        prefs.putInt(KEY_MELODY_WEIGHT, s.melodyWeightPercent)
     }
 
     private object ShortCommands {
@@ -170,5 +172,6 @@ class AppController(scope: CoroutineScope) {
         const val KEY_KEEP_ROOT = "keepRootPositionReading"
         const val KEY_KEEP_FULL = "keepFullReadingWhenUpperIncomplete"
         const val KEY_KEY_MEMORY = "keyMemorySeconds"
+        const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
     }
 }

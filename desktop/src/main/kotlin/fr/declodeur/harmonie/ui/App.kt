@@ -99,15 +99,10 @@ fun App(controller: AppController) {
                         snap.current,
                         snap.currentAnalysis,
                         spelling,
-                        Modifier.weight(1.5f).fillMaxHeight(),
+                        Modifier.weight(1.3f).fillMaxHeight(),
                     )
-                    Column(
-                        Modifier.weight(1f).fillMaxHeight(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        KeyPanel(snap.key, Modifier.fillMaxWidth())
-                        NotesPanel(snap, spelling, Modifier.fillMaxWidth().weight(1f))
-                    }
+                    KeyPanel(snap.key, Modifier.weight(1f).fillMaxHeight())
+                    NotesPanel(snap, spelling, Modifier.weight(0.75f).fillMaxHeight())
                 }
                 HistoryPanel(snap.history, onClear = controller::clearHistory)
                 KeyboardPanel(snap, onKeyClick = controller::toggleKey)
@@ -543,6 +538,15 @@ private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettin
                     settings.bassOptions.keepFullReadingWhenUpperIncomplete,
                 ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
                 Column {
+                    Label("Poids de la mélodie pour la tonalité : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT)
+                    Slider(
+                        value = settings.melodyWeightPercent.toFloat(),
+                        onValueChange = { onChange(settings.copy(melodyWeightPercent = ((it / 10f).roundToInt() * 10))) },
+                        valueRange = 0f..100f,
+                        steps = 9,
+                    )
+                }
+                Column {
                     Label("Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY)
                     Slider(
                         value = settings.keyMemorySeconds.toFloat(),
@@ -588,6 +592,7 @@ private fun FunctionBadge(f: HarmonicFunction) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
     Panel("Tonalité probable", modifier, help = Help.KEY) {
@@ -595,45 +600,28 @@ private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
         if (estimate == null || current == null) {
             Text("Jouez quelques accords…", fontSize = 18.sp, color = Palette.muted)
         } else {
-            KeyDetails(estimate, current)
-        }
-    }
-}
-
-@Composable
-private fun KeyDetails(estimate: KeyEstimate, current: Key) {
-    run {
-        Text(current.name, fontSize = 32.sp, fontWeight = FontWeight.SemiBold)
-        Text(
-            "Relative : ${current.relative.name}",
-            fontSize = 13.sp,
-            color = Palette.muted,
-        )
-        Spacer(Modifier.height(10.dp))
-        estimate.ranking.take(3).forEach { kp ->
-            val isCurrent = kp.key == current
-            Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(current.name, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.width(10.dp))
                 Text(
-                    kp.key.name,
-                    modifier = Modifier.width(120.dp),
-                    fontSize = 14.sp,
-                    color = if (isCurrent) Palette.text else Palette.muted,
+                    "${(estimate.probabilityOf(current) * 100).roundToInt()} %",
+                    fontSize = 16.sp,
+                    color = Palette.muted,
+                    modifier = Modifier.padding(bottom = 3.dp),
                 )
-                Box(Modifier.weight(1f).height(8.dp)) {
-                    Surface(color = Palette.surfaceHigh, shape = RoundedCornerShape(4.dp), modifier = Modifier.fillMaxWidth().height(8.dp)) {}
-                    Surface(
-                        color = if (isCurrent) Palette.accent else Palette.muted,
-                        shape = RoundedCornerShape(4.dp),
-                        modifier = Modifier.fillMaxWidth(kp.probability.toFloat().coerceIn(0.01f, 1f)).height(8.dp),
-                    ) {}
-                }
-                Text(
-                    "${(kp.probability * 100).roundToInt()} %",
-                    modifier = Modifier.width(52.dp),
-                    fontSize = 14.sp,
-                    color = if (isCurrent) Palette.text else Palette.muted,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.End,
-                )
+            }
+            Text(
+                "Relative : ${current.relative.name} · ${estimate.compatible.size} tonalité(s) compatible(s)",
+                fontSize = 13.sp,
+                color = Palette.muted,
+            )
+            Box(Modifier.fillMaxWidth().weight(1f).padding(vertical = 6.dp)) {
+                CircleOfFifths(estimate, Modifier.fillMaxSize())
+            }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                LegendItem(Palette.accent, "Probabilité")
+                LegendOutline(Palette.compatible, "Compatible")
+                LegendOutline(Palette.text, "Retenue")
             }
         }
     }

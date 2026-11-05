@@ -22,6 +22,7 @@ object Palette {
     val extra = Color(0xFFFF6B6B)
     val melody = Color(0xFF4FD1A1)
     val bass = Color(0xFFB98CFF)
+    val compatible = Color(0xFFEF9F27)
 
     // Fonctions harmoniques
     val tonic = Color(0xFF6FD3F7)

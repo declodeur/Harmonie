@@ -167,6 +167,64 @@ class HarmonyTest {
         dm.size
     }
 
+    /** Accords puis mélodie (notes seules) sur le même canal, en mode Complète. */
+    private fun playWithMelody(chords: List<List<Int>>, melody: List<Int>, settings: AnalysisSettings): HarmonieEngine {
+        val e = HarmonieEngine(settings)
+        var t = 0L
+        for (c in chords) {
+            c.forEach { e.noteOn(0, it, 90, t) }
+            val end = t + 1500
+            while (t < end) { t += 10; e.tick(t) }
+            c.forEach { e.noteOff(0, it, t) }
+        }
+        for (n in melody) {
+            e.noteOn(0, n, 90, t)
+            val end = t + 400
+            while (t < end) { t += 10; e.tick(t) }
+            e.noteOff(0, n, t)
+        }
+        repeat(30) { t += 10; e.tick(t) }
+        return e
+    }
+
+    private val am = listOf(45, 48, 52)
+    private val popLoop = listOf(am, listOf(48, 52, 55), listOf(53, 57, 60), listOf(43, 47, 50)).let { it + it }
+
+    @Test
+    fun blackKeysStayAmbiguousBetweenTheSixCompatibleKeys() {
+        val fs = listOf(54, 58, 61); val dsm = listOf(51, 54, 58)
+        val e = play(listOf(fs, dsm, listOf(49, 54, 56), listOf(56, 61, 63), fs, listOf(51, 56, 58), dsm), holdMs = 1500)
+        val key = assertNotNull(e.snapshot().key)
+        val expected = setOf(Key(6, false), Key(1, false), Key(11, false), Key(3, true), Key(10, true), Key(8, true))
+        assertEquals(expected, key.compatible)
+        assertTrue(key.ranking.first().probability < 0.65, "trop sûr de lui : ${key.ranking.first()}")
+        assertTrue(key.ranking.take(3).any { it.key == Key(3, true) }, "D♯ mineur attendu parmi les 3 premières")
+    }
+
+    @Test
+    fun melodyHelpsToChooseBetweenRelativeKeys() {
+        val melody = listOf(76, 74, 72, 71, 68, 69, 71, 68, 69, 72, 71, 69) // insiste sur G♯
+        val with = playWithMelody(popLoop, melody, AnalysisSettings()).snapshot().key!!
+        val without = playWithMelody(popLoop, melody, AnalysisSettings(melodyWeightPercent = 0)).snapshot().key!!
+        assertEquals(Key(9, true), with.ranking.first().key)
+        assertTrue(with.probabilityOf(Key(9, true)) > without.probabilityOf(Key(9, true)) + 0.3)
+    }
+
+    @Test
+    fun popStyleAcceptsNaturalMinor() {
+        val pop = play(popLoop, holdMs = 1500).snapshot().key!!
+        val e = HarmonieEngine(AnalysisSettings(style = MusicStyle.CLASSICAL))
+        var t = 0L
+        for (c in popLoop) {
+            c.forEach { e.noteOn(0, it, 90, t) }
+            val end = t + 1500
+            while (t < end) { t += 10; e.tick(t) }
+            c.forEach { e.noteOff(0, it, t) }
+        }
+        val classical = e.snapshot().key!!
+        assertTrue(pop.probabilityOf(Key(9, true)) > classical.probabilityOf(Key(9, true)) + 0.15)
+    }
+
     @Test
     fun clearingHistoryResetsTheKey() {
         val c = listOf(48, 52, 55); val g7 = listOf(43, 47, 50, 53)

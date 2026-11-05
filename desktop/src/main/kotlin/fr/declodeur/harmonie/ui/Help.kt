@@ -80,14 +80,19 @@ object Help {
             "jouez beaucoup avec la pédale et que des notes de l'accord précédent perturbent la reconnaissance."
 
     const val KEY =
-        "Tonalité la plus probable d'après ce qui a été joué récemment. Chaque note compte selon sa durée ; " +
-            "le profil obtenu est comparé aux profils de référence des 24 tonalités (établis par le musicologue " +
-            "David Temperley sur un corpus de musique tonale). Une cadence (accord de dominante qui résout une " +
-            "quinte plus bas) renforce la tonalité d'arrivée.\n\n" +
-            "Les pourcentages sont prudents tant qu'il y a peu de notes, puis se précisent. La tonalité affichée " +
-            "en grand ne change que si une autre devient nettement plus probable, pour éviter les changements " +
-            "intempestifs. Une tonalité majeure et sa relative mineure (C majeur / A mineur) ont les mêmes " +
-            "notes : seuls la tonique, les cadences et la sensible (G♯ en la mineur) les départagent."
+        "Tonalité la plus probable d'après ce qui a été joué récemment, et cercle des quintes des 24 " +
+            "tonalités : majeures sur l'anneau extérieur, relatives mineures à l'intérieur. Deux tonalités " +
+            "voisines ne diffèrent que d'une altération : les tonalités plausibles forment donc une zone.\n\n" +
+            "Contour orange : tonalité compatible, sa gamme contient (presque) toutes les notes jouées. " +
+            "Remplissage bleu : probabilité, qui dépend de la compatibilité, du centre de gravité des notes " +
+            "(comparé aux profils de référence de chaque tonalité) et des cadences (dominante qui résout une " +
+            "quinte plus bas). Trait blanc : tonalité retenue ; elle ne change que si une autre devient " +
+            "nettement plus probable, pour éviter les changements intempestifs.\n\n" +
+            "Quand plusieurs tonalités contiennent toutes les notes (par exemple C majeur et A mineur), " +
+            "leurs probabilités restent proches : seuls la tonique, les cadences et les notes caractéristiques " +
+            "(G♯ en la mineur) les départagent, notamment dans la mélodie. Le style compte aussi : en " +
+            "pop/rock, blues et jazz, le mineur naturel (avec la 7e mineure) est normal ; en classique, " +
+            "le mineur attend la sensible."
 
     const val KEY_MEMORY =
         "Durée au bout de laquelle le poids des notes jouées est divisé par deux. Courte : l'analyse suit " +
@@ -119,4 +124,11 @@ object Help {
     const val KEEP_FULL_WHEN_INCOMPLETE =
         "Quand la basse est détachée mais que le dessus n'a que deux notes différentes, compter quand même la " +
             "basse : E grave sous C G donne C/E. Désactivé : on obtient C1+5/E."
+
+    const val MELODY_WEIGHT =
+        "Poids de la mélodie par rapport à l'harmonie dans la détection de tonalité. 0 % : la mélodie est " +
+            "ignorée ; 100 % : elle pèse autant que l'harmonie. La mélodie, ce sont les notes des autres canaux " +
+            "en mode « Accords + mélodie », et les notes jouées seules (sans autre note attaquée en même temps) " +
+            "en mode « Complète ». Elle départage souvent deux tonalités relatives grâce à leurs notes " +
+            "caractéristiques."
 }
