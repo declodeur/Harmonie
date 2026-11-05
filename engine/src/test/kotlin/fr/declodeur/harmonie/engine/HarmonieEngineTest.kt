@@ -44,7 +44,7 @@ class HarmonieEngineTest {
         e.noteOn(0, 70, 90, 200)
         e.tick(300)
         assertEquals("C7", e.symbol())
-        assertEquals(listOf("C", "C7"), e.snapshot().history.map { it.best?.symbol })
+        assertEquals(listOf("C", "C7"), e.snapshot().history.map { it.chord.best?.symbol })
     }
 
     @Test
@@ -109,7 +109,7 @@ class HarmonieEngineTest {
             v.forEach { e.noteOff(0, it, t + 200) }
             e.tick(t + 300)
         }
-        assertEquals(listOf("Cm"), e.snapshot().history.map { it.best?.symbol })
+        assertEquals(listOf("Cm"), e.snapshot().history.map { it.chord.best?.symbol })
     }
 
     @Test

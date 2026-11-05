@@ -20,6 +20,11 @@ object Palette {
     val extra = Color(0xFFFF6B6B)
     val melody = Color(0xFF4FD1A1)
     val bass = Color(0xFFB98CFF)
+
+    // Fonctions harmoniques
+    val tonic = Color(0xFF6FD3F7)
+    val subdominant = Color(0xFFC5E478)
+    val dominant = Color(0xFFFF8A65)
     val pending = Color(0xFFB8BEC8)
 
     val success = Color(0xFF4FD1A1)

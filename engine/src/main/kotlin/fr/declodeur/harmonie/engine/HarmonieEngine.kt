@@ -1,6 +1,6 @@
 package fr.declodeur.harmonie.engine
 
-/** Style musical choisi : il orientera la tonalité et les prédictions (étapes suivantes). */
+/** Style musical choisi : il oriente l'analyse harmonique (et plus tard les prédictions). */
 enum class MusicStyle(val label: String) {
     POP_ROCK("Pop/rock"),
     JAZZ("Jazz"),
@@ -30,6 +30,10 @@ data class AnalysisSettings(
      * sur basse (« Cm/G »). En dessous, le renversement serré est noté « Cm ». 0 = toujours.
      */
     val slashMinGap: Int = 7,
+    /** Exceptions à la règle de la basse détachée. */
+    val bassOptions: BassReadingOptions = BassReadingOptions(),
+    /** Mémoire de la tonalité : demi-vie, en secondes, du poids des notes passées. */
+    val keyMemorySeconds: Int = 12,
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -45,13 +49,23 @@ data class SoundingNote(
     val analysed: Boolean,
 )
 
+/** Un accord de l'historique, avec son analyse dans la tonalité du moment. */
+data class HistoryEntry(
+    val chord: ChordResult,
+    val analysis: HarmonicAnalysis?,
+)
+
 data class EngineSnapshot(
     val version: Long,
     val notes: List<SoundingNote>,
     /** Dernier accord validé (reste affiché quand on relâche les notes). */
     val current: ChordResult?,
+    /** Analyse de l'accord courant dans la tonalité retenue, si elle est connue. */
+    val currentAnalysis: HarmonicAnalysis?,
+    /** Tonalité probable, null tant qu'il n'y a pas assez de notes. */
+    val key: KeyEstimate?,
     /** Accords successifs, du plus ancien au plus récent. */
-    val history: List<ChordResult>,
+    val history: List<HistoryEntry>,
 )
 
 /**
@@ -75,13 +89,20 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     private var pending = false
     private var attackSinceCommit = false
     private var current: ChordResult? = null
-    private val history = ArrayDeque<ChordResult>()
+    private val history = ArrayDeque<HistoryEntry>()
     private var version = 0L
+    private val keyDetector = KeyDetector(settings.keyMemorySeconds * 1000L)
+    private var keyEstimate: KeyEstimate? = null
+    private var keySignature: String = EMPTY_KEY_SIGNATURE
+    private var lastKeyRefreshMs = Long.MIN_VALUE / 2
 
     @Synchronized
     fun noteOn(channel: Int, note: Int, velocity: Int, nowMs: Long) {
         tracker.noteOn(channel, note, velocity)
-        if (velocity > 0 && isChordChannel(channel)) attackSinceCommit = true
+        if (velocity > 0) {
+            keyDetector.addAttack(note)
+            if (isChordChannel(channel)) attackSinceCommit = true
+        }
         onChange(nowMs)
     }
 
@@ -103,6 +124,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     @Synchronized
     fun updateSettings(newSettings: AnalysisSettings, nowMs: Long) {
         settings = newSettings
+        keyDetector.halfLifeMs = newSettings.keyMemorySeconds * 1000L
         attackSinceCommit = true
         peakSet = emptySet()
         analysisSet = emptySet()
@@ -116,34 +138,70 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         onChange(nowMs)
     }
 
+    /** Efface l'historique et repart de zéro pour la tonalité (nouveau morceau). */
     @Synchronized
     fun clearHistory() {
         history.clear()
         current = null
+        keyDetector.reset()
+        keyEstimate = null
+        keySignature = EMPTY_KEY_SIGNATURE
         version++
     }
 
-    /** Valide un accord si les notes sont stables. Renvoie true si l'état a changé. */
+    /**
+     * À appeler toutes les 5 à 10 ms : fait avancer la mémoire de tonalité, valide un accord
+     * si les notes sont stables, rafraîchit la tonalité. Renvoie true si l'affichage a changé.
+     */
     @Synchronized
     fun tick(nowMs: Long): Boolean {
+        keyDetector.advance(nowMs, tracker.sounding().map { it.note })
+        var changed = commitIfStable(nowMs)
+        if (nowMs - lastKeyRefreshMs >= KEY_REFRESH_MS) {
+            lastKeyRefreshMs = nowMs
+            if (refreshKey()) changed = true
+        }
+        if (changed) version++
+        return changed
+    }
+
+    private fun commitIfStable(nowMs: Long): Boolean {
         if (!pending || nowMs - lastChangeMs < settings.stabilityMs) return false
         pending = false
         if (!attackSinceCommit) return false
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
-        val result = ChordRecognizer.recognize(set, settings.slashMinGap)
+        val result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
         if (result.best == null && result.pitchClasses.size < 2) return false
         attackSinceCommit = false
         peakSet = emptySet()
+        val previous = current?.best
         current = result
         val best = result.best
-        if (best != null && history.lastOrNull()?.best?.symbol != best.symbol) {
-            history.addLast(result)
-            while (history.size > MAX_HISTORY) history.removeFirst()
+        if (best != null) {
+            keyDetector.addChord(best, previous)
+            refreshKey()
+            if (history.lastOrNull()?.chord?.best?.symbol != best.symbol) {
+                history.addLast(HistoryEntry(result, analyze(best)))
+                while (history.size > MAX_HISTORY) history.removeFirst()
+            }
         }
-        version++
         return true
     }
+
+    /** Recalcule la tonalité ; renvoie true si ce qui est affiché a changé. */
+    private fun refreshKey(): Boolean {
+        val estimate = keyDetector.estimate()
+        val signature = estimate.current?.name + "|" + estimate.ranking.take(3)
+            .joinToString { it.key.name + ":" + (it.probability * 100).toInt() }
+        keyEstimate = if (estimate.ranking.isEmpty()) keyEstimate else estimate
+        if (signature == keySignature) return false
+        keySignature = signature
+        return true
+    }
+
+    private fun analyze(chord: ChordCandidate): HarmonicAnalysis? =
+        keyEstimate?.current?.let { HarmonicAnalyzer.analyze(chord, it, settings.style) }
 
     @Synchronized
     fun snapshot(): EngineSnapshot {
@@ -158,7 +216,8 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 analysed = !melody && (settings.includeSustain || !n.sustained),
             )
         }
-        return EngineSnapshot(version, notes, current, history.toList())
+        val currentAnalysis = current?.best?.let { analyze(it) }
+        return EngineSnapshot(version, notes, current, currentAnalysis, keyEstimate, history.toList())
     }
 
     private fun isChordChannel(channel: Int): Boolean =
@@ -183,5 +242,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
 
     companion object {
         const val MAX_HISTORY = 32
+        const val KEY_REFRESH_MS = 250L
+        private const val EMPTY_KEY_SIGNATURE = "null|"
     }
 }

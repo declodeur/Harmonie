@@ -91,6 +91,13 @@ class ChordRecognizerTest {
     }
 
     @Test
+    fun bassExceptionsCanBeDisabled() {
+        val strict = BassReadingOptions(keepRootPositionReading = false, keepFullReadingWhenUpperIncomplete = false)
+        assertEquals("C/A", ChordRecognizer.recognize(listOf(45, 60, 64, 67), 7, strict).best?.symbol)
+        assertEquals("C1+5/E", ChordRecognizer.recognize(listOf(52, 60, 67), 7, strict).best?.symbol)
+    }
+
+    @Test
     fun secondAndThirdInversions() {
         assertEquals("2e renversement (quinte à la basse)", best(55, 60, 64).inversion)
         assertEquals("3e renversement (septième à la basse)", best(58, 60, 64, 67).inversion)

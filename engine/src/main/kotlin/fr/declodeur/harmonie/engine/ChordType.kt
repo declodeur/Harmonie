@@ -68,6 +68,18 @@ enum class ChordType(
 
     private val labels: Map<Int, String> = DEFAULT_LABELS + labelOverrides
 
+    /** Accord de type dominante (tierce majeure + septième mineure, ou 7sus4). */
+    val isDominant: Boolean = (4 in intervals && 10 in intervals) || suffix == "7sus4"
+
+    /** Accord construit sur un accord parfait mineur (m, m6, m7, madd9, mM7…). */
+    val isMinorTriadBased: Boolean = 3 in intervals && 7 in intervals && 4 !in intervals
+
+    /** Accord construit sur un accord parfait majeur, sans septième mineure (majeur, 6, M7, add9…). */
+    val isMajorTriadBased: Boolean = 4 in intervals && 7 in intervals && 3 !in intervals && 10 !in intervals
+
+    /** Accord diminué ou demi-diminué. */
+    val isDiminished: Boolean = 3 in intervals && 6 in intervals && 7 !in intervals
+
     /** Degré d'un intervalle dans cet accord : « 1 », « ♭3 », « 5 », « ♭7 », « 9 »… */
     fun degreeLabel(interval: Int): String = labels[Notes.pc(interval)] ?: "?"
 }

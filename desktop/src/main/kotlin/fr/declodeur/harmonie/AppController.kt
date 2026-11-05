@@ -2,6 +2,7 @@ package fr.declodeur.harmonie
 
 import fr.declodeur.harmonie.engine.AnalysisMode
 import fr.declodeur.harmonie.engine.AnalysisSettings
+import fr.declodeur.harmonie.engine.BassReadingOptions
 import fr.declodeur.harmonie.engine.EngineSnapshot
 import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
@@ -131,6 +132,12 @@ class AppController(scope: CoroutineScope) {
             stabilityMs = prefs.getInt(KEY_STABILITY, d.stabilityMs).coerceIn(20, 200),
             includeSustain = prefs.getBoolean(KEY_SUSTAIN, d.includeSustain),
             slashMinGap = prefs.getInt(KEY_SLASH_GAP, d.slashMinGap).coerceIn(0, 24),
+            bassOptions = BassReadingOptions(
+                keepRootPositionReading = prefs.getBoolean(KEY_KEEP_ROOT, d.bassOptions.keepRootPositionReading),
+                keepFullReadingWhenUpperIncomplete =
+                    prefs.getBoolean(KEY_KEEP_FULL, d.bassOptions.keepFullReadingWhenUpperIncomplete),
+            ),
+            keyMemorySeconds = prefs.getInt(KEY_KEY_MEMORY, d.keyMemorySeconds).coerceIn(4, 60),
         )
     }
 
@@ -141,6 +148,9 @@ class AppController(scope: CoroutineScope) {
         prefs.putInt(KEY_STABILITY, s.stabilityMs)
         prefs.putBoolean(KEY_SUSTAIN, s.includeSustain)
         prefs.putInt(KEY_SLASH_GAP, s.slashMinGap)
+        prefs.putBoolean(KEY_KEEP_ROOT, s.bassOptions.keepRootPositionReading)
+        prefs.putBoolean(KEY_KEEP_FULL, s.bassOptions.keepFullReadingWhenUpperIncomplete)
+        prefs.putInt(KEY_KEY_MEMORY, s.keyMemorySeconds)
     }
 
     private object ShortCommands {
@@ -157,5 +167,8 @@ class AppController(scope: CoroutineScope) {
         const val KEY_STABILITY = "stabilityMs"
         const val KEY_SUSTAIN = "includeSustain"
         const val KEY_SLASH_GAP = "slashMinGap"
+        const val KEY_KEEP_ROOT = "keepRootPositionReading"
+        const val KEY_KEEP_FULL = "keepFullReadingWhenUpperIncomplete"
+        const val KEY_KEY_MEMORY = "keyMemorySeconds"
     }
 }

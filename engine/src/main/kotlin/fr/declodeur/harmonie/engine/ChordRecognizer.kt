@@ -21,7 +21,15 @@ data class ChordCandidate(
     val bassDetached: Boolean = true,
 ) {
     val isExact: Boolean get() = !omittedFifth && extraNotes.isEmpty()
-    val rootName: String get() = Notes.name(root)
+    val rootName: String get() = rootNameIn(Spelling.DEFAULT)
+
+    fun rootNameIn(spelling: Spelling): String = Notes.name(root, spelling)
+
+    fun slashIn(spelling: Spelling): String? = if (bass != root && bassDetached) Notes.name(bass, spelling) else null
+
+    /** Symbole Yamaha avec l'orthographe de la tonalité (« D♭M7 », « F♯m/C♯ »). */
+    fun symbolIn(spelling: Spelling): String =
+        rootNameIn(spelling) + type.suffix + (slashIn(spelling)?.let { "/$it" } ?: "")
 
     val chordPitchClasses: Set<Int> get() = type.intervals.map { (root + it) % 12 }.toSet()
 
@@ -54,28 +62,37 @@ data class ChordCandidate(
     }
 
     /** Description du renversement, en français. */
-    val inversion: String
-        get() {
-            if (bass == root) return "état fondamental"
-            if (foreignBass) return "accord sur basse ${Notes.name(bass)} (basse étrangère à l'accord)"
-            val iv = Notes.pc(bass - root)
-            if (iv !in type.intervals) return "basse étrangère à l'accord (${Notes.name(bass)})"
-            val label = type.degreeLabel(iv)
-            if (iv in type.tensions) return "$label à la basse"
-            return when (label) {
-                "♭3", "3" -> "1er renversement (tierce à la basse)"
-                "5", "♭5", "♯5" -> "2e renversement (quinte à la basse)"
-                "♭7", "7", "♭♭7" -> "3e renversement (septième à la basse)"
-                "6" -> "sixte à la basse"
-                "4" -> "quarte à la basse"
-                "2" -> "seconde à la basse"
-                else -> "$label à la basse"
-            }
+    val inversion: String get() = inversionIn(Spelling.DEFAULT)
+
+    fun inversionIn(spelling: Spelling): String {
+        if (bass == root) return "état fondamental"
+        if (foreignBass) return "accord sur basse ${Notes.name(bass, spelling)} (basse étrangère à l'accord)"
+        val iv = Notes.pc(bass - root)
+        if (iv !in type.intervals) return "basse étrangère à l'accord (${Notes.name(bass, spelling)})"
+        val label = type.degreeLabel(iv)
+        if (iv in type.tensions) return "$label à la basse"
+        return when (label) {
+            "♭3", "3" -> "1er renversement (tierce à la basse)"
+            "5", "♭5", "♯5" -> "2e renversement (quinte à la basse)"
+            "♭7", "7", "♭♭7" -> "3e renversement (septième à la basse)"
+            "6" -> "sixte à la basse"
+            "4" -> "quarte à la basse"
+            "2" -> "seconde à la basse"
+            else -> "$label à la basse"
         }
+    }
 
     /** La même lecture placée sur une autre basse (détachée). */
     internal fun onBass(newBass: Int): ChordCandidate = copy(bass = Notes.pc(newBass), bassDetached = true)
 }
+
+/** Exceptions à la règle « une basse détachée n'est pas comptée dans la lecture ». */
+data class BassReadingOptions(
+    /** Si la basse est la fondamentale d'un accord exact avec le dessus, garder cette lecture (Am7 plutôt que C/A). */
+    val keepRootPositionReading: Boolean = true,
+    /** Si le dessus a moins de 3 notes différentes, compter la basse (C/E plutôt que C1+5/E). */
+    val keepFullReadingWhenUpperIncomplete: Boolean = true,
+)
 
 /** Résultat de l'analyse d'un ensemble de notes jouées ensemble. */
 data class ChordResult(
@@ -121,7 +138,11 @@ object ChordRecognizer {
      * En dessous, un renversement serré est noté comme l'accord à l'état fondamental.
      * 0 : la basse est toujours notée, et toujours comptée dans la lecture.
      */
-    fun recognize(notes: Collection<Int>, slashMinGap: Int = 0): ChordResult {
+    fun recognize(
+        notes: Collection<Int>,
+        slashMinGap: Int = 0,
+        options: BassReadingOptions = BassReadingOptions(),
+    ): ChordResult {
         val sorted = notes.distinct().sorted()
         if (sorted.isEmpty()) return ChordResult(emptyList(), emptySet(), null, null, emptyList())
         val pcs = sorted.map(Notes::pc).toSet()
@@ -137,11 +158,13 @@ object ChordRecognizer {
             val fullBest = full.firstOrNull()
             val upperBest = upper.firstOrNull()
             val rootPosition = fullBest != null && fullBest.root == bass && fullBest.isExact
+            val upperComplete = upperNotes.map(Notes::pc).toSet().size >= 3
             val upperIsSolid = upperBest != null && upperBest.isExact &&
-                upperNotes.map(Notes::pc).toSet().size >= 3
+                (upperComplete || !options.keepFullReadingWhenUpperIncomplete)
             ranked = when {
                 // La lecture du dessus (C/A sous Am7) remplace la lecture complète de même nom
-                rootPosition -> upper.take(1).let { u -> full.filter { f -> u.none { it.symbol == f.symbol } } + u }
+                rootPosition && options.keepRootPositionReading ->
+                    upper.take(1).let { u -> full.filter { f -> u.none { it.symbol == f.symbol } } + u }
                 upperIsSolid || (fullBest == null && upperBest != null) -> upper
                 else -> full
             }

@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -49,6 +51,12 @@ import fr.declodeur.harmonie.engine.AnalysisSettings
 import fr.declodeur.harmonie.engine.ChordCandidate
 import fr.declodeur.harmonie.engine.ChordResult
 import fr.declodeur.harmonie.engine.EngineSnapshot
+import fr.declodeur.harmonie.engine.HarmonicAnalysis
+import fr.declodeur.harmonie.engine.HarmonicFunction
+import fr.declodeur.harmonie.engine.HistoryEntry
+import fr.declodeur.harmonie.engine.Key
+import fr.declodeur.harmonie.engine.KeyEstimate
+import fr.declodeur.harmonie.engine.Spelling
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.ToneRole
@@ -79,12 +87,24 @@ fun App(controller: AppController) {
                     onOpenSettings = { showSettings = true },
                     onReleaseAll = controller::releaseAll,
                 )
+                val spelling = snap.key?.current?.spelling ?: Spelling.DEFAULT
                 Row(
                     Modifier.fillMaxWidth().weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    CurrentChordPanel(snap.current, Modifier.weight(1.5f).fillMaxHeight())
-                    NotesPanel(snap, Modifier.weight(1f).fillMaxHeight())
+                    CurrentChordPanel(
+                        snap.current,
+                        snap.currentAnalysis,
+                        spelling,
+                        Modifier.weight(1.5f).fillMaxHeight(),
+                    )
+                    Column(
+                        Modifier.weight(1f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        KeyPanel(snap.key, Modifier.fillMaxWidth())
+                        NotesPanel(snap, spelling, Modifier.fillMaxWidth().weight(1f))
+                    }
                 }
                 HistoryPanel(snap.history, onClear = controller::clearHistory)
                 KeyboardPanel(snap, onKeyClick = controller::toggleKey)
@@ -158,7 +178,12 @@ private fun TopBar(
 }
 
 @Composable
-private fun CurrentChordPanel(result: ChordResult?, modifier: Modifier) {
+private fun CurrentChordPanel(
+    result: ChordResult?,
+    analysis: HarmonicAnalysis?,
+    spelling: Spelling,
+    modifier: Modifier,
+) {
     Panel("Accord courant", modifier, help = Help.CURRENT_CHORD) {
         val best = result?.best
         if (result == null) {
@@ -171,7 +196,7 @@ private fun CurrentChordPanel(result: ChordResult?, modifier: Modifier) {
                     fontWeight = FontWeight.Medium,
                 )
                 Spacer(Modifier.height(8.dp))
-                InfoLine("Notes", result.pitchClasses.sorted().joinToString("  ") { Notes.name(it) })
+                InfoLine("Notes", result.pitchClasses.sorted().joinToString("  ") { Notes.name(it, spelling) })
                 if (result.intervalDescription == null) {
                     Text(
                         "Ces notes ne correspondent à aucun accord de mon dictionnaire.",
@@ -181,30 +206,55 @@ private fun CurrentChordPanel(result: ChordResult?, modifier: Modifier) {
                 }
             }
         } else {
-            ChordDetails(best, result)
+            ChordDetails(best, result, analysis, spelling)
         }
     }
 }
 
 @Composable
-private fun ChordDetails(best: ChordCandidate, result: ChordResult) {
-    Text(
-        buildAnnotatedString {
-            withStyle(SpanStyle(fontSize = 76.sp, fontWeight = FontWeight.Bold)) { append(best.rootName) }
-            withStyle(SpanStyle(fontSize = 46.sp, fontWeight = FontWeight.SemiBold)) { append(best.type.suffix) }
-            best.slash?.let { withStyle(SpanStyle(fontSize = 54.sp, color = Palette.muted)) { append("/$it") } }
-        },
-        lineHeight = 84.sp,
-    )
+private fun ChordDetails(best: ChordCandidate, result: ChordResult, analysis: HarmonicAnalysis?, spelling: Spelling) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            buildAnnotatedString {
+                withStyle(SpanStyle(fontSize = 76.sp, fontWeight = FontWeight.Bold)) { append(best.rootNameIn(spelling)) }
+                withStyle(SpanStyle(fontSize = 46.sp, fontWeight = FontWeight.SemiBold)) { append(best.type.suffix) }
+                best.slashIn(spelling)?.let { withStyle(SpanStyle(fontSize = 54.sp, color = Palette.muted)) { append("/$it") } }
+            },
+            lineHeight = 84.sp,
+        )
+        if (analysis != null) {
+            Spacer(Modifier.width(28.dp))
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(analysis.numeral, fontSize = 40.sp, fontWeight = FontWeight.SemiBold, color = Palette.accent)
+                    Spacer(Modifier.width(8.dp))
+                    HelpBubble(Help.NUMERAL)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    analysis.function?.let {
+                        FunctionBadge(it)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(analysis.category.label, fontSize = 14.sp, color = Palette.muted)
+                    Spacer(Modifier.width(6.dp))
+                    HelpBubble(Help.FUNCTION)
+                }
+            }
+        }
+    }
     Text(best.type.frenchName.replaceFirstChar { it.uppercase() }, fontSize = 16.sp, color = Palette.muted)
+    if (analysis != null) {
+        Spacer(Modifier.height(6.dp))
+        Text(analysis.description, fontSize = 15.sp, lineHeight = 21.sp)
+    }
     Spacer(Modifier.height(12.dp))
-    val inversion = if (best.bass != best.root && !best.bassDetached) "${best.inversion}, serré (basse non notée)"
-    else best.inversion
+    val inversion = if (best.bass != best.root && !best.bassDetached) "${best.inversionIn(spelling)}, serré (basse non notée)"
+    else best.inversionIn(spelling)
     InfoLine("Renversement", inversion, Help.INVERSION)
     InfoLine(
         "Notes",
         result.pitchClasses.sortedBy { Notes.pc(it - best.root) }.joinToString("   ") { pc ->
-            Notes.name(pc) + when {
+            Notes.name(pc, spelling) + when {
                 best.roleOf(pc) == ToneRole.BASS -> " (basse)"
                 else -> best.degreeOf(pc)?.let { " ($it)" } ?: ""
             }
@@ -215,13 +265,13 @@ private fun ChordDetails(best: ChordCandidate, result: ChordResult) {
     }
     if (best.extraNotes.isNotEmpty()) {
         Text(
-            "Note étrangère à l'accord : " + best.extraNotes.joinToString(", ") { Notes.name(it) },
+            "Note étrangère à l'accord : " + best.extraNotes.joinToString(", ") { Notes.name(it, spelling) },
             fontSize = 14.sp,
             color = Palette.extra,
         )
     }
     if (result.alternatives.isNotEmpty()) {
-        InfoLine("Autres lectures", result.alternatives.joinToString("   ") { it.symbol }, Help.ALTERNATIVES)
+        InfoLine("Autres lectures", result.alternatives.joinToString("   ") { it.symbolIn(spelling) }, Help.ALTERNATIVES)
     }
 }
 
@@ -239,7 +289,7 @@ private fun InfoLine(label: String, value: String, help: String? = null) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun NotesPanel(snap: EngineSnapshot, modifier: Modifier) {
+private fun NotesPanel(snap: EngineSnapshot, spelling: Spelling, modifier: Modifier) {
     val chord = snap.current?.best
     Panel("Notes jouées", modifier, help = Help.NOTES) {
         val analysed = snap.notes.filter { !it.melody }.sortedBy { it.note }
@@ -252,7 +302,7 @@ private fun NotesPanel(snap: EngineSnapshot, modifier: Modifier) {
                 analysed.forEach { n ->
                     val role = if (chord != null && n.analysed) chord.roleOf(n.note) else ToneRole.NONE
                     NoteChip(
-                        name = Notes.nameWithOctave(n.note),
+                        name = Notes.nameWithOctave(n.note, spelling),
                         degree = when {
                             !n.analysed -> null
                             role == ToneRole.BASS -> "basse"
@@ -270,7 +320,7 @@ private fun NotesPanel(snap: EngineSnapshot, modifier: Modifier) {
             Spacer(Modifier.height(6.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 melody.forEach { n ->
-                    NoteChip(Notes.nameWithOctave(n.note), null, Palette.melody, n.sustained)
+                    NoteChip(Notes.nameWithOctave(n.note, spelling), null, Palette.melody, n.sustained)
                 }
             }
         }
@@ -292,7 +342,7 @@ private fun NoteChip(name: String, degree: String?, color: Color, sustained: Boo
 }
 
 @Composable
-private fun HistoryPanel(history: List<ChordResult>, onClear: () -> Unit) {
+private fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
     Panel(
         "Historique",
         Modifier.fillMaxWidth(),
@@ -300,23 +350,33 @@ private fun HistoryPanel(history: List<ChordResult>, onClear: () -> Unit) {
         action = { TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) } },
     ) {
         if (history.isEmpty()) {
-            Text("Les accords reconnus s'afficheront ici.", fontSize = 14.sp, color = Palette.muted)
+            Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
         } else {
             val scroll = rememberScrollState()
             Row(Modifier.horizontalScroll(scroll), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                history.forEachIndexed { i, r ->
+                history.forEachIndexed { i, entry ->
                     val last = i == history.lastIndex
+                    val sp = entry.analysis?.key?.spelling ?: Spelling.DEFAULT
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = Palette.surfaceHigh,
                         border = BorderStroke(if (last) 2.dp else 1.dp, if (last) Palette.accent else Palette.border),
                     ) {
-                        Text(
-                            r.best?.symbol ?: "?",
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                            fontSize = 18.sp,
-                            fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
-                        )
+                        Column(
+                            Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                entry.chord.best?.symbolIn(sp) ?: "?",
+                                fontSize = 18.sp,
+                                fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
+                            )
+                            Text(
+                                entry.analysis?.numeral ?: "·",
+                                fontSize = 13.sp,
+                                color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
+                            )
+                        }
                     }
                 }
             }
@@ -380,7 +440,10 @@ private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettin
         confirmButton = { TextButton(onClick = onClose) { Text("Fermer") } },
         title = { Text("Réglages") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.width(440.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.width(500.dp).heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+            ) {
                 Column {
                     Label("Délai de stabilité : ${settings.stabilityMs} ms", Help.STABILITY)
                     Slider(
@@ -404,16 +467,112 @@ private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettin
                         steps = 23,
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Label("Inclure les notes tenues par la pédale", Help.SUSTAIN)
-                    }
-                    Switch(
-                        checked = settings.includeSustain,
-                        onCheckedChange = { onChange(settings.copy(includeSustain = it)) },
+                SwitchLine("Inclure les notes tenues par la pédale", Help.SUSTAIN, settings.includeSustain) {
+                    onChange(settings.copy(includeSustain = it))
+                }
+                SwitchLine(
+                    "Basse fondamentale : garder la lecture complète (Am7 plutôt que C/A)",
+                    Help.KEEP_ROOT_POSITION,
+                    settings.bassOptions.keepRootPositionReading,
+                ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepRootPositionReading = it))) }
+                SwitchLine(
+                    "Dessus incomplet : compter la basse (C/E plutôt que C1+5/E)",
+                    Help.KEEP_FULL_WHEN_INCOMPLETE,
+                    settings.bassOptions.keepFullReadingWhenUpperIncomplete,
+                ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
+                Column {
+                    Label("Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY)
+                    Slider(
+                        value = settings.keyMemorySeconds.toFloat(),
+                        onValueChange = { onChange(settings.copy(keyMemorySeconds = ((it / 2f).roundToInt() * 2))) },
+                        valueRange = 4f..60f,
+                        steps = 27,
                     )
                 }
             }
         },
     )
+}
+
+@Composable
+private fun SwitchLine(label: String, help: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) { Label(label, help) }
+        Spacer(Modifier.width(12.dp))
+        Switch(checked = checked, onCheckedChange = onChange)
+    }
+}
+
+fun functionColor(f: HarmonicFunction): Color = when (f) {
+    HarmonicFunction.TONIC -> Palette.tonic
+    HarmonicFunction.SUBDOMINANT -> Palette.subdominant
+    HarmonicFunction.DOMINANT -> Palette.dominant
+}
+
+@Composable
+private fun FunctionBadge(f: HarmonicFunction) {
+    val c = functionColor(f)
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = c.copy(alpha = 0.18f),
+        border = BorderStroke(1.dp, c),
+    ) {
+        Text(
+            "${f.label} (${f.short})",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+            fontSize = 14.sp,
+            color = c,
+        )
+    }
+}
+
+@Composable
+private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
+    Panel("Tonalité probable", modifier, help = Help.KEY) {
+        val current = estimate?.current
+        if (estimate == null || current == null) {
+            Text("Jouez quelques accords…", fontSize = 18.sp, color = Palette.muted)
+        } else {
+            KeyDetails(estimate, current)
+        }
+    }
+}
+
+@Composable
+private fun KeyDetails(estimate: KeyEstimate, current: Key) {
+    run {
+        Text(current.name, fontSize = 32.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            "Relative : ${current.relative.name}",
+            fontSize = 13.sp,
+            color = Palette.muted,
+        )
+        Spacer(Modifier.height(10.dp))
+        estimate.ranking.take(3).forEach { kp ->
+            val isCurrent = kp.key == current
+            Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    kp.key.name,
+                    modifier = Modifier.width(120.dp),
+                    fontSize = 14.sp,
+                    color = if (isCurrent) Palette.text else Palette.muted,
+                )
+                Box(Modifier.weight(1f).height(8.dp)) {
+                    Surface(color = Palette.surfaceHigh, shape = RoundedCornerShape(4.dp), modifier = Modifier.fillMaxWidth().height(8.dp)) {}
+                    Surface(
+                        color = if (isCurrent) Palette.accent else Palette.muted,
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.fillMaxWidth(kp.probability.toFloat().coerceIn(0.01f, 1f)).height(8.dp),
+                    ) {}
+                }
+                Text(
+                    "${(kp.probability * 100).roundToInt()} %",
+                    modifier = Modifier.width(52.dp),
+                    fontSize = 14.sp,
+                    color = if (isCurrent) Palette.text else Palette.muted,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                )
+            }
+        }
+    }
 }
