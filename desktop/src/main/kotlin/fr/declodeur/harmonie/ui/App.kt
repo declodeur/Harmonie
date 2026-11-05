@@ -105,7 +105,7 @@ fun App(controller: AppController) {
                 }
                 HistoryPanel(snap.history, onClear = controller::clearHistory)
                 Row(
-                    Modifier.fillMaxWidth().height(246.dp),
+                    Modifier.fillMaxWidth().height(206.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     KeyboardPanel(snap, onKeyClick = controller::toggleKey, modifier = Modifier.weight(1f).fillMaxHeight())
@@ -246,6 +246,17 @@ private fun ChordDetails(best: ChordCandidate, result: ChordResult, analysis: Ha
         }
     }
     Text(best.type.frenchName.replaceFirstChar { it.uppercase() }, fontSize = 16.sp, color = Palette.muted)
+    if (result.arpeggiated) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Accord arpégé : reconstitué à partir des dernières notes jouées (interprétation).",
+                fontSize = 14.sp,
+                color = Palette.warning,
+            )
+            Spacer(Modifier.width(6.dp))
+            HelpBubble(Help.ARPEGGIO)
+        }
+    }
     if (analysis != null) {
         Spacer(Modifier.height(6.dp))
         Text(analysis.description, fontSize = 15.sp, lineHeight = 21.sp)
@@ -346,121 +357,13 @@ private fun NoteChip(name: String, degree: String?, color: Color, sustained: Boo
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit) {
-    Panel(
-        "Historique",
-        Modifier.fillMaxWidth(),
-        help = Help.HISTORY,
-        action = { TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) } },
-    ) {
-        if (history.isEmpty()) {
-            Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
-        } else {
-            val scroll = rememberScrollState()
-            // Accords regroupés par tonalité : un séparateur à chaque changement,
-            // et sous chaque groupe un trait avec le nom de la tonalité.
-            val groups = groupByKey(history)
-            // Défilement ancré à droite (reverseScrolling) : le dernier accord reste toujours visible,
-            // suivi d'un espace vide de 25 % de la largeur qui symbolise l'avenir.
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val future = maxWidth * 0.25f
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(scroll, reverseScrolling = true),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    groups.forEachIndexed { g, group ->
-                        if (g > 0) {
-                            Box(
-                                Modifier.padding(horizontal = 10.dp).width(1.dp).height(78.dp)
-                                    .background(Palette.border),
-                            )
-                        }
-                        Column(Modifier.width(IntrinsicSize.Max)) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                group.entries.forEach { (i, entry) ->
-                                    HistoryChip(entry, last = i == history.lastIndex)
-                                }
-                            }
-                            Spacer(Modifier.height(6.dp))
-                            Box(
-                                Modifier.fillMaxWidth().height(2.dp)
-                                    .background(Palette.accent.copy(alpha = 0.45f), RoundedCornerShape(1.dp)),
-                            )
-                            Text(
-                                group.key?.name ?: "Tonalité indéterminée",
-                                modifier = Modifier.padding(top = 3.dp),
-                                fontSize = 12.sp,
-                                color = Palette.muted,
-                                maxLines = 1,
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(future))
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                LegendItem(Palette.tonic, "Tonique (T)")
-                LegendItem(Palette.subdominant, "Sous-dominante (SD)")
-                LegendItem(Palette.dominant, "Dominante (D)")
-                LegendItem(Palette.muted, "Sans fonction (chromatique)")
-            }
-        }
-    }
-}
-
-private data class KeyGroup(val key: Key?, val entries: List<IndexedValue<HistoryEntry>>)
-
-/** Regroupe les accords consécutifs joués dans la même tonalité. */
-private fun groupByKey(history: List<HistoryEntry>): List<KeyGroup> {
-    val groups = mutableListOf<KeyGroup>()
-    history.withIndex().forEach { iv ->
-        val key = iv.value.analysis?.key
-        val lastGroup = groups.lastOrNull()
-        if (lastGroup != null && lastGroup.key == key) {
-            groups[groups.lastIndex] = lastGroup.copy(entries = lastGroup.entries + iv)
-        } else {
-            groups += KeyGroup(key, listOf(iv))
-        }
-    }
-    return groups
-}
-
-@Composable
-private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
-    val sp = entry.analysis?.key?.spelling ?: Spelling.DEFAULT
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = Palette.surfaceHigh,
-        border = BorderStroke(if (last) 2.dp else 1.dp, if (last) Palette.accent else Palette.border),
-    ) {
-        Column(
-            Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                entry.chord.best?.symbolIn(sp) ?: "?",
-                fontSize = 18.sp,
-                fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
-            )
-            Text(
-                entry.analysis?.numeral ?: "·",
-                fontSize = 13.sp,
-                color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
 private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modifier: Modifier) {
     Panel("Clavier", modifier, help = Help.KEYBOARD) {
         PianoKeyboard(
             notes = snap.notes,
             chord = snap.current?.best,
             onKeyClick = onKeyClick,
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier.fillMaxWidth().height(92.dp),
         )
         Spacer(Modifier.height(8.dp))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -542,6 +445,30 @@ private fun SettingsDialog(settings: AnalysisSettings, onChange: (AnalysisSettin
                     Help.KEEP_FULL_WHEN_INCOMPLETE,
                     settings.bassOptions.keepFullReadingWhenUpperIncomplete,
                 ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
+                SwitchLine("Reconnaître les accords arpégés", Help.ARPEGGIO, settings.arpeggioDetection) {
+                    onChange(settings.copy(arpeggioDetection = it))
+                }
+                Column {
+                    Label(
+                        "Arpèges : remonter jusqu'à ${settings.arpeggioMaxNotes} notes et " +
+                            "${"%.1f".format(settings.arpeggioWindowMs / 1000.0)} s en arrière",
+                        Help.ARPEGGIO_WINDOW,
+                    )
+                    Slider(
+                        value = settings.arpeggioMaxNotes.toFloat(),
+                        onValueChange = { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) },
+                        valueRange = 3f..12f,
+                        steps = 8,
+                        enabled = settings.arpeggioDetection,
+                    )
+                    Slider(
+                        value = settings.arpeggioWindowMs.toFloat(),
+                        onValueChange = { onChange(settings.copy(arpeggioWindowMs = ((it / 250f).roundToInt() * 250))) },
+                        valueRange = 500f..5000f,
+                        steps = 17,
+                        enabled = settings.arpeggioDetection,
+                    )
+                }
                 Column {
                     Label("Poids de la mélodie pour la tonalité : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT)
                     Slider(

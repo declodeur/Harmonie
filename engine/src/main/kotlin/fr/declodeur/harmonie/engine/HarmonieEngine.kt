@@ -36,6 +36,12 @@ data class AnalysisSettings(
     val keyMemorySeconds: Int = 12,
     /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
     val melodyWeightPercent: Int = 70,
+    /** Reconnaître les accords arpégés quand aucun accord n'est tenu. */
+    val arpeggioDetection: Boolean = true,
+    /** Arpèges : on remonte au plus ce nombre de millisecondes en arrière. */
+    val arpeggioWindowMs: Int = 2000,
+    /** Arpèges : on remonte au plus ce nombre de notes en arrière. */
+    val arpeggioMaxNotes: Int = 6,
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -51,11 +57,43 @@ data class SoundingNote(
     val analysed: Boolean,
 )
 
+/** Type de résolution entre un accord et le précédent (notation d'analyse jazz). */
+enum class Resolution {
+    /** La fondamentale descend d'une quinte depuis une dominante (V → I, V7/II → IIm) : flèche pleine. */
+    FIFTH,
+
+    /** Une dominante descend d'un demi-ton (SubV → I) : flèche pointillée. */
+    HALF_STEP,
+}
+
 /** Un accord de l'historique, avec son analyse dans la tonalité du moment. */
 data class HistoryEntry(
     val chord: ChordResult,
     val analysis: HarmonicAnalysis?,
+    /** Résolution depuis l'accord précédent, s'il y en a une. */
+    val resolution: Resolution? = null,
+    /** Cet accord est le V d'un II-V dont le II est l'accord précédent (crochet). */
+    val closesTwoFive: Boolean = false,
 )
+
+/** Relations harmoniques entre deux accords consécutifs. */
+object ChordRelations {
+    fun resolution(previous: ChordCandidate, previousFunction: HarmonicFunction?, chord: ChordCandidate): Resolution? {
+        val fall = Notes.pc(previous.root - chord.root)
+        val dominantLike = previous.type.isDominant ||
+            (previous.type.isMajorTriadBased && previousFunction == HarmonicFunction.DOMINANT)
+        return when {
+            fall == 7 && dominantLike -> Resolution.FIFTH
+            fall == 1 && previous.type.isDominant -> Resolution.HALF_STEP
+            else -> null
+        }
+    }
+
+    /** II-V : accord mineur (ou demi-diminué) suivi d'une dominante une quarte plus haut. */
+    fun isTwoFive(previous: ChordCandidate, chord: ChordCandidate): Boolean =
+        (previous.type.isMinorTriadBased || previous.type == ChordType.MINOR7_FLAT5) &&
+            chord.type.isDominant && Notes.pc(chord.root - previous.root) == 5
+}
 
 data class EngineSnapshot(
     val version: Long,
@@ -101,6 +139,9 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     /** Notes (canal, note) considérées comme mélodie pour la tonalité. */
     private val melodicNotes = HashSet<Pair<Int, Int>>()
 
+    /** Dernières attaques sur les canaux d'accords (note, instant), pour reconnaître les arpèges. */
+    private val recentAttacks = ArrayDeque<Pair<Int, Long>>()
+
     /** Attaques récentes sur les canaux d'accords, pas encore classées accord / note seule. */
     private val burst = ArrayList<Pair<Int, Int>>()
     private var burstLastMs = 0L
@@ -117,6 +158,8 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 attackSinceCommit = true
                 burst += channel to note
                 burstLastMs = nowMs
+                recentAttacks.addLast(note to nowMs)
+                while (recentAttacks.size > MAX_RECENT_ATTACKS) recentAttacks.removeFirst()
             } else {
                 melodicNotes += channel to note
                 keyDetector.addAttack(note, melodic = true)
@@ -165,6 +208,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         history.clear()
         current = null
         keyDetector.reset()
+        recentAttacks.clear()
         melodicNotes.clear()
         burst.clear()
         keyEstimate = null
@@ -212,7 +256,10 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         if (!attackSinceCommit) return false
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
-        val result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
+        var result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
+        // Reconnaissance d'arpège seulement en secours, quand aucun accord n'est tenu
+        val holdsChord = result.best != null && result.pitchClasses.size >= 3
+        if (!holdsChord && settings.arpeggioDetection) arpeggio(nowMs)?.let { result = it }
         if (result.best == null && result.pitchClasses.size < 2) return false
         attackSinceCommit = false
         peakSet = emptySet()
@@ -222,12 +269,43 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         if (best != null) {
             keyDetector.addChord(best, previous)
             refreshKey()
-            if (history.lastOrNull()?.chord?.best?.symbol != best.symbol) {
-                history.addLast(HistoryEntry(result, analyze(best)))
+            val last = history.lastOrNull()
+            if (last?.chord?.best?.symbol != best.symbol) {
+                val lastBest = last?.chord?.best
+                history.addLast(
+                    HistoryEntry(
+                        chord = result,
+                        analysis = analyze(best),
+                        resolution = lastBest?.let { ChordRelations.resolution(it, last.analysis?.function, best) },
+                        closesTwoFive = lastBest?.let { ChordRelations.isTwoFive(it, best) } ?: false,
+                    ),
+                )
                 while (history.size > MAX_HISTORY) history.removeFirst()
             }
         }
         return true
+    }
+
+    /**
+     * Cherche un accord arpégé dans les dernières notes jouées : on remonte note par note
+     * (au plus [AnalysisSettings.arpeggioMaxNotes] notes et [AnalysisSettings.arpeggioWindowMs] ms)
+     * et l'on garde la plus longue suite qui forme exactement un accord d'au moins 3 notes.
+     */
+    private fun arpeggio(nowMs: Long): ChordResult? {
+        val recent = recentAttacks.filter { nowMs - it.second <= settings.arpeggioWindowMs }
+            .takeLast(settings.arpeggioMaxNotes)
+            .map { it.first }
+        if (recent.size < 3) return null
+        var found: ChordResult? = null
+        for (k in 3..recent.size) {
+            val notes = recent.takeLast(k)
+            val r = ChordRecognizer.recognize(notes, settings.slashMinGap, settings.bassOptions)
+            val b = r.best
+            val ok = b != null && b.isExact && r.pitchClasses.size >= 3 &&
+                b.type != ChordType.ONE_PLUS_FIVE && b.type != ChordType.ONE_PLUS_EIGHT
+            if (ok) found = r.copy(arpeggiated = true) else if (found != null) break
+        }
+        return found
     }
 
     /** Recalcule la tonalité ; renvoie true si ce qui est affiché a changé. */
@@ -284,6 +362,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     companion object {
         const val MAX_HISTORY = 32
         const val KEY_REFRESH_MS = 250L
+        private const val MAX_RECENT_ATTACKS = 32
         private const val EMPTY_KEY_SIGNATURE = "null|"
     }
 }

@@ -56,15 +56,18 @@ object Help {
             "(notes ajoutées au-dessus de la septième). « pédale » : touche relâchée, note tenue par la pédale."
 
     const val HISTORY =
-        "Les accords reconnus successivement, du plus ancien (à gauche) au plus récent (encadré). " +
-            "Un même accord rejoué n'est pas répété. Sous chaque accord : son chiffrage dans la tonalité du " +
-            "moment, coloré selon sa fonction (voir la légende). Les accords sont regroupés par tonalité : un " +
-            "séparateur marque chaque changement de tonalité, et le nom de la tonalité court sous ses accords. " +
-            "Le dernier accord reste toujours visible, suivi d'un espace libre pour la suite ; faites défiler " +
-            "vers la gauche (Maj + molette, ou pavé tactile) pour revoir les accords plus anciens. " +
-            "« Effacer » vide l'historique et repart de zéro pour la tonalité " +
-            "(utile pour commencer un nouveau morceau). Les flèches de résolution et crochets des II-V viendront " +
-            "à l'étape suivante."
+        "Les accords reconnus successivement, du plus ancien (à gauche) au plus récent (encadré). Un même " +
+            "accord rejoué n'est pas répété. Sous chaque accord : son chiffrage dans la tonalité du moment, " +
+            "coloré selon sa fonction.\n\n" +
+            "Notation d'analyse (inspirée de l'analyse jazz) :\n" +
+            "Flèche pleine : une dominante résout une quinte plus bas (V7 → I, V7/II → IIm).\n" +
+            "Flèche pointillée : une dominante résout un demi-ton plus bas (substitution tritonique, SubV7 → I).\n" +
+            "Crochet : II-V, un accord mineur suivi d'une dominante une quarte plus haut (Dm7 – G7).\n" +
+            "Bordure pointillée : accord arpégé, reconstitué à partir de notes jouées successivement.\n\n" +
+            "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
+            "la tonalité court sous ses accords. Le dernier accord reste visible, suivi d'un espace libre pour " +
+            "la suite ; Maj + molette ou pavé tactile pour revoir les accords plus anciens. « Effacer » vide " +
+            "l'historique et remet la tonalité à zéro (nouveau morceau)."
 
     const val KEYBOARD =
         "Les touches qui sonnent sont colorées selon leur rôle dans l'accord courant. " +
@@ -131,4 +134,16 @@ object Help {
             "en mode « Accords + mélodie », et les notes jouées seules (sans autre note attaquée en même temps) " +
             "en mode « Complète ». Elle départage souvent deux tonalités relatives grâce à leurs notes " +
             "caractéristiques."
+
+    const val ARPEGGIO =
+        "Quand aucun accord n'est tenu (notes jouées une par une), Harmonie cherche un accord dans les " +
+            "dernières notes : il remonte note par note et garde la plus longue suite qui forme exactement un " +
+            "accord d'au moins 3 notes différentes (C E G B♭ donne C7 plutôt que Edim). C'est une " +
+            "interprétation : une mélodie peut aussi dessiner un accord. Ces accords sont signalés par une " +
+            "bordure pointillée dans l'historique."
+
+    const val ARPEGGIO_WINDOW =
+        "Jusqu'où remonter pour reconnaître un arpège : nombre maximal de notes (premier curseur) et durée " +
+            "maximale (second curseur). Plus loin : arpèges lents ou longs reconnus, mais risque de mélanger " +
+            "deux accords successifs."
 }

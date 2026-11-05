@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.5.1 (étapes 1 et 2)
+## Version 0.6 (étapes 1 à 3)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -26,6 +26,8 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Chiffrage romain (suffixes Yamaha), fonction harmonique (tonique, sous-dominante, dominante) et nature de l'accord : diatonique, dominante secondaire (V7/II), substitution tritonique (SubV7), emprunt modal (IVm, ♭VII7), diminué de passage, dominante altérée, napolitain, couleur blues (style Blues).
 - Orthographe des notes selon la tonalité (D♯ en E majeur, D♭ en A♭ majeur).
 - Options pour les deux exceptions de lecture de la basse détachée.
+- Historique annoté : flèche pleine (dominante qui résout une quinte plus bas), flèche pointillée (substitution tritonique), crochet sous les II-V, bordure pointillée des accords arpégés.
+- Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
 ## Organisation
 
@@ -37,7 +39,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 
 1. ~~Squelette, entrée MIDI, clavier, accord courant~~
 2. ~~Tonalité probable et chiffrage romain~~
-3. Historique annoté (flèches, crochets II-V, accords tenus / arpégés)
+3. ~~Historique annoté (flèches, crochets II-V, accords tenus / arpégés)~~
 4. Arbre des accords suivants (modèle théorique par style, puis statistique)
 5. Analyses avancées : gammes d'accord, conduite des voix, voicings, séparation harmonie / mélodie
 

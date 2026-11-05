@@ -122,6 +122,8 @@ data class ChordResult(
     val bass: Int?,
     val best: ChordCandidate?,
     val alternatives: List<ChordCandidate>,
+    /** Accord reconstitué à partir de notes jouées successivement (arpège) : c'est une interprétation. */
+    val arpeggiated: Boolean = false,
 ) {
     /** Pour deux notes qui ne forment pas un accord : nom de l'intervalle. */
     val intervalDescription: String?

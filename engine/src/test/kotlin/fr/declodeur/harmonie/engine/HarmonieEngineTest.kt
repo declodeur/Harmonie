@@ -125,6 +125,91 @@ class HarmonieEngineTest {
         }
     }
 
+    private fun HarmonieEngine.playChord(notes: List<Int>, from: Long, holdMs: Long = 400): Long {
+        notes.forEach { noteOn(0, it, 90, from) }
+        var t = from
+        while (t < from + holdMs) { t += 10; tick(t) }
+        notes.forEach { noteOff(0, it, t) }
+        t += 10; tick(t)
+        return t
+    }
+
+    @Test
+    fun twoFiveOneIsAnnotated() {
+        val e = HarmonieEngine()
+        var t = e.playChord(listOf(50, 53, 57, 60), 0)   // Dm7
+        t = e.playChord(listOf(43, 47, 50, 53), t)       // G7
+        e.playChord(listOf(48, 52, 55, 59), t)           // CM7
+        val h = e.snapshot().history
+        assertEquals(listOf("Dm7", "G7", "CM7"), h.map { it.chord.best?.symbol })
+        assertTrue(h[1].closesTwoFive, "crochet II-V attendu sous Dm7 – G7")
+        assertNull(h[1].resolution)
+        assertEquals(Resolution.FIFTH, h[2].resolution)
+        assertFalse(h[2].closesTwoFive)
+    }
+
+    @Test
+    fun tritoneSubstituteResolutionIsDashed() {
+        val e = HarmonieEngine()
+        var t = e.playChord(listOf(50, 53, 57, 60), 0)   // Dm7
+        t = e.playChord(listOf(49, 53, 56, 59), t)       // D♭7
+        e.playChord(listOf(48, 52, 55, 59), t)           // CM7
+        val h = e.snapshot().history
+        assertFalse(h[1].closesTwoFive)
+        assertEquals(Resolution.HALF_STEP, h[2].resolution)
+    }
+
+    @Test
+    fun arpeggioIsRecognizedWhenNoChordIsHeld() {
+        val e = HarmonieEngine()
+        var t = 0L
+        for (n in listOf(48, 52, 55, 60)) { // C E G C, notes séparées
+            e.noteOn(0, n, 90, t)
+            repeat(25) { t += 10; e.tick(t) }
+            e.noteOff(0, n, t)
+            repeat(5) { t += 10; e.tick(t) }
+        }
+        val cur = e.snapshot().current
+        assertEquals("C", cur?.best?.symbol)
+        assertTrue(cur!!.arpeggiated)
+        assertTrue(e.snapshot().history.last().chord.arpeggiated)
+    }
+
+    @Test
+    fun arpeggioKeepsTheLongestChord() {
+        val e = HarmonieEngine()
+        var t = 0L
+        for (n in listOf(48, 52, 55, 58)) { // C E G B♭ : C7 (et non Edim)
+            e.noteOn(0, n, 90, t)
+            repeat(25) { t += 10; e.tick(t) }
+            e.noteOff(0, n, t)
+        }
+        repeat(10) { t += 10; e.tick(t) }
+        assertEquals("C7", e.snapshot().current?.best?.symbol)
+    }
+
+    @Test
+    fun noArpeggioWhileAChordIsHeld() {
+        val e = HarmonieEngine()
+        listOf(53, 57, 60).forEach { e.noteOn(0, it, 90, 0) } // F tenu
+        var t = 0L
+        repeat(10) { t += 10; e.tick(t) }
+        assertEquals("F", e.symbol())
+        assertFalse(e.snapshot().current!!.arpeggiated)
+    }
+
+    @Test
+    fun arpeggioDetectionCanBeDisabled() {
+        val e = HarmonieEngine(AnalysisSettings(arpeggioDetection = false))
+        var t = 0L
+        for (n in listOf(48, 52, 55)) {
+            e.noteOn(0, n, 90, t)
+            repeat(25) { t += 10; e.tick(t) }
+            e.noteOff(0, n, t)
+        }
+        assertTrue(e.snapshot().history.isEmpty())
+    }
+
     @Test
     fun sameChordTwiceIsNotDuplicatedInHistory() {
         val e = HarmonieEngine()
