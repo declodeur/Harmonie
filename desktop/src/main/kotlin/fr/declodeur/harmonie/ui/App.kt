@@ -423,9 +423,14 @@ private fun MainArea(
         val circleR = layout.circleRatio.coerceIn(0.15f, 0.40f)
         val treeR = 1f - chordR - circleR
         val keyboardH = layout.keyboardHeightDp.dp.coerceIn(70.dp, maxOf(70.dp, total * 0.4f))
+        // Rangée du haut : réglable ; par défaut, elle prend tout sauf la hauteur naturelle de l'historique
+        val historyNatural = 172.dp
+        val topMax = maxOf(160.dp, total - keyboardH - 24.dp - 110.dp)
+        val topAuto = total - keyboardH - 24.dp - historyNatural
+        val topH = (if (layout.topHeightDp < 0) topAuto else layout.topHeightDp.dp).coerceIn(160.dp, topMax)
 
         Column(Modifier.fillMaxSize()) {
-            Row(Modifier.fillMaxWidth().weight(1f)) {
+            Row(Modifier.fillMaxWidth().height(topH)) {
                 CurrentChordPanel(snap.current, snap.currentAnalysis, snap, spelling, Modifier.weight(chordR).fillMaxHeight())
                 VerticalSplitter(
                     onDrag = { dx ->
@@ -446,8 +451,11 @@ private fun MainArea(
                 )
                 KeyPanel(snap.key, Modifier.weight(circleR).fillMaxHeight())
             }
-            Spacer(Modifier.height(12.dp))
-            HistoryPanel(snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth())
+            HorizontalSplitter(
+                onDrag = { dy -> layout = layout.copy(topHeightDp = (topH + dy).coerceIn(160.dp, topMax).value) },
+                onDragEnd = save,
+            )
+            HistoryPanel(snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f))
             HorizontalSplitter(
                 onDrag = { dy ->
                     layout = layout.copy(keyboardHeightDp = (keyboardH - dy).coerceIn(70.dp, maxOf(70.dp, total * 0.4f)).value)

@@ -44,7 +44,7 @@ import fr.declodeur.harmonie.engine.Key
 import fr.declodeur.harmonie.engine.Resolution
 import fr.declodeur.harmonie.engine.Spelling
 
-private val CHIP_HEIGHT = 48.dp
+private val CHIP_HEIGHT = 56.dp
 private val CONNECTOR_WIDTH = 26.dp
 private val BRACKET_HEIGHT = 10.dp
 private val GROUP_FOOTER = 22.dp
@@ -213,19 +213,21 @@ private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
         base.border(borderWidth, borderColor, shape)
     }
     Column(
-        framed.padding(horizontal = 12.dp, vertical = 4.dp),
+        framed.padding(horizontal = 12.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
             entry.chord.best?.symbolIn(sp) ?: "?",
             fontSize = 16.sp,
+            lineHeight = 21.sp,
             fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,
         )
         Text(
             entry.analysis?.numeral ?: "·",
             fontSize = 12.sp,
+            lineHeight = 16.sp,
             color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
             maxLines = 1,
         )

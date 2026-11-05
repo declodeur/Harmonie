@@ -30,6 +30,8 @@ data class LayoutPrefs(
     val circleRatio: Float = 0.27f,
     /** Hauteur du clavier. */
     val keyboardHeightDp: Float = 150f,
+    /** Hauteur de la rangée du haut ; < 0 : automatique (l'historique garde sa hauteur naturelle). */
+    val topHeightDp: Float = -1f,
 )
 
 /** Relie l'entrée MIDI, le moteur d'analyse et l'interface. */
@@ -141,6 +143,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putFloat(KEY_L_CHORD, l.chordRatio)
         prefs.putFloat(KEY_L_CIRCLE, l.circleRatio)
         prefs.putFloat(KEY_L_KEYBOARD, l.keyboardHeightDp)
+        prefs.putFloat(KEY_L_TOP2, l.topHeightDp)
     }
 
     fun resetLayout() = saveLayout(LayoutPrefs())
@@ -151,6 +154,7 @@ class AppController(scope: CoroutineScope) {
             chordRatio = prefs.getFloat(KEY_L_CHORD, d.chordRatio),
             circleRatio = prefs.getFloat(KEY_L_CIRCLE, d.circleRatio),
             keyboardHeightDp = prefs.getFloat(KEY_L_KEYBOARD, d.keyboardHeightDp),
+            topHeightDp = prefs.getFloat(KEY_L_TOP2, d.topHeightDp),
         )
     }
 
@@ -233,6 +237,7 @@ class AppController(scope: CoroutineScope) {
         const val KEY_L_CHORD = "layout2ChordRatio"
         const val KEY_L_CIRCLE = "layout2CircleRatio"
         const val KEY_L_KEYBOARD = "layout2KeyboardHeight"
+        const val KEY_L_TOP2 = "layout2TopHeight"
         const val KEY_P_KEYBOARDS = "predictionMiniKeyboards"
         const val KEY_P_CONTEXT = "predictionContext"
         const val KEY_P_L1 = "predictionLevel1"

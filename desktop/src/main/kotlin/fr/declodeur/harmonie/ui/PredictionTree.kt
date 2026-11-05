@@ -43,7 +43,7 @@ private val COL3_W = 64.dp
 private val LEFT_MARGIN = 18.dp
 private val GAP_12 = 26.dp
 private val GAP_23 = 20.dp
-private val CHIP1_H = 34.dp
+private val CHIP1_H = 46.dp
 private val KEYBOARD_H = 24.dp
 
 /** Position calculée d'un nœud de l'arbre. */
@@ -137,11 +137,11 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
     val totalRows = rowsPerBranch.sum()
     val withKeyboard = CHIP1_H + KEYBOARD_H + 6.dp
     // Hauteur d'une ligne de petites cases, et place pour le mini clavier si possible
-    var rowH = (height / totalRows).coerceIn(18.dp, 34.dp)
+    var rowH = (height / totalRows).coerceIn(24.dp, 36.dp)
     var blockMin = if (showKeyboards) withKeyboard else CHIP1_H + 4.dp
     fun total() = rowsPerBranch.fold(0.dp) { acc, r -> acc + maxOf(rowH * r, blockMin) }
     if (total() > height) blockMin = CHIP1_H + 4.dp
-    if (total() > height) rowH = ((height - 0.dp) / totalRows).coerceAtLeast(14.dp)
+    if (total() > height) rowH = (height / totalRows).coerceAtLeast(20.dp)
 
     // Colonnes élargies quand la place le permet (jusqu'à +60 %)
     val natural = LEFT_MARGIN + COL1_W + GAP_12 + COL2_W + GAP_23 + COL3_W
@@ -158,7 +158,7 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
         val bandH = maxOf(rowH * rowsPerBranch[i], blockMin)
         result += Placed(n, 1, x1, y, w1, bandH)
         val i1 = result.lastIndex
-        val childH = (rowH - 4.dp).coerceAtLeast(14.dp)
+        val childH = (rowH - 4.dp).coerceAtLeast(18.dp)
         val childrenTop = y + (bandH - rowH * n.children.size) / 2
         n.children.forEachIndexed { j, c ->
             val cy = childrenTop + rowH * j + 2.dp
@@ -180,10 +180,11 @@ private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spellin
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(node.chord.symbolIn(spelling), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Text(node.chord.symbolIn(spelling), fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
             Text(
                 node.numeral,
                 fontSize = 11.sp,
+                lineHeight = 14.sp,
                 color = node.function?.let { functionColor(it) } ?: Palette.muted,
                 maxLines = 1,
             )
@@ -202,6 +203,7 @@ private fun SmallChip(node: PredictionNode, alpha: Float, spelling: Spelling, mo
         Text(
             node.chord.symbolIn(spelling),
             fontSize = 12.sp,
+            lineHeight = 15.sp,
             color = node.function?.let { functionColor(it) }?.let { lerpToText(it) } ?: Palette.text,
             maxLines = 1,
         )
