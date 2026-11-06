@@ -1,0 +1,17 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 56. a mineur → g mineur	Reger Max-Modulation-56	1.000	80	
+M	1	0	4
+N	0	1	64
+N	0	2	45
+N	0	2	57
+N	0	2	60
+N	1	1	66
+N	2	2	43
+N	2	2	50
+N	2	2	55
+N	2	2	58
+A	A	0	1	1	1	7	m	ii	9	9	9,0,4	-
+A	A	1	2	1	2	7	m	viio6	6	9	6,9,0	-
+A	A	2	4	1	3	7	m	i	7	7	7,10,2	-
+A	M	0	2	1	1	7	m	ii/I	9	9	9,0,4	-
+A	M	2	4	1	3	7	m	i	7	7	7,10,2	-

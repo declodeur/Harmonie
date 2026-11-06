@@ -1,0 +1,35 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 10c. C majeur → F majeur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-10c	1.000	80	
+M	1	0	4
+M	2	4	4
+M	3	8	4
+N	0	2	60
+N	0	2	64
+N	0	2	67
+N	0	2	72
+N	2	2	65
+N	2	2	65
+N	2	2	69
+N	2	2	72
+N	4	2	58
+N	4	2	65
+N	4	2	70
+N	4	2	74
+N	6	2	60
+N	6	2	64
+N	6	2	67
+N	6	2	72
+N	8	4	65
+N	8	4	65
+N	8	4	69
+N	8	4	72
+A	A	0	2	1	1	0	M	I	0	0	0,4,7	-
+A	A	2	4	1	3	0	M	IV	5	5	5,9,0	-
+A	A	4	6	2	1	0	M	IV/IV	10	10	10,2,5	-
+A	A	6	8	2	3	0	M	V/IV	0	0	0,4,7	-
+A	A	8	12	3	1	5	M	I	5	5	5,9,0	-
+A	M	0	2	1	1	5	M	V	0	0	0,4,7	-
+A	M	2	4	1	3	5	M	I	5	5	5,9,0	-
+A	M	4	6	2	1	5	M	IV	10	10	10,2,5	-
+A	M	6	8	2	3	5	M	V	0	0	0,4,7	-
+A	M	8	12	3	1	5	M	I	5	5	5,9,0	-

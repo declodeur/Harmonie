@@ -1,0 +1,41 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 5e. A mineur → D mineur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-5e	0.955	80	
+M	1	0	4
+M	2	4	4
+M	3	8	4
+N	0	2	57
+N	0	2	64
+N	0	2	69
+N	0	2	72
+N	2	2	55
+N	2	2	64
+N	2	2	70
+N	2	2	72
+N	4	2	53
+N	4	2	65
+N	4	2	69
+N	4	2	72
+N	6	2	55
+N	6	2	62
+N	6	2	67
+N	6	2	70
+N	8	2	57
+N	8	2	60
+N	8	2	64
+N	8	2	69
+N	10	2	62
+N	10	2	62
+N	10	2	65
+N	10	2	69
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	3	9	m	V43/VI	0	7	0,4,7,10	-
+A	A	4	6	2	1	5	M	I	5	5	5,9,0	-
+A	A	6	8	2	3	5	M	iv/vi	7	7	7,10,2	-
+A	A	8	10	3	1	5	M	V/vi	9	9	9,1,4	-
+A	A	10	12	3	3	2	m	i	2	2	2,5,9	-
+A	M	0	2	1	1	9	m	iii/VI	9	9	9,0,4	-
+A	M	2	4	1	3	5	M	V43	0	7	0,4,7,10	-
+A	M	4	6	2	1	5	M	I	5	5	5,9,0	-
+A	M	6	8	2	3	5	M	ii	7	7	7,10,2	-
+A	M	8	10	3	1	9	m	iii/VI	9	9	9,0,4	-
+A	M	10	12	3	3	2	m	vi/III	2	2	2,5,9	-

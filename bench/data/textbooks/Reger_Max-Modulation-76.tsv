@@ -1,0 +1,33 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 76. a mineur → A♯ majeur	Reger Max-Modulation-76	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	45
+N	0	1	57
+N	0	1	72
+N	0	2	64
+N	1	1	52
+N	1	1	55
+N	1	2	71
+N	2	0.5	47
+N	2	1	54
+N	2	1	63
+N	2.5	0.5	51
+N	3	1	53
+N	3	1	60
+N	3	1	69
+N	3	5	53
+N	4	4	46
+N	4	4	62
+N	4	4	70
+A	A	0	1	1	1	9	m	i	9	9	9,0,4	-
+A	A	1	2	1	2	11	M	iv	4	4	4,7,11	-
+A	A	2	2.5	1	3	10	M	N	11	11	11,3,6	N
+A	A	2.5	3	1	3.5	10	M	N6	11	3	11,3,6	N
+A	A	3	4	1	4	10	M	V	5	5	5,9,0	-
+A	A	4	8	2	1	10	M	I	10	10	10,2,5	-
+A	M	0	1	1	1	9	m	i	9	9	9,0,4	-
+A	M	1	2	1	2	4	m	i	4	4	4,7,11	-
+A	M	2	3	1	3	4	m	V	11	11	11,3,6	-
+A	M	3	4	1	4	10	m	V	5	5	5,9,0	-
+A	M	4	8	2	1	10	m	V/iv	10	10	10,2,5	-

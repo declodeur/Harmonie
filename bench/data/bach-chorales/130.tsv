@@ -1,5 +1,5 @@
 # Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
-P	Choral 130 (BWV 324) — Meine Seel erhebt den Herren The German Magnificat]	130	0.869
+P	Choral 130 (BWV 324) — Meine Seel erhebt den Herren The German Magnificat]	130	0.829	80	
 M	1	0	4
 M	2	4	4
 M	3	8	4
@@ -105,8 +105,10 @@ A	A	13	14	4	2	7	M	ii7	9	9	9,0,4,7	-
 A	A	14	16	4	3	7	M	V	2	2	2,6,9	-
 A	A	16	20	5	1	7	M	I	7	7	7,11,2	-
 A	A	20	22	6	1	7	M	I	7	7	7,11,2	-
-A	A	22	46	6	3	7	M	I6	7	11	7,11,2	-
-A	A	46	48	9	1	7	M	i64	7	2	7,10,2	-
-A	A	48	49	9	3	7	M	V	2	2	2,6,9	-
-A	A	49	50	9	4	7	M	V7	2	2	2,6,9,0	-
-A	A	50	54	10	1	7	M	i	7	7	7,10,2	-
+A	A	22	24	6	3	7	M	I6	7	11	7,11,2	-
+A	A	24	28	7	1	7	M	V	2	2	2,6,9	-
+A	A	28	30	8	1	4	m	iv6	9	0	9,0,4	-
+A	A	30	32	9	1	4	m	i64	4	11	4,7,11	-
+A	A	32	33	9	3	4	m	V	11	11	11,3,6	-
+A	A	33	34	9	4	4	m	V7	11	11	11,3,6,9	-
+A	A	34	54	10	1	4	m	i	4	4	4,7,11	-

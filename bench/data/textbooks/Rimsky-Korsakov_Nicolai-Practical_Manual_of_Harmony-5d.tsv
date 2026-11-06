@@ -1,0 +1,28 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 5d. A mineur → C majeur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-5d	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	2	57
+N	0	2	64
+N	0	2	69
+N	0	2	72
+N	2	2	65
+N	2	2	65
+N	2	2	69
+N	2	2	72
+N	4	2	62
+N	4	2	65
+N	4	2	71
+N	4	2	74
+N	6	2	60
+N	6	2	67
+N	6	2	72
+N	6	2	76
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	3	9	m	IV/III	5	5	5,9,0	-
+A	A	4	6	2	1	9	m	viio6/III	11	2	11,2,5	-
+A	A	6	8	2	3	0	M	I	0	0	0,4,7	-
+A	M	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	M	2	4	1	3	9	m	VI	5	5	5,9,0	-
+A	M	4	6	2	1	9	m	viio6/III	11	2	11,2,5	-
+A	M	6	8	2	3	0	M	I	0	0	0,4,7	-

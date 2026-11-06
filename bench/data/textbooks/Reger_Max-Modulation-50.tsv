@@ -1,0 +1,33 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 50. A mineur → C♯ mineur	Reger Max-Modulation-50	0.975	80	
+M	1	0	4
+M	2	4	4
+N	0	1	45
+N	0	1	64
+N	0	1	69
+N	0	1	72
+N	1	1	47
+N	1	1	62
+N	1	1	68
+N	1	1	71
+N	2	1	42
+N	2	1	66
+N	2	1	69
+N	2	1.5	61
+N	3	1	44
+N	3	1	63
+N	3	5	68
+N	3.5	0.5	60
+N	4	4	49
+N	4	4	61
+N	4	4	64
+A	A	0	1	1	1	9	m	i	9	9	9,0,4	-
+A	A	1	2	1	2	6	m	iio6	8	11	8,11,2	-
+A	A	2	3	1	3	1	m	iv	6	6	6,9,1	-
+A	A	3	4	1	4	1	m	V	8	8	8,0,3	-
+A	A	4	8	2	1	1	m	i	1	1	1,4,8	-
+A	M	0	1	1	1	9	m	i	9	9	9,0,4	-
+A	M	1	2	1	2	1	m	viio6/VI	8	11	8,11,2	-
+A	M	2	3	1	3	1	m	iv	6	6	6,9,1	-
+A	M	3	4	1	4	1	m	V	8	8	8,0,3	-
+A	M	4	8	2	1	1	m	i	1	1	1,4,8	-

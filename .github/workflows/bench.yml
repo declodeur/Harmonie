@@ -11,6 +11,11 @@ on:
       - 'bench/**'
       - '.github/workflows/bench.yml'
   workflow_dispatch:
+    inputs:
+      experiments:
+        description: "Expériences à jouer (identifiants séparés par des virgules, ou all)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -42,7 +47,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Banc d'essai
-        run: ./gradlew --no-daemon --console=plain :bench:run --args="bench/data results results/history.tsv"
+        run: ./gradlew --no-daemon --console=plain :bench:run --args="bench/data results results/history.tsv ${{ github.event.inputs.experiments }}"
 
       - name: Publication du rapport
         run: |

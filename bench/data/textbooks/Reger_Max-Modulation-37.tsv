@@ -1,0 +1,24 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 37. C majeur → E♭ mineur	Reger Max-Modulation-37	0.969	80	
+M	1	0	4
+M	2	4	4
+N	1	1	48
+N	1	1	55
+N	1	1	64
+N	1	2.5	72
+N	2	1	53
+N	2	2	56
+N	2	2	65
+N	3	1	46
+N	3.5	0.5	74
+N	4	4	51
+N	4	4	54
+N	4	4	63
+N	4	4	75
+A	A	1	2	1	2	0	M	I	0	0	0,4,7	-
+A	A	2	3	1	3	3	m	ii	5	5	5,8,0	-
+A	A	3	4	1	4	3	m	V7	10	10	10,2,5,8	-
+A	A	4	8	2	1	3	m	i	3	3	3,6,10	-
+A	M	2	3	1	3	5	m	i	5	5	5,8,0	-
+A	M	3	4	1	4	3	M	V7	10	10	10,2,5,8	-
+A	M	4	8	2	1	3	M	i/i	3	3	3,6,10	-

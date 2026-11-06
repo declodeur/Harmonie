@@ -34,15 +34,20 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 
 ## Banc d'essai
 
-Le moteur est mesuré sur de la vraie musique analysée par des experts : 363 chorals de Bach du corpus
-[When in Rome](https://github.com/MarkGotham/When-in-Rome) (100 d'entre eux avec une seconde analyse, pour mesurer
-l'accord entre experts). Chaque choral est rejoué dans le moteur comme en direct, puis l'accord, la tonalité et le
-chiffrage affichés sont comparés à ceux de l'expert.
+Le moteur est mesuré sur de la vraie musique analysée par des experts, issue du corpus
+[When in Rome](https://github.com/MarkGotham/When-in-Rome) : chorals de Bach, sonates pour piano de Mozart, exemples
+de manuels d'harmonie, préludes du Clavier bien tempéré, Winterreise de Schubert (environ 650 morceaux, 40 000 accords).
+Chaque morceau est rejoué dans le moteur comme en direct, puis l'accord, la tonalité et le chiffrage affichés sont
+comparés à ceux de l'expert, et, quand il existe, à un second expert et à un logiciel d'analyse (AugmentedNet).
+
+Expériences : chaque hypothèse d'amélioration est un réglage du moteur ; le banc joue la version actuelle et la
+variante, et montre les accords gagnés et perdus (`bench/src/.../Experiments.kt`, lancement à la demande avec
+l'identifiant de l'expérience).
 
 - Lancé automatiquement quand le moteur change, ou à la demande (onglet Actions, « Banc d'essai », *Run workflow*) ;
   il ne bloque jamais la compilation.
 - Rapport et historique des scores : branche `bench-results`.
-- En local : `./gradlew :bench:run --args="bench/data bench/build/report"`.
+- En local : `./gradlew :bench:run --args="bench/data bench/build/report - all"` (`all` : toutes les expériences).
 - Données : `bench/data` (CC BY-SA 4.0, voir son README), converties par `bench/tools/convert_when_in_rome.py`.
 
 ## Organisation

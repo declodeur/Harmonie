@@ -1,0 +1,31 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 22. C majeur → a mineur	Reger Max-Modulation-22	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	48
+N	0	1	55
+N	0	1	64
+N	0	1	72
+N	1	1	50
+N	1	1	53
+N	1	1	62
+N	1	2	69
+N	2	1	52
+N	2	1	60
+N	2	6	52
+N	3	1	40
+N	3	1	59
+N	3	1	68
+N	4	4	45
+N	4	4	60
+N	4	4	69
+A	A	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	A	1	2	1	2	9	m	iv	2	2	2,5,9	-
+A	A	2	3	1	3	9	m	Cad64	9	4	9,0,4	Cad
+A	A	3	4	1	4	9	m	V	4	4	4,8,11	-
+A	A	4	8	2	1	9	m	i	9	9	9,0,4	-
+A	M	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	M	1	2	1	2	9	m	ii/III	2	2	2,5,9	-
+A	M	2	3	1	3	9	m	i64	9	4	9,0,4	-
+A	M	3	4	1	4	9	m	V	4	4	4,8,11	-
+A	M	4	8	2	1	9	m	i	9	9	9,0,4	-

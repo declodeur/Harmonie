@@ -1,0 +1,39 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 10. C majeur → A♯ majeur	Reger Max-Modulation-10	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	48
+N	0	1	55
+N	0	2	64
+N	0	2	72
+N	1	1	45
+N	1	1	57
+N	2	1	47
+N	2	1	54
+N	2	1	63
+N	2	2	71
+N	3	1	51
+N	3	1	63
+N	3	1	66
+N	4	1	62
+N	4	1	70
+N	4	2	53
+N	4	4	65
+N	5	1	60
+N	5	1	69
+N	6	2	46
+N	6	2	62
+N	6	2	70
+A	A	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	A	1	2	1	2	4	m	iv	9	9	9,0,4	-
+A	A	2	3	1	3	4	m	V	11	11	11,3,6	-
+A	A	3	4	1	4	10	M	N6	11	3	11,3,6	N
+A	A	4	5	2	1	10	M	Cad64	10	5	10,2,5	Cad
+A	A	5	6	2	2	10	M	V	5	5	5,9,0	-
+A	A	6	8	2	3	10	M	I	10	10	10,2,5	-
+A	M	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	M	1	2	1	2	4	m	vi/VI	9	9	9,0,4	-
+A	M	2	4	1	3	11	M	I	11	11	11,3,6	-
+A	M	4	5	2	1	10	m	V64/iv	10	5	10,2,5	-
+A	M	5	6	2	2	10	m	V	5	5	5,9,0	-
+A	M	6	8	2	3	3	m	V	10	10	10,2,5	-

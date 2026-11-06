@@ -1,0 +1,61 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 23e. A mineur → B♭ majeur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23e	1.000	80	
+M	1	0	4
+M	2	4	4
+M	3	8	4
+M	4	12	4
+M	5	16	4
+N	0	2	69
+N	0	2	69
+N	0	2	72
+N	0	2	76
+N	2	2	67
+N	2	2	70
+N	2	2	72
+N	2	2	76
+N	4	2	65
+N	4	2	69
+N	4	2	72
+N	4	2	77
+N	6	2	63
+N	6	2	69
+N	6	2	72
+N	6	2	77
+N	8	2	62
+N	8	2	70
+N	8	2	70
+N	8	2	77
+N	10	2	63
+N	10	2	67
+N	10	2	70
+N	10	2	75
+N	12	2	65
+N	12	2	65
+N	12	2	70
+N	12	2	74
+N	14	2	65
+N	14	2	65
+N	14	2	69
+N	14	2	72
+N	16	4	58
+N	16	4	65
+N	16	4	70
+N	16	4	74
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	2	9	m	V43/VI	0	7	0,4,7,10	-
+A	A	4	6	2	1	9	m	VI	5	5	5,9,0	-
+A	A	6	8	2	2	9	m	V2/N	5	3	5,9,0,3	-
+A	A	8	10	3	1	9	m	N6	10	2	10,2,5	N
+A	A	10	12	3	2	9	m	IV/N	3	3	3,7,10	-
+A	A	12	14	4	1	9	m	Cad64/N	10	5	10,2,5	Cad
+A	A	14	16	4	2	9	m	V/N	5	5	5,9,0	-
+A	A	16	20	5	1	10	M	I	10	10	10,2,5	-
+A	M	0	2	1	1	5	M	iii	9	9	9,0,4	-
+A	M	2	4	1	2	10	M	V43/V	0	7	0,4,7,10	-
+A	M	4	6	2	1	10	M	I/V	5	5	5,9,0	-
+A	M	6	8	2	2	10	M	V2	5	3	5,9,0,3	-
+A	M	8	10	3	1	10	M	I6	10	2	10,2,5	-
+A	M	10	12	3	2	10	M	IV	3	3	3,7,10	-
+A	M	12	14	4	1	10	M	I64	10	5	10,2,5	-
+A	M	14	16	4	2	10	M	V	5	5	5,9,0	-
+A	M	16	20	5	1	10	M	I	10	10	10,2,5	-

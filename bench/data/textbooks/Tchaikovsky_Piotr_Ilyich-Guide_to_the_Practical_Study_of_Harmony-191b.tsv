@@ -1,0 +1,33 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Tchaikovsky, Guide to the Practical Study of Harmony : Example 191b : C majeur → d mineur	Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-191b	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	48
+N	0	1	67
+N	0	1	72
+N	0	1	76
+N	1	1	52
+N	1	1	67
+N	1	1	72
+N	1	1	76
+N	2	1	55
+N	2	1	67
+N	2	1	71
+N	2	1	74
+N	3	1	52
+N	3	1	67
+N	3	1	69
+N	3	1	73
+N	4	4	50
+N	4	4	65
+N	4	4	69
+N	4	4	74
+A	A	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	A	1	2	1	2	0	M	I6	0	4	0,4,7	-
+A	A	2	3	1	3	0	M	V	7	7	7,11,2	-
+A	A	3	4	1	4	2	m	V43	9	4	9,1,4,7	-
+A	A	4	8	2	1	2	m	i	2	2	2,5,9	-
+A	M	0	2	1	1	0	M	I	0	0	0,4,7	-
+A	M	2	3	1	3	0	M	V	7	7	7,11,2	-
+A	M	3	4	1	4	0	M	V43/ii	9	4	9,1,4,7	-
+A	M	4	8	2	1	2	m	i	2	2	2,5,9	-

@@ -1,0 +1,41 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 23d. A mineur → F mineur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23d	0.818	80	
+M	1	0	4
+M	2	4	4
+M	3	8	4
+N	0	2	69
+N	0	2	69
+N	0	2	72
+N	0	2	76
+N	2	2	65
+N	2	2	69
+N	2	2	72
+N	2	2	74
+N	4	2	65
+N	4	2	67
+N	4	2	71
+N	4	2	74
+N	6	2	64
+N	6	2	67
+N	6	2	72
+N	6	2	79
+N	8	2	64
+N	8	2	70
+N	8	2	72
+N	8	2	79
+N	10	2	65
+N	10	2	68
+N	10	2	72
+N	10	2	77
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	2	9	m	iv65	2	5	2,5,9,0	-
+A	A	4	6	2	1	9	m	V2/III	7	5	7,11,2,5	-
+A	A	6	8	2	2	9	m	III6	0	4	0,4,7	-
+A	A	8	10	3	1	9	m	V65/vi	1	5	1,5,8,11	-
+A	A	10	12	3	2	5	m	i	5	5	5,8,0	-
+A	M	0	2	1	1	0	M	i/vi	9	9	9,0,4	-
+A	M	2	4	1	2	0	M	ii65	2	5	2,5,9,0	-
+A	M	4	6	2	1	0	m	V2/I	7	5	7,11,2,5	-
+A	M	6	8	2	2	0	M	I6	0	4	0,4,7	-
+A	M	8	10	3	1	5	M	V65	0	4	0,4,7,10	-
+A	M	10	12	3	2	5	m	i	5	5	5,8,0	-

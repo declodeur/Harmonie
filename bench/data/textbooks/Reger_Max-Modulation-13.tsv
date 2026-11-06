@@ -1,0 +1,34 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 13. C majeur → F majeur	Reger Max-Modulation-13	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	48
+N	0	1	55
+N	0	1	64
+N	0	1	72
+N	1	1	50
+N	1	1	69
+N	1	2	53
+N	1	2	62
+N	2	1	43
+N	2	1	70
+N	3	0.5	60
+N	3	1	48
+N	3	1	52
+N	3	1	67
+N	3.5	0.5	58
+N	4	4	41
+N	4	4	53
+N	4	4	57
+N	4	4	65
+A	A	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	A	1	2	1	2	5	M	vi	2	2	2,5,9	-
+A	A	2	3	1	3	5	M	ii7	7	7	7,10,2,5	-
+A	A	3	3.5	1	4	5	M	V	0	0	0,4,7	-
+A	A	3.5	4	1	4.5	5	M	V7	0	0	0,4,7,10	-
+A	A	4	8	2	1	5	M	I	5	5	5,9,0	-
+A	M	0	1	1	1	0	M	V/IV	0	0	0,4,7	-
+A	M	1	2	1	2	5	M	vi	2	2	2,5,9	-
+A	M	2	3	1	3	5	M	ii7	7	7	7,10,2,5	-
+A	M	3	4	1	4	5	M	V7	0	0	0,4,7,10	-
+A	M	4	8	2	1	5	M	I	5	5	5,9,0	-

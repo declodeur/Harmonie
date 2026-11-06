@@ -1,0 +1,22 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Tchaikovsky, Guide to the Practical Study of Harmony : Example 173-a : C majeur → D♭ majeur	Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-173a	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	2	48
+N	0	2	67
+N	0	2	72
+N	0	2	76
+N	2	2	44
+N	2	2	66
+N	2	2	72
+N	2	2	75
+N	4	4	49
+N	4	4	65
+N	4	4	73
+N	4	4	73
+A	A	0	2	1	1	0	M	I	0	0	0,4,7	-
+A	A	2	4	1	3	0	M	V7/N	8	8	8,0,3,6	-
+A	A	4	8	2	1	1	M	I	1	1	1,5,8	-
+A	M	0	2	1	1	0	M	I	0	0	0,4,7	-
+A	M	2	4	1	3	1	M	V7	8	8	8,0,3,6	-
+A	M	4	8	2	1	1	M	I	1	1	1,5,8	-

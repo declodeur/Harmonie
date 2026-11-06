@@ -1,0 +1,40 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 95A. a♯ mineur → B- majeur	Reger Max-Modulation-95A	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	1	58
+N	0	1	61
+N	0	1	65
+N	0	1	70
+N	1	0.5	63
+N	1	1	51
+N	1	1	66
+N	1	1	71
+N	1.5	1.5	59
+N	2	1	52
+N	2	1	64
+N	2	1	67
+N	3	1	69
+N	3	2	65
+N	3	3	45
+N	3	3	60
+N	4	2	72
+N	5	1	63
+N	6	2	46
+N	6	2	53
+N	6	2	62
+N	6	2	70
+A	A	0	1	1	1	10	m	i	10	10	10,1,5	-
+A	A	1	1.5	1	2	10	m	N6	11	3	11,3,6	N
+A	A	1.5	2	1	2.5	4	m	V6	11	3	11,3,6	-
+A	A	2	3	1	3	4	m	i	4	4	4,7,11	-
+A	A	3	4	1	4	4	m	N6	5	9	5,9,0	N
+A	A	4	5	2	1	10	M	V6	5	9	5,9,0	-
+A	A	5	6	2	2	10	M	V65	5	9	5,9,0,3	-
+A	A	6	8	2	3	10	M	I	10	10	10,2,5	-
+A	M	0	1	1	1	10	m	i	10	10	10,1,5	-
+A	M	1	2	1	2	10	m	N6	11	3	11,3,6	N
+A	M	2	3	1	3	10	m	i/bv	4	4	4,7,11	-
+A	M	3	4	1	4	10	M	N6/#iv	5	9	5,9,0	N
+A	M	4	6	2	1	10	M	V6	5	9	5,9,0	-
+A	M	6	8	2	3	10	M	I	10	10	10,2,5	-

@@ -1,0 +1,39 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 46b. C♯ majeur → C- mineur	Reger Max-Modulation-46b	0.938	80	
+M	1	0	3
+M	2	3	4
+N	0	1	49
+N	0	1	56
+N	0	1	65
+N	0	1	73
+N	1	0.25	66
+N	1	0.5	54
+N	1	0.5	57
+N	1	1	74
+N	1.25	0.25	69
+N	1.5	0.5	55
+N	1.5	0.5	59
+N	1.5	0.5	67
+N	2	0.5	56
+N	2	0.5	60
+N	2	0.5	65
+N	2	0.5	77
+N	2.5	0.5	58
+N	2.5	0.5	61
+N	2.5	0.5	73
+N	2.5	4.5	66
+N	3	4	59
+N	3	4	62
+N	3	4	71
+A	A	0	1	0	2	1	M	I	1	1	1,5,8	-
+A	A	1	1.5	0	3	0	m	V6/V	2	6	2,6,9	-
+A	A	1.5	2	0	3.5	0	m	V	7	7	7,11,2	-
+A	A	2	2.5	0	4	1	M	iii6	5	8	5,8,0	-
+A	A	2.5	3	0	4.5	11	m	V	6	6	6,10,1	-
+A	A	3	7	1	1	11	m	I	11	11	11,3,6	-
+A	M	0	1	1	2	1	M	V/IV	1	1	1,5,8	-
+A	M	1	1.5	1	3	0	m	V6/V	2	6	2,6,9	-
+A	M	1.5	2	1	3.5	0	m	IV/II	7	7	7,11,2	-
+A	M	2	2.5	1	4	5	m	iv6/v	5	8	5,8,0	-
+A	M	2.5	3	1	4.5	6	M	V/#iii	6	6	6,10,1	-
+A	M	3	7	2	1	11	m	iii/VI	11	11	11,2,6	-

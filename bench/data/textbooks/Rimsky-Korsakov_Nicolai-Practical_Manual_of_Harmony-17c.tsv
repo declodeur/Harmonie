@@ -1,0 +1,88 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 17c. A mineur → G majeur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-17c	0.655	80	
+M	1	0	4
+M	2	4	4
+M	3	8	4
+M	4	12	4
+M	5	16	4
+M	6	20	4
+M	7	24	4
+M	8	28	4
+N	0	2	57
+N	0	2	60
+N	0	2	69
+N	0	4	64
+N	2	2	56
+N	2	2	59
+N	2	2	71
+N	4	2	57
+N	4	2	57
+N	4	2	60
+N	4	4	64
+N	6	2	45
+N	6	2	60
+N	6	2	69
+N	8	2	48
+N	8	2	60
+N	8	2	64
+N	8	2	67
+N	10	2	50
+N	10	2	57
+N	10	2	62
+N	10	2	65
+N	12	2	52
+N	12	4	56
+N	12	4	59
+N	12	4	64
+N	14	2	50
+N	16	2	52
+N	16	2	57
+N	16	2	64
+N	16	4	48
+N	18	2	51
+N	18	2	57
+N	18	2	66
+N	20	2	47
+N	20	2	50
+N	20	2	62
+N	20	6	67
+N	22	2	48
+N	22	2	51
+N	22	2	60
+N	24	2	59
+N	24	4	50
+N	24	4	50
+N	26	2	60
+N	26	2	66
+N	28	4	43
+N	28	4	50
+N	28	4	59
+N	28	4	67
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	2	9	m	V6	4	8	4,8,11	-
+A	A	4	8	2	1	9	m	i	9	9	9,0,4	-
+A	A	8	10	3	1	9	m	III	0	0	0,4,7	-
+A	A	10	12	3	2	9	m	iv	2	2	2,5,9	-
+A	A	12	14	4	1	9	m	V	4	4	4,8,11	-
+A	A	14	16	4	2	9	m	V2	4	2	4,8,11,2	-
+A	A	16	18	5	1	9	m	i6	9	0	9,0,4	-
+A	A	18	20	5	2	9	m	viio43/bVII	5	11	5,8,11,2	-
+A	A	20	22	6	1	9	m	bVII6	6	10	6,10,1	-
+A	A	22	24	6	2	9	m	iv/bVII	11	11	11,2,6	-
+A	A	24	26	7	1	9	m	Cad64/bVII	6	1	6,10,1	Cad
+A	A	26	28	7	2	9	m	V7/bVII	1	1	1,5,8,11	-
+A	A	28	32	8	1	7	M	I	7	7	7,11,2	-
+A	M	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	M	2	4	1	2	9	m	V6	4	8	4,8,11	-
+A	M	4	8	2	1	9	m	i	9	9	9,0,4	-
+A	M	8	10	3	1	9	m	I/III	0	0	0,4,7	-
+A	M	10	12	3	2	9	m	iv	2	2	2,5,9	-
+A	M	12	14	4	1	9	m	V	4	4	4,8,11	-
+A	M	14	16	4	2	9	m	V2	4	2	4,8,11,2	-
+A	M	16	18	5	1	9	m	i6	9	0	9,0,4	-
+A	M	18	20	5	2	9	m	viio43/bvii	5	11	5,8,11,2	-
+A	M	20	22	6	1	9	m	V6/III	7	11	7,11,2	-
+A	M	22	24	6	2	0	m	i	0	0	0,3,7	-
+A	M	24	26	7	1	9	m	I64/bVII	6	1	6,10,1	-
+A	M	26	28	7	2	7	M	V7	2	2	2,6,9,0	-
+A	M	28	32	8	1	7	M	I	7	7	7,11,2	-

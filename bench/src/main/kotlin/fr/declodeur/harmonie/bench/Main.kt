@@ -10,89 +10,137 @@ data class Corpus(
     val name: String,
     val description: String,
     val style: MusicStyle,
-    /** Tempo de lecture (noires par minute). */
-    val tempo: Int,
+    /** Tempo de lecture (noires par minute) quand la partition n'en indique pas. */
+    val defaultTempo: Int,
+    /** Seuil d'alignement partition / analyse sous lequel un morceau est écarté. */
+    val minAlignment: Double,
+    /** Qui est l'expert B (second avis), s'il y en a un. */
+    val secondExpert: String? = null,
 )
 
 val CORPORA = listOf(
     Corpus(
-        "bach-chorales",
-        "Chorals de Bach",
-        "371 chorals à quatre voix, analysés par Dmitri Tymoczko, Andrew Jones, Hamish Robb et al. " +
-            "(corpus When in Rome) ; 100 d'entre eux analysés aussi par un second corpus (BCMH).",
-        MusicStyle.CLASSICAL,
-        80,
+        "bach-chorales", "Chorals de Bach",
+        "Chorals à quatre voix, analysés par Dmitri Tymoczko, Andrew Jones, Hamish Robb et al.",
+        MusicStyle.CLASSICAL, 80, 0.8,
+        secondExpert = "Bach Chorales Melody-Harmony Corpus (BCMH)",
+    ),
+    Corpus(
+        "mozart-sonatas", "Sonates pour piano de Mozart",
+        "Les 18 sonates (54 mouvements), analysées par le DCML (EPFL). Tempo d'après l'indication de chaque mouvement.",
+        MusicStyle.CLASSICAL, 120, 0.65,
+        secondExpert = "Dmitri Tymoczko",
+    ),
+    Corpus(
+        "textbooks", "Exemples de manuels d'harmonie",
+        "Exemples de modulation de Reger, Rimsky-Korsakov, Tchaïkovski, Kostka-Payne et Aldwell-Schachter " +
+            "(jeu de données de Nápoles López et al.).",
+        MusicStyle.CLASSICAL, 80, 0.8,
+    ),
+    Corpus(
+        "bach-wtc1", "Clavier bien tempéré I, préludes",
+        "Les 24 préludes du premier livre, analysés par Mark Gotham et al. Écriture en figurations (arpèges, notes de passage).",
+        MusicStyle.CLASSICAL, 80, 0.65,
+    ),
+    Corpus(
+        "schubert-winterreise", "Schubert, Winterreise",
+        "Les 24 lieder (voix et piano), analysés par Mark Gotham et al.",
+        MusicStyle.CLASSICAL, 80, 0.8,
     ),
 )
 
-/** Seuil d'alignement partition / analyse sous lequel un morceau est écarté. */
-const val MIN_ALIGNMENT = 0.8
+/** Comparaison d'une autre analyse (expert B ou logiciel) à l'expert A. */
+class Reference(
+    val label: String,
+    /** (accord juste, tonalité juste) pour chaque accord de A. */
+    val agreement: List<Pair<Boolean, Boolean>>,
+    /** L'application sur les mêmes morceaux, pour une comparaison équitable. */
+    val app: List<Verdict>,
+)
 
-/** Résultats d'un corpus. */
+/** Résultats d'un corpus pour un jeu de réglages. */
 class CorpusResult(
     val corpus: Corpus,
     val pieces: List<Piece>,
     val excluded: List<Piece>,
     val verdicts: List<Verdict>,
-    /** Comparaison de l'expert B à l'expert A (accord, tonalité). */
-    val experts: List<Pair<Boolean, Boolean>>,
-    /** Mêmes morceaux que [experts], application comparée à l'expert A (pour une comparaison équitable). */
-    val appOnExpertPieces: List<Verdict>,
+    val expert: Reference?,
+    val software: Reference?,
 )
-
-fun runCorpus(corpus: Corpus, dataDir: File): CorpusResult {
-    val all = PieceLoader.loadDir(File(dataDir, corpus.id))
-    val (pieces, excluded) = all.partition { it.alignment >= MIN_ALIGNMENT }
-    val msPerQuarter = 60_000.0 / corpus.tempo
-    val settings = AnalysisSettings(style = corpus.style)
-    val verdicts = ArrayList<Verdict>()
-    val experts = ArrayList<Pair<Boolean, Boolean>>()
-    val appOnExpert = ArrayList<Verdict>()
-    for (p in pieces) {
-        val a = p.chords["A"] ?: continue
-        val timeline = Player.play(p, settings, msPerQuarter)
-        val v = Compare.compare(p, timeline, a, msPerQuarter)
-        verdicts += v
-        val b = p.chords["B"]
-        if (b != null) {
-            experts += Compare.experts(p, a, b)
-            appOnExpert += v
-        }
-    }
-    return CorpusResult(corpus, pieces, excluded, verdicts, experts, appOnExpert)
-}
 
 fun pct(n: Int, d: Int): Double = if (d == 0) 0.0 else 100.0 * n / d
 
+/** Morceaux chargés une fois pour toutes (partagés entre les variantes). */
+class LoadedCorpus(val corpus: Corpus, val pieces: List<Piece>, val excluded: List<Piece>)
+
+fun loadCorpus(corpus: Corpus, dataDir: File): LoadedCorpus? {
+    val dir = File(dataDir, corpus.id)
+    if (!dir.isDirectory) return null
+    val all = PieceLoader.loadDir(dir).filter { it.chords["A"] != null }
+    val (pieces, excluded) = all.partition { it.alignment >= corpus.minAlignment }
+    return LoadedCorpus(corpus, pieces, excluded)
+}
+
+fun runCorpus(lc: LoadedCorpus, settings: AnalysisSettings): CorpusResult {
+    val corpus = lc.corpus
+    val s = settings.copy(style = corpus.style)
+    // Les morceaux sont indépendants : un moteur par morceau, en parallèle
+    val perPiece = lc.pieces.parallelStream().map { p ->
+        val msPerQuarter = 60_000.0 / (if (p.tempo > 0) p.tempo else corpus.defaultTempo)
+        val timeline = Player.play(p, s, msPerQuarter)
+        p to Compare.compare(p, timeline, p.chords.getValue("A"), msPerQuarter)
+    }.toList()
+    val verdicts = perPiece.flatMap { it.second }
+    fun reference(analyst: String, label: String?): Reference? {
+        val agreement = ArrayList<Pair<Boolean, Boolean>>()
+        val app = ArrayList<Verdict>()
+        for ((p, v) in perPiece) {
+            val other = p.chords[analyst] ?: continue
+            agreement += Compare.experts(p, p.chords.getValue("A"), other)
+            app += v
+        }
+        return if (agreement.isEmpty() || label == null) null else Reference(label, agreement, app)
+    }
+    return CorpusResult(
+        corpus, lc.pieces, lc.excluded, verdicts,
+        expert = reference("B", corpus.secondExpert),
+        software = reference("M", "AugmentedNet"),
+    )
+}
+
+fun summary(r: CorpusResult): String {
+    val v = r.verdicts
+    return "%s : %d morceaux, %d accords — accord %.1f %%, exact %.1f %%, tonalité %.1f %%, chiffrage %.1f %%".format(
+        r.corpus.name, r.pieces.size, v.size,
+        pct(v.count { it.chordOk }, v.size), pct(v.count { it.exactOk }, v.size),
+        pct(v.count { it.keyOk }, v.size), pct(v.count { it.numeralOk }, v.size),
+    )
+}
+
+/**
+ * Arguments : dossier des données, dossier du rapport, [fichier d'historique], [ids d'expériences
+ * séparés par des virgules, ou « all » ; par défaut celles marquées actives].
+ */
 fun main(args: Array<String>) {
     val dataDir = File(args.getOrElse(0) { "bench/data" })
     val outDir = File(args.getOrElse(1) { "bench/build/report" })
-    val historyFile = args.getOrNull(2)?.let { File(it) }
+    val historyFile = args.getOrNull(2)?.takeIf { it.isNotBlank() && it != "-" }?.let { File(it) }
+    val wanted = args.getOrNull(3)
     val commit = System.getenv("GITHUB_SHA")?.take(7) ?: "local"
     outDir.mkdirs()
     val started = System.currentTimeMillis()
-    val results = CORPORA.map { runCorpus(it, dataDir) }
-    for (r in results) {
-        val v = r.verdicts
-        println(
-            "%s : %d morceaux, %d accords — accord %.1f %%, exact %.1f %%, tonalité %.1f %%, chiffrage %.1f %%".format(
-                r.corpus.name, r.pieces.size, v.size,
-                pct(v.count { it.chordOk }, v.size), pct(v.count { it.exactOk }, v.size),
-                pct(v.count { it.keyOk }, v.size), pct(v.count { it.numeralOk }, v.size),
-            ),
-        )
-        if (r.experts.isNotEmpty()) {
-            println(
-                "  experts entre eux : accord %.1f %%, tonalité %.1f %% ; application sur les mêmes : accord %.1f %%, tonalité %.1f %%".format(
-                    pct(r.experts.count { it.first }, r.experts.size), pct(r.experts.count { it.second }, r.experts.size),
-                    pct(r.appOnExpertPieces.count { it.chordOk }, r.appOnExpertPieces.size),
-                    pct(r.appOnExpertPieces.count { it.keyOk }, r.appOnExpertPieces.size),
-                ),
-            )
-        }
+    val loaded = CORPORA.mapNotNull { loadCorpus(it, dataDir) }
+    val base = AnalysisSettings()
+    val results = loaded.map { runCorpus(it, base) }
+    results.forEach { println(summary(it)) }
+    val experiments = Experiments.select(wanted).map { e ->
+        val variant = loaded.map { runCorpus(it, e.apply(base)) }
+        println("Expérience « ${e.name} » :")
+        variant.forEach { println("  " + summary(it)) }
+        ExperimentResult(e, results, variant)
     }
     val history = History.update(historyFile, results, commit)
-    Report.write(File(outDir, "index.html"), results, history, commit, System.currentTimeMillis() - started)
+    Report.write(File(outDir, "index.html"), results, experiments, history, commit, System.currentTimeMillis() - started)
     historyFile?.let { History.save(it, history) }
     println("Rapport : " + File(outDir, "index.html").path)
 }

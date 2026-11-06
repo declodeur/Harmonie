@@ -1,0 +1,22 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Rimsky-Korsakov, Practical Manual of Harmony : 14d. A mineur → D mineur	Rimsky-Korsakov Nicolai-Practical Manual of Harmony-14d	1.000	80	
+M	1	0	4
+M	2	4	4
+N	0	2	57
+N	0	2	60
+N	0	2	64
+N	0	2	72
+N	2	2	55
+N	2	2	58
+N	2	2	64
+N	2	2	73
+N	4	4	53
+N	4	4	57
+N	4	4	65
+N	4	4	74
+A	A	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	A	2	4	1	3	9	m	viio43/iv	1	7	1,4,7,10	-
+A	A	4	8	2	1	2	m	i6	2	5	2,5,9	-
+A	M	0	2	1	1	9	m	i	9	9	9,0,4	-
+A	M	2	4	1	3	2	m	viio43	1	7	1,4,7,10	-
+A	M	4	8	2	1	2	m	i6	2	5	2,5,9	-

@@ -1,0 +1,34 @@
+# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md
+P	Reger, Modulation : 27. C majeur → G♯ mineur	Reger Max-Modulation-27	0.975	80	
+M	1	0	4
+M	2	4	4
+N	0	1	48
+N	0	1	55
+N	0	1	64
+N	0	1	72
+N	1	0.5	69
+N	1	1	50
+N	1	1	53
+N	1	1	62
+N	1.5	0.5	71
+N	2	1	49
+N	2	1	57
+N	2	1	64
+N	2	1	73
+N	3	1	51
+N	3	1	55
+N	3	1	70
+N	3	5	63
+N	4	4	44
+N	4	4	56
+N	4	4	71
+A	A	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	A	1	2	1	2	2	m	i	2	2	2,5,9	-
+A	A	2	3	1	3	8	m	N6	9	1	9,1,4	N
+A	A	3	4	1	4	8	m	V	3	3	3,7,10	-
+A	A	4	8	2	1	8	m	i	8	8	8,11,3	-
+A	M	0	1	1	1	0	M	I	0	0	0,4,7	-
+A	M	1	2	1	2	0	M	ii	2	2	2,5,9	-
+A	M	2	3	1	3	0	M	V6/ii	9	1	9,1,4	-
+A	M	3	4	1	4	8	m	V	3	3	3,7,10	-
+A	M	4	8	2	1	8	m	i	8	8	8,11,3	-

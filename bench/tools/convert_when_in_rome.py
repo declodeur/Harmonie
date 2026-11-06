@@ -21,6 +21,7 @@ Format de sortie (une ligne par élément, champs séparés par des tabulations)
      (classes = classes de hauteur de l'accord, séparées par des virgules ; spécial = « - » ou It/Ger/Fr/Cad/N)
 
 Usage :
+  convert_when_in_rome.py all <dossier When-in-Rome> <dossier Chorale-Corpus> <dossier de sortie>
   convert_when_in_rome.py chorales <dossier When-in-Rome> <dossier Chorale-Corpus> <dossier de sortie>
 """
 import json
@@ -145,15 +146,18 @@ def parse_key(token):
     return pc % 12, letter.islower()
 
 
-def degree_root(key, numeral, lower):
-    """Classe de hauteur de la fondamentale d'un degré (1-7) dans une tonalité."""
+def degree_root(key, numeral, lower, explicit_accidental=False):
+    """
+    Classe de hauteur de la fondamentale d'un degré (1-7) dans une tonalité. En mineur, vi et vii
+    sont sur les degrés hauts, sauf altération écrite (#vii = 7e degré naturel haussé, une fois).
+    """
     tonic, minor = key
     deg = ROMAN[numeral.lower()]
     if not minor:
         iv = MAJOR[deg - 1]
     else:
         iv = NAT_MINOR[deg - 1]
-        if deg in (6, 7) and lower:  # vi, vii en mineur : degrés hauts
+        if deg in (6, 7) and lower and not explicit_accidental:  # vi, vii en mineur : degrés hauts
             iv += 1
     return (tonic + iv) % 12, iv
 
@@ -164,7 +168,7 @@ class Unparsed(Exception):
 
 SIMPLE = re.compile(
     r"(?P<acc>[b#]*)(?P<num>VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)"
-    r"(?P<qual>o|ø|\+|%)?(?P<maj>maj)?(?P<fig>[0-9]*)(?P<add>(?:\[[^\]]*\])*)"
+    r"(?P<qual>o|ø|\+|%)?(?P<maj>maj|M)?(?P<fig>[0-9b#]*)(?P<add>(?:\[[^\]]*\])*)"
 )
 
 
@@ -172,6 +176,7 @@ def chord_of(figure, key):
     """(fondamentale, basse, classes, spécial) d'un chiffrage dans une tonalité."""
     fig = figure.replace("/o", "ø")
     # Accords spéciaux
+    fig = re.sub(r"\[[^\]]*\]", "", fig) if re.match(r"(It|Ger|Fr)", fig) else fig
     special = re.fullmatch(r"(It|Ger|Fr)([0-9/]*)(?:/(.+))?", fig)
     if special:
         kind, _, sec = special.groups()
@@ -180,20 +185,22 @@ def chord_of(figure, key):
         ivs = {"It": [8, 0, 6], "Ger": [8, 0, 3, 6], "Fr": [8, 0, 2, 6]}[kind]
         pcs = [(t + i) % 12 for i in ivs]
         return pcs[0], pcs[0], pcs, kind
-    if fig in ("Cad64", "Cad"):
-        t = key[0]
-        third = 3 if key[1] else 4
+    m = re.fullmatch(r"Cad(?:64)?(?:/(.+))?", fig)
+    if m:
+        k = secondary_key(m.group(1), key) if m.group(1) else key
+        t = k[0]
+        third = 3 if k[1] else 4
         return t, (t + 7) % 12, [t, (t + third) % 12, (t + 7) % 12], "Cad"
-    m = re.fullmatch(r"(b?)N(6?)(?:/(.+))?", fig)
+    m = re.fullmatch(r"(b?)N(6|64)?(?:/(.+))?", fig)
     if m:
         _, six, sec = m.groups()
         k = secondary_key(sec, key) if sec else key
         r = (k[0] + 1) % 12
         pcs = [r, (r + 4) % 12, (r + 7) % 12]
-        return r, pcs[1] if six else r, pcs, "N"
+        return r, {"6": pcs[1], "64": pcs[2]}.get(six or "", r), pcs, "N"
 
     # X/Y (éventuellement X/Y/Z)
-    parts = re.split(r"/(?=[b#]*(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)(?![a-z]))", fig)
+    parts = re.split(r"/(?=[b#]*(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i|N)(?![a-z]))", fig)
     main = parts[0]
     k = key
     for sec in reversed(parts[1:]):
@@ -210,12 +217,14 @@ def secondary_key(sec, key):
 
 
 def secondary_key_single(sec, key):
+    if sec == "N":  # tonalité du napolitain (♭II majeur)
+        return (key[0] + 1) % 12, False
     m = re.fullmatch(r"([b#]*)(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)[o+ø]?", sec)
     if not m:
         raise Unparsed(sec)
     acc, num = m.groups()
     lower = num.islower()
-    root, _ = degree_root(key, num, lower)
+    root, _ = degree_root(key, num, lower, bool(acc))
     root = (root + acc.count("#") - acc.count("b")) % 12
     return root, lower
 
@@ -226,7 +235,7 @@ def simple_chord(fig, key):
         raise Unparsed(fig)
     acc, num, qual, maj, figure, _add = m.groups()
     lower = num.islower()
-    root, iv = degree_root(key, num, lower)
+    root, iv = degree_root(key, num, lower, bool(acc))
     shift = acc.count("#") - acc.count("b")
     root = (root + shift) % 12
 
@@ -241,7 +250,8 @@ def simple_chord(fig, key):
     else:
         triad = [0, 4, 7]
 
-    figure = figure or ""
+    flat_ninth = "b9" in (figure or "")
+    figure = re.sub(r"[b#]", "", figure or "")
     seventh_figs = {"7": 0, "75": 0, "73": 0, "753": 0, "65": 1, "653": 1, "43": 2, "643": 2, "42": 3, "2": 3, "642": 3}
     triad_figs = {"": 0, "5": 0, "53": 0, "6": 1, "63": 1, "64": 2}
     ivs = list(triad)
@@ -269,10 +279,16 @@ def simple_chord(fig, key):
             deg = ROMAN[num.lower()]
             ninth_pc = (key[0] + scale[(deg - 1 + 8) % 7]) % 12
             ivs.append((ninth_pc - root) % 12)
-            if "[b9]" in (_add or ""):
+            if "[b9]" in (_add or "") or flat_ninth:
                 ivs[-1] = 1
     elif figure in triad_figs:
         inversion = triad_figs[figure]
+    elif "7" in figure:
+        # Chiffrage de basse continue inhabituel (retards, 7-6…) : septième à l'état fondamental
+        ivs.append(9 if qual == "o" else 11 if maj else 10)
+        inversion = 0
+    elif re.fullmatch(r"[0-9]+", figure):
+        inversion = 1 if figure.startswith("6") else 0  # 54, 4, 3 : retards sur l'accord parfait
     else:
         raise Unparsed(fig)
     pcs = [(root + i) % 12 for i in ivs]
@@ -296,7 +312,7 @@ def parse_romantext(path, measures, by_score_numbers=False):
     (utile quand la partition a des mesures irrégulières). Le convertisseur garde la méthode
     qui aligne le mieux les accords des experts sur les notes de la partition.
     """
-    by_number = {n: (st, ln) for n, st, ln, _ in measures}
+    by_number = {n: (st, ln, tsig) for n, st, ln, tsig in measures}
     score_ts = measures[0][3] if measures else (4, 4)
     score_first_len = measures[0][2] if measures else None
     ts = None
@@ -312,10 +328,11 @@ def parse_romantext(path, measures, by_score_numbers=False):
         if by_score_numbers:
             info = by_number.get(str(number))
             if info is None:
-                return None, None
+                return None, None, cur_ts
+            nominal = Fraction(info[2][0] * 4, info[2][1])
             padding = nominal - info[1] if str(number) == measures[0][0] and info[1] < nominal else Fraction(0)
             state.update(prev=number)
-            return info[0], padding
+            return info[0], padding, info[2]
         if state["prev"] is None:
             start = Fraction(0)
             length = score_first_len if score_first_len and score_first_len < nominal else nominal
@@ -326,7 +343,7 @@ def parse_romantext(path, measures, by_score_numbers=False):
             length = nominal
             padding = Fraction(0)
         state.update(prev=number, prev_start=start, prev_len=length)
-        return start, padding
+        return start, padding, cur_ts
 
     for line in open(path, encoding="utf-8").read().splitlines():
         line = line.strip()
@@ -344,10 +361,10 @@ def parse_romantext(path, measures, by_score_numbers=False):
                 src = measure_lines.get(c + i)
                 if src is not None and (state["prev"] is None or a + i > state["prev"]):
                     measure_lines[a + i] = src
-                    start, padding = place(a + i, cur_ts)
+                    start, padding, mts = place(a + i, cur_ts)
                     if start is None:
                         continue
-                    evs, key = measure_events(a + i, src, start, padding, cur_ts, key)
+                    evs, key = measure_events(a + i, src, start, padding, mts, key)
                     events.extend(evs)
             continue
         m = re.match(r"^m(\d+)\s+(.*)$", line)
@@ -357,10 +374,10 @@ def parse_romantext(path, measures, by_score_numbers=False):
         if state["prev"] is not None and number <= state["prev"]:
             continue  # variante ou retour en arrière : ignoré
         measure_lines[number] = rest
-        start, padding = place(number, cur_ts)
+        start, padding, mts = place(number, cur_ts)
         if start is None:
             continue
-        evs, key = measure_events(number, rest, start, padding, cur_ts, key)
+        evs, key = measure_events(number, rest, start, padding, mts, key)
         events.extend(evs)
     events.sort(key=lambda e: e[0])
     return events
@@ -388,21 +405,36 @@ def measure_events(number, rest, start, padding, ts, key):
 
 
 def alignment(notes, events):
-    """Part moyenne des notes qui sonnent au début de chaque accord et qui appartiennent à cet accord."""
-    total, count = 0.0, 0
+    """
+    Qualité de l'alignement : part de la durée des notes, pendant chaque accord de l'expert, qui
+    appartient à cet accord (pondérée par la durée des accords). Proche de 1 si l'analyse tombe
+    sur les bonnes notes ; nettement plus bas si elle est décalée.
+    """
+    total, weight = 0.0, 0.0
+    starts = [s for s, _, _ in notes]
+    import bisect
     for i, (onset, _, _, key, figure) in enumerate(events):
         stop = events[i + 1][0] if i + 1 < len(events) else onset + 1
-        t = onset + min(Fraction(1, 4), (stop - onset) / 2)
-        sounding = {m % 12 for s, d, m in notes if s <= t < s + d}
-        if not sounding:
+        if stop <= onset:
             continue
         try:
             pcs = set(chord_of(figure, key)[2])
         except (Unparsed, KeyError, ValueError):
             continue
-        total += len(sounding & pcs) / len(sounding)
-        count += 1
-    return total / count if count else 0.0
+        inside, all_ = 0.0, 0.0
+        hi = bisect.bisect_left(starts, stop)
+        for s, d, m in notes[max(0, hi - 400):hi]:
+            ov = min(s + d, stop) - max(s, onset)
+            if ov <= 0:
+                continue
+            all_ += float(ov)
+            if m % 12 in pcs:
+                inside += float(ov)
+        if all_ > 0:
+            w = float(stop - onset)
+            total += w * inside / all_
+            weight += w
+    return total / weight if weight else 0.0
 
 
 def best_analysis(path, notes, measures):
@@ -421,11 +453,11 @@ def fmt(x):
     return ("%.4f" % float(x)).rstrip("0").rstrip(".")
 
 
-def write_piece(out_path, title, ident, notes, measures, analyses, stats, quality):
+def write_piece(out_path, title, ident, notes, measures, analyses, stats, quality, qpm=80, tempo_text=""):
     end = max((s + d for s, d, _ in notes), default=Fraction(0))
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("# Converti depuis le corpus When in Rome (CC BY-SA 4.0), voir bench/data/README.md\n")
-        f.write("P\t%s\t%s\t%.3f\n" % (title, ident, quality))
+        f.write("P\t%s\t%s\t%.3f\t%d\t%s\n" % (title, ident, quality, qpm, tempo_text))
         for n, s, l, _ in measures:
             f.write("M\t%s\t%s\t%s\n" % (n, fmt(s), fmt(l)))
         for s, d, m in notes:
@@ -474,13 +506,165 @@ def convert_chorales(wir, chorale_corpus, out_dir):
     return stats
 
 
+TEMPO_WORDS = [
+    # (mot, temps par minute) : du plus précis au plus général
+    ("molto allegro", 144), ("allegro assai", 144), ("allegro moderato", 112), ("allegro maestoso", 112),
+    ("allegretto", 100), ("allegro", 132), ("presto", 168), ("vivace", 144), ("andantino", 84),
+    ("andante", 72), ("adagio", 54), ("largo", 48), ("larghetto", 60), ("lento", 54), ("grave", 48),
+    ("moderato", 96), ("menuetto", 120), ("minuetto", 120), ("rondo", 120), ("tempo di menuetto", 120),
+]
+
+
+def tempo_word(path):
+    """Indication de tempo d'une analyse (« Tempo: Allegro ») ou d'une partition (premier texte)."""
+    if path is None:
+        return None
+    try:
+        if path.endswith(".mxl"):
+            with zipfile.ZipFile(path) as z:
+                name = [n for n in z.namelist() if not n.startswith("META")][0]
+                text = z.read(name).decode("utf-8", "ignore")
+            words = re.findall(r"<words[^>]*>([^<]+)</words>", text)[:3]
+            text = " ".join(words)
+        else:
+            m = re.search(r"^Tempo\s*:\s*(.+)$", open(path, encoding="utf-8").read(), re.M)
+            text = m.group(1) if m else ""
+    except (OSError, IndexError, zipfile.BadZipFile):
+        return None
+    low = text.lower()
+    for word, bpm in TEMPO_WORDS:
+        if word in low:
+            return word, bpm
+    return None
+
+
+def quarter_tempo(bpm, time_sig):
+    """Tempo en noires par minute pour [bpm] temps par minute (temps = unité de la mesure, music21)."""
+    bd = beat_duration(time_sig)
+    if bd >= 2:  # 2/2, 3/2 : la blanche est battue plus lentement
+        bpm *= 0.6
+    elif bd == Fraction(3, 2):  # 6/8, 9/8, 12/8 : noire pointée
+        bpm *= 0.55
+    return round(float(bpm * bd))
+
+
+def title_of(folder, rel):
+    meta = {}
+    rj = os.path.join(folder, "remote.json")
+    if os.path.isfile(rj):
+        meta = json.load(open(rj, encoding="utf-8"))
+    for name in ("analysis.txt", "analysis.rntxt"):
+        p = os.path.join(folder, name)
+        if os.path.isfile(p):
+            m = re.search(r"^Title:\s*(.+)$", open(p, encoding="utf-8").read(), re.M)
+            if m and m.group(1).strip():
+                return m.group(1).strip()
+    return rel
+
+
+ANALYSTS = (
+    ("A", ("analysis.txt", "analysis.rntxt")),
+    ("B", ("analysis_DT.txt", "analysis_BCMH.txt")),
+    ("M", ("analysis_automatic.rntxt",)),
+)
+
+
+def convert_folders(base, out_dir, default_tempo, title_fn=None, score_fn=None):
+    """
+    Convertit chaque dossier de [base] (récursivement) qui contient une partition et une analyse.
+    Analystes : A = analyse de référence, B = second expert, M = AugmentedNet (logiciel).
+    """
+    os.makedirs(out_dir, exist_ok=True)
+    stats = {"parsed": 0, "unparsed": {}, "pieces": 0, "missing": []}
+    for folder, _, files in sorted(os.walk(base)):
+        if not any(f in files for f in ANALYSTS[0][1]):
+            continue
+        rel = os.path.relpath(folder, base)
+        score = score_fn(folder, rel) if score_fn else os.path.join(folder, "score.mxl")
+        if not score or not os.path.isfile(score):
+            stats["missing"].append(rel)
+            continue
+        try:
+            notes, measures = read_musicxml(score)
+        except (ET.ParseError, zipfile.BadZipFile, KeyError) as e:
+            stats["missing"].append(rel + " (" + str(e) + ")")
+            continue
+        if not notes or not measures:
+            stats["missing"].append(rel)
+            continue
+        analyses = []
+        quality = 0.0
+        tempo = None
+        for analyst, names in ANALYSTS:
+            for name in names:
+                p = os.path.join(folder, name)
+                if os.path.isfile(p):
+                    events, q = best_analysis(p, notes, measures)
+                    analyses.append((analyst, events))
+                    if analyst == "A":
+                        quality = q
+                    tempo = tempo or tempo_word(p)
+                    break
+        tempo = tempo or tempo_word(score)
+        qpm = quarter_tempo(tempo[1], measures[0][3]) if tempo else default_tempo
+        ident = rel.replace(os.sep, "-").replace(",_", " ").replace("_", " ")
+        title = title_fn(folder, rel) if title_fn else title_of(folder, rel)
+        out = os.path.join(out_dir, re.sub(r"[^A-Za-z0-9.-]+", "_", rel.replace(os.sep, "-")) + ".tsv")
+        write_piece(out, title, ident, notes, measures, analyses, stats, quality, qpm, tempo[0] if tempo else "")
+        stats["pieces"] += 1
+    return stats
+
+
+def report(stats):
+    print("Pièces : %d, chiffrages lus : %d" % (stats["pieces"], stats["parsed"]))
+    if stats["missing"]:
+        print("Ignorés (pas de partition) :", len(stats["missing"]), " ".join(stats["missing"][:10]))
+    if stats["unparsed"]:
+        print("Chiffrages non lus :", sorted(stats["unparsed"].items(), key=lambda x: -x[1])[:40])
+
+
+def convert_all(wir, chorale_corpus, out):
+    c = os.path.join(wir, "Corpus")
+    print("== Chorals de Bach")
+    report(convert_chorales(wir, chorale_corpus, os.path.join(out, "bach-chorales")))
+    print("== Sonates de Mozart")
+
+    def mozart_title(folder, rel):
+        k, mvt = rel.split(os.sep)[:2]
+        return "Sonate %s, %s mouvement" % (k.replace("K", "K. "), "1er" if mvt == "1" else mvt + "e")
+    report(convert_folders(os.path.join(c, "Piano_Sonatas", "Mozart,_Wolfgang_Amadeus"), os.path.join(out, "mozart-sonatas"), 120, mozart_title))
+    print("== Manuels d'harmonie")
+    report(convert_folders(os.path.join(c, "Textbooks"), os.path.join(out, "textbooks"), 80, textbook_title))
+    print("== Clavier bien tempéré I (préludes)")
+    report(convert_folders(os.path.join(c, "Keyboard_Other", "Bach,_Johann_Sebastian", "The_Well-Tempered_Clavier_I"),
+                           os.path.join(out, "bach-wtc1"), 80, lambda f, r: "Prélude n° %d" % int(r) if r.isdigit() else r))
+    print("== Schubert, Winterreise")
+    report(convert_folders(os.path.join(c, "OpenScore-LiederCorpus", "Schubert,_Franz", "Winterreise,_D.911"),
+                           os.path.join(out, "schubert-winterreise"), 80, lambda f, r: "Winterreise, " + r.split("_", 1)[-1].replace("_", " ")))
+
+
+def textbook_title(folder, rel):
+    """« Reger, Modulation : 1. C majeur → G majeur »."""
+    parts = rel.split(os.sep)
+    author = parts[0].split(",")[0].replace("_", " ")
+    book = parts[1].replace("_", " ") if len(parts) > 1 else ""
+    t = title_of(folder, rel)
+    if t != rel:
+        t = re.sub(r"\s*-\s*None:\s*None\s*$", "", t)
+        t = re.sub(r"^[0-9]+-", "", t)
+        t = re.sub(r"\b([A-Ga-g]) flat\b", r"\1♭", t)
+        t = re.sub(r"\b([A-Ga-g]) sharp\b", r"\1♯", t)
+        t = t.replace(" Major", " majeur").replace(" minor", " mineur").replace(" to ", " → ")
+        t = re.sub(r"\b([A-G])b\b", r"\1♭", t).replace("#", "♯")
+        return "%s, %s : %s" % (author, book, t)
+    return "%s, %s : %s" % (author, book, " ".join(parts[2:]))
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 5 or sys.argv[1] != "chorales":
+    if len(sys.argv) == 5 and sys.argv[1] == "chorales":
+        report(convert_chorales(sys.argv[2], sys.argv[3], sys.argv[4]))
+    elif len(sys.argv) == 5 and sys.argv[1] == "all":
+        convert_all(sys.argv[2], sys.argv[3], sys.argv[4])
+    else:
         print(__doc__)
         sys.exit(1)
-    s = convert_chorales(sys.argv[2], sys.argv[3], sys.argv[4])
-    print("Pièces : %d, chiffrages lus : %d" % (s["pieces"], s["parsed"]))
-    if s["missing"]:
-        print("Partitions manquantes :", " ".join(s["missing"]))
-    if s["unparsed"]:
-        print("Chiffrages non lus :", sorted(s["unparsed"].items(), key=lambda x: -x[1]))

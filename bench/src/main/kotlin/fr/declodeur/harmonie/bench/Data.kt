@@ -29,6 +29,10 @@ data class Piece(
     val title: String,
     /** Qualité de l'alignement entre l'analyse et la partition (0 à 1). */
     val alignment: Double,
+    /** Tempo de lecture en noires par minute (0 = tempo par défaut du corpus). */
+    val tempo: Int,
+    /** Indication de tempo d'origine (« allegro »), vide si inconnue. */
+    val tempoText: String,
     val notes: List<ScoreNote>,
     val chords: Map<String, List<ExpertChord>>,
 )
@@ -38,6 +42,8 @@ object PieceLoader {
         var id = file.nameWithoutExtension
         var title = id
         var alignment = 1.0
+        var tempo = 0
+        var tempoText = ""
         val notes = mutableListOf<ScoreNote>()
         val chords = mutableListOf<ExpertChord>()
         file.forEachLine(Charsets.UTF_8) { line ->
@@ -48,6 +54,8 @@ object PieceLoader {
                     title = f[1]
                     id = f[2]
                     alignment = f.getOrNull(3)?.toDoubleOrNull() ?: 1.0
+                    tempo = f.getOrNull(4)?.toIntOrNull() ?: 0
+                    tempoText = f.getOrNull(5).orEmpty()
                 }
                 "N" -> notes += ScoreNote(f[1].toDouble(), f[2].toDouble(), f[3].toInt())
                 "A" -> chords += ExpertChord(
@@ -66,7 +74,7 @@ object PieceLoader {
                 )
             }
         }
-        return Piece(id, title, alignment, notes, chords.groupBy { it.analyst })
+        return Piece(id, title, alignment, tempo, tempoText, notes, chords.groupBy { it.analyst })
     }
 
     fun loadDir(dir: File): List<Piece> =

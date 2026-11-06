@@ -16,9 +16,16 @@ import java.util.Locale
 object Report {
     private const val MAX_EXAMPLES = 8
 
-    fun write(file: File, results: List<CorpusResult>, history: List<HistoryRow>, commit: String, elapsedMs: Long) {
+    fun write(
+        file: File,
+        results: List<CorpusResult>,
+        experiments: List<ExperimentResult>,
+        history: List<HistoryRow>,
+        commit: String,
+        elapsedMs: Long,
+    ) {
         val head = head()
-        val body = body(results, history, commit, elapsedMs)
+        val body = body(results, experiments, history, commit, elapsedMs)
         file.writeText(
             "<!doctype html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n" +
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n" +
@@ -40,17 +47,17 @@ object Report {
 /* Rapport d'analyse : une colonne de lecture, des barres à l'échelle 0-100 %, les exemples en tableaux défilants. */
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --fg: #1c2230; --muted: #5d6676; --line: #dde1e8;
-  --accent: #2f6fe0; --accent-soft: #dbe6fb; --expert: #c06a12; --good: #1f8a5b; --bad: #c4423a;
+  --accent: #2f6fe0; --accent-soft: #dbe6fb; --expert: #c06a12; --soft: #7a52c7; --good: #1f8a5b; --bad: #c4423a;
   --display: "Literata", Georgia, "Times New Roman", serif;
   --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #14161a; --surface: #1d2026; --fg: #eceef2; --muted: #9aa1ad; --line: #343944;
-  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark } }
+  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --soft: #b98cff; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #14161a; --surface: #1d2026; --fg: #eceef2; --muted: #9aa1ad; --line: #343944;
-  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark }
+  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --soft: #b98cff; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); }
 .page { max-width: 1040px; margin: 0 auto; padding-block: 32px 64px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -73,6 +80,11 @@ section { display: flex; flex-direction: column; gap: 16px; }
 .bar { position: relative; height: 14px; background: var(--accent-soft); border-radius: 7px; }
 .bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 7px; }
 .bar .mark { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1px; background: var(--expert); border-radius: 2px; }
+.bar .mark.soft { background: var(--soft); }
+.swatch.soft { width: 3px; height: 14px; background: var(--soft); border-radius: 2px; }
+.ref { display: block; color: var(--muted); font-size: 0.78rem; font-weight: 400; white-space: nowrap; }
+td.delta { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: var(--accent-soft); color: var(--accent); }
 .value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.88rem; color: var(--muted); align-items: center; }
 .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); vertical-align: -1px; margin-right: 6px; }
@@ -102,7 +114,13 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 }
 </style>"""
 
-    private fun body(results: List<CorpusResult>, history: List<HistoryRow>, commit: String, elapsedMs: Long): String {
+    private fun body(
+        results: List<CorpusResult>,
+        experiments: List<ExperimentResult>,
+        history: List<HistoryRow>,
+        commit: String,
+        elapsedMs: Long,
+    ): String {
         val date = LocalDateTime.now(ZoneId.of("Europe/Paris")).format(DateTimeFormatter.ofPattern("d MMMM yyyy 'à' HH:mm", Locale.FRENCH))
         val sb = StringBuilder()
         sb.append("<main class=\"page\">\n")
@@ -116,6 +134,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
                 "affiche à ce que l'expert a écrit.</p>\n",
         )
         sb.append("</header>\n")
+        overview(sb, results)
+        if (experiments.isNotEmpty()) experimentsSection(sb, experiments)
         for (r in results) corpus(sb, r, history)
         method(sb, results)
         sb.append("</main>")
@@ -124,39 +144,125 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 
     // ------------------------------------------------------------------ Un corpus
 
+    private val METRIC_SUB = mapOf(
+        Metric.CHORD to "bonne fondamentale et bon type (majeur, mineur, diminué…)",
+        Metric.EXACT to "même chose, septième comprise",
+        Metric.KEY to "même tonalité que l'expert à cet instant",
+        Metric.NUMERAL to "accord et tonalité justes, donc même chiffrage romain",
+    )
+
+    /** Accord d'une référence (expert B ou logiciel) avec l'expert A pour une métrique, si elle a un sens. */
+    private fun refScore(ref: Reference?, m: Metric): Double? {
+        ref ?: return null
+        val a = ref.agreement
+        return when (m) {
+            Metric.CHORD -> pct(a.count { it.first }, a.size)
+            Metric.KEY -> pct(a.count { it.second }, a.size)
+            Metric.NUMERAL -> pct(a.count { it.first && it.second }, a.size)
+            Metric.EXACT -> null
+        }
+    }
+
+    private fun overview(sb: StringBuilder, results: List<CorpusResult>) {
+        sb.append("<section>\n<h2>Vue d'ensemble</h2>\n<div class=\"card\">\n<div class=\"scroll\"><table>\n<tr><th>Corpus</th><th class=\"n\">Morceaux</th><th class=\"n\">Accords</th>")
+        Metric.entries.forEach { sb.append("<th class=\"n\">${esc(it.label)}</th>") }
+        sb.append("</tr>\n")
+        for (r in results) {
+            sb.append("<tr><td><a href=\"#${r.corpus.id}\">${esc(r.corpus.name)}</a></td><td class=\"n\">${r.pieces.size}</td><td class=\"n\">${fmtInt(r.verdicts.size)}</td>")
+            for (m in Metric.entries) {
+                sb.append("<td class=\"n\">${p1(pct(r.verdicts.count(m.ok), r.verdicts.size))}")
+                refScore(r.expert, m)?.let { sb.append("<span class=\"ref exp\">experts ${p1(it)}</span>") }
+                refScore(r.software, m)?.let { sb.append("<span class=\"ref\" style=\"color:var(--soft)\">logiciel ${p1(it)}</span>") }
+                sb.append("</td>")
+            }
+            sb.append("</tr>\n")
+        }
+        sb.append("</table></div>\n")
+        sb.append(
+            "<p class=\"muted\">Sous chaque score : l'accord entre deux experts (quand le corpus a un second avis) et l'accord " +
+                "entre l'expert et AugmentedNet, logiciel d'analyse qui lit la partition entière hors ligne (il a été entraîné " +
+                "sur ces corpus, il est donc avantagé). L'application, elle, analyse en direct sans connaître la suite.</p>\n",
+        )
+        sb.append("</div>\n</section>\n")
+    }
+
+    private fun experimentsSection(sb: StringBuilder, experiments: List<ExperimentResult>) {
+        sb.append("<section>\n<h2>Expériences</h2>\n")
+        sb.append("<p class=\"muted\">Chaque expérience joue une variante des réglages et la compare à la version actuelle, accord par accord.</p>\n")
+        for (x in experiments) {
+            val e = x.experiment
+            sb.append("<div class=\"card\">\n<header style=\"display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline\"><h3>${esc(e.name)}</h3><span class=\"pill\">${esc(e.id)}</span></header>\n")
+            sb.append("<p>${esc(e.hypothesis)}</p>\n<div class=\"scroll\"><table>\n<tr><th>Corpus</th>")
+            Metric.entries.forEach { sb.append("<th class=\"n\">${esc(it.label)}</th>") }
+            sb.append("</tr>\n")
+            fun deltaCell(d: Double) = when {
+                d >= 0.05 -> "<td class=\"delta up\">+${p1n(d)}</td>"
+                d <= -0.05 -> "<td class=\"delta down\">−${p1n(-d)}</td>"
+                else -> "<td class=\"delta muted\">=</td>"
+            }
+            for (p in x.pairings) {
+                sb.append("<tr><td>${esc(p.base.corpus.name)}</td>")
+                Metric.entries.forEach { sb.append(deltaCell(p.delta(it))) }
+                sb.append("</tr>\n")
+            }
+            sb.append("<tr><td><b>Ensemble</b></td>")
+            Metric.entries.forEach { sb.append(deltaCell(x.overallDelta(it)).replace("<td class=\"delta", "<td style=\"font-weight:600\" class=\"delta")) }
+            sb.append("</tr>\n</table></div>\n<p class=\"muted\">Écarts en points de pourcentage.</p>\n")
+            for (m in listOf(Metric.CHORD, Metric.KEY)) {
+                val gained = x.pairings.flatMap { p -> p.gained(m).map { p.variant.verdicts[it] } }
+                val lost = x.pairings.flatMap { p -> p.lost(m).map { p.variant.verdicts[it] } }
+                if (gained.isEmpty() && lost.isEmpty()) continue
+                sb.append("<p><b>${esc(m.label)}</b> : ${fmtInt(gained.size)} accords gagnés, ${fmtInt(lost.size)} perdus.</p>\n")
+                if (gained.isNotEmpty()) {
+                    sb.append("<details><summary>Exemples gagnés</summary><div class=\"scroll\">")
+                    examplesTable(sb, spread(gained, MAX_EXAMPLES))
+                    sb.append("</div></details>\n")
+                }
+                if (lost.isNotEmpty()) {
+                    sb.append("<details><summary>Exemples perdus</summary><div class=\"scroll\">")
+                    examplesTable(sb, spread(lost, MAX_EXAMPLES))
+                    sb.append("</div></details>\n")
+                }
+            }
+            sb.append("</div>\n")
+        }
+        sb.append("</section>\n")
+    }
+
     private fun corpus(sb: StringBuilder, r: CorpusResult, history: List<HistoryRow>) {
         val v = r.verdicts
         val n = v.size
-        val ref = r.appOnExpertPieces
-        val ex = r.experts
-        sb.append("<section>\n<h2>${esc(r.corpus.name)}</h2>\n")
+        sb.append("<section id=\"${r.corpus.id}\">\n<h2>${esc(r.corpus.name)}</h2>\n")
         sb.append(
             "<p class=\"muted\">${esc(r.corpus.description)} ${r.pieces.size} morceaux rejoués, ${fmtInt(n)} accords comparés ; " +
-                "tempo ${r.corpus.tempo} à la noire, style ${esc(r.corpus.style.label)}.</p>\n",
+                "style ${esc(r.corpus.style.label)}.</p>\n",
         )
         sb.append("<div class=\"card\">\n<h3>Scores</h3>\n<div class=\"scores\">\n")
-        fun row(label: String, sub: String, ok: (Verdict) -> Boolean, expertOk: ((Pair<Boolean, Boolean>) -> Boolean)?) {
-            val value = pct(v.count(ok), n)
-            val mark = if (expertOk != null && ex.isNotEmpty()) pct(ex.count(expertOk), ex.size) else null
-            sb.append("<div class=\"label\">${esc(label)}<small>${esc(sub)}</small></div>")
-            sb.append("<div class=\"bar\" role=\"img\" aria-label=\"${esc(label)} : ${p1(value)}\">")
+        for (m in Metric.entries) {
+            val value = pct(v.count(m.ok), n)
+            sb.append("<div class=\"label\">${esc(m.label)}<small>${esc(METRIC_SUB.getValue(m))}</small></div>")
+            sb.append("<div class=\"bar\" role=\"img\" aria-label=\"${esc(m.label)} : ${p1(value)}\">")
             sb.append("<div class=\"fill\" style=\"width:${css(value)}%\"></div>")
-            if (mark != null) sb.append("<div class=\"mark\" style=\"left:${css(mark)}%\" title=\"Experts entre eux : ${p1(mark)}\"></div>")
+            refScore(r.expert, m)?.let { sb.append("<div class=\"mark\" style=\"left:${css(it)}%\" title=\"Experts entre eux : ${p1(it)}\"></div>") }
+            refScore(r.software, m)?.let { sb.append("<div class=\"mark soft\" style=\"left:${css(it)}%\" title=\"Logiciel AugmentedNet : ${p1(it)}\"></div>") }
             sb.append("</div><div class=\"value\">${p1(value)}</div>\n")
         }
-        row("Accord", "bonne fondamentale et bon type (majeur, mineur, diminué…)", { it.chordOk }, { it.first })
-        row("Accord exact", "même chose, septième comprise", { it.exactOk }, null)
-        row("Tonalité", "même tonalité que l'expert à cet instant", { it.keyOk }, { it.second })
-        row("Chiffrage", "accord et tonalité justes, donc même chiffrage romain", { it.numeralOk }, { it.first && it.second })
         sb.append("</div>\n")
-        if (ex.isNotEmpty()) {
+        if (r.expert != null || r.software != null) {
             sb.append("<div class=\"legend\"><span><span class=\"swatch\"></span>application</span>")
-            sb.append("<span><span class=\"swatch expert\"></span>accord entre deux corpus d'experts (${fmtInt(ex.size)} accords de ${countPieces(ref)} chorals)</span></div>\n")
-            sb.append(
-                "<p class=\"muted\">Sur ces mêmes ${countPieces(ref)} chorals, l'application obtient ${p1(pct(ref.count { it.chordOk }, ref.size))} " +
-                    "pour l'accord et ${p1(pct(ref.count { it.keyOk }, ref.size))} pour la tonalité. Le repère orange montre jusqu'où " +
-                    "il est raisonnable d'espérer aller : au-delà, on ne ferait que copier les habitudes d'un expert.</p>\n",
-            )
+            r.expert?.let {
+                sb.append("<span><span class=\"swatch expert\"></span>second expert (${esc(it.label)}, ${fmtInt(it.agreement.size)} accords de ${countPieces(it.app)} morceaux)</span>")
+            }
+            r.software?.let { sb.append("<span><span class=\"swatch soft\"></span>logiciel AugmentedNet</span>") }
+            sb.append("</div>\n")
+            r.expert?.let { ref ->
+                sb.append(
+                    "<p class=\"muted\">Sur les ${countPieces(ref.app)} morceaux qui ont un second avis, l'application obtient " +
+                        "${p1(pct(ref.app.count { it.chordOk }, ref.app.size))} pour l'accord et ${p1(pct(ref.app.count { it.keyOk }, ref.app.size))} " +
+                        "pour la tonalité. Le repère orange montre jusqu'où il est raisonnable d'espérer aller : au-delà, on ne ferait " +
+                        "que copier les habitudes d'un expert.</p>\n",
+                )
+            }
         }
         sb.append("</div>\n")
         evolution(sb, r, history)
@@ -248,7 +354,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
     }
 
     private fun examplesTable(sb: StringBuilder, list: List<Verdict>) {
-        sb.append("<table>\n<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>\n")
+        sb.append("<table>\n<tr><th>Morceau</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>\n")
         for (v in list) {
             val e = v.expert
             val key = Key(e.tonic, e.minor)
@@ -304,7 +410,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 
     private fun method(sb: StringBuilder, results: List<CorpusResult>) {
         sb.append("<section>\n<h2>Méthode</h2>\n<ul>\n")
-        sb.append("<li>Chaque morceau est joué à tempo constant, toutes les voix sur un seul canal (mode d'analyse Complète), sans pédale, avec les réglages par défaut de l'application et le style indiqué.</li>\n")
+        sb.append("<li>Chaque morceau est joué à tempo constant (d'après son indication de tempo quand elle existe, sinon 80 ou 120 à la noire), toutes les voix sur un seul canal (mode d'analyse Complète), sans pédale, avec les réglages par défaut de l'application et le style indiqué.</li>\n")
         sb.append("<li>Pour chaque accord de l'expert, on retient ce que l'application affiche le plus longtemps pendant sa durée, en laissant d'abord ${Compare.SETTLE_MS} ms à l'application pour valider l'accord.</li>\n")
         sb.append("<li>Accord juste : même fondamentale et même type d'accord parfait (majeur, mineur, diminué, augmenté). La basse et le renversement ne comptent pas. Sixtes augmentées : mêmes notes.</li>\n")
         sb.append("<li>Les chiffrages des experts sont traduits en notes selon les conventions de music21, référence de ces corpus (en mineur, vi et vii sur les degrés hauts, VI et VII sur les degrés naturels ; X/Y dans la tonalité de Y).</li>\n")
@@ -312,6 +418,9 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
         sb.append("</ul>\n<h3>Sources</h3>\n<ul>\n")
         sb.append("<li><a href=\"https://github.com/MarkGotham/When-in-Rome\" target=\"_blank\" rel=\"noopener\">When in Rome</a> (Gotham, Micchi, Nápoles López, Sailor), analyses en chiffrage romain, licence CC BY-SA 4.0.</li>\n")
         sb.append("<li><a href=\"https://github.com/MarkGotham/Chorale-Corpus\" target=\"_blank\" rel=\"noopener\">Chorale-Corpus</a> pour les partitions des chorals, et le Bach Chorales Melody-Harmony Corpus (BCMH) pour la seconde analyse.</li>\n")
+        sb.append("<li>Sonates de Mozart : partitions et analyses du <a href=\"https://github.com/DCMLab/mozart_piano_sonatas\" target=\"_blank\" rel=\"noopener\">DCML</a> (CC BY-NC-SA 4.0) ; second avis de Dmitri Tymoczko.</li>\n")
+        sb.append("<li>Exemples de manuels : <a href=\"https://github.com/DDMAL/key_modulation_dataset\" target=\"_blank\" rel=\"noopener\">key_modulation_dataset</a> (Nápoles López et al.). Préludes de Bach et Winterreise : analyses de Mark Gotham et al. ; partitions OpenScore (CC0).</li>\n")
+        sb.append("<li>AugmentedNet (Nápoles López) : analyses automatiques fournies avec When in Rome.</li>\n")
         sb.append("</ul>\n</section>\n")
     }
 
