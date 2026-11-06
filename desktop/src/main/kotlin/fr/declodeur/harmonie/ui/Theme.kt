@@ -23,6 +23,9 @@ object Palette {
     val melody = Color(0xFF4FD1A1)
     val bass = Color(0xFFB98CFF)
     val compatible = Color(0xFFEF9F27)
+    /** Repères de la gamme de l'accord sur le clavier : gris neutre, foncé sur les touches blanches, clair sur les noires. */
+    val scaleMarkOnWhite = Color(0xFF3F4552)
+    val scaleMarkOnBlack = Color(0xFFC9CED6)
 
     // Fonctions harmoniques
     val tonic = Color(0xFF6FD3F7)

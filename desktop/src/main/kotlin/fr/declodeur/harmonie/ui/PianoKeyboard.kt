@@ -18,7 +18,14 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import fr.declodeur.harmonie.engine.ChordCandidate
+import fr.declodeur.harmonie.engine.ChordScaleResult
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.SoundingNote
 import fr.declodeur.harmonie.engine.ToneRole
@@ -78,6 +85,8 @@ private fun keyColor(notes: List<SoundingNote>?, chord: ChordCandidate?): Color?
 
 /**
  * Clavier 88 touches. Les notes qui sonnent sont colorées selon leur rôle dans l'accord.
+ * Si [scale] est donnée, un point repère chaque note de la gamme de l'accord (plus gros sur
+ * sa tonique) et un cercle rouge chaque note à éviter.
  * Un clic enfonce ou relâche une touche (pour tester sans instrument).
  */
 @Composable
@@ -86,7 +95,11 @@ fun PianoKeyboard(
     chord: ChordCandidate?,
     onKeyClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    scale: ChordScaleResult? = null,
 ) {
+    val scalePcs = scale?.primary?.pitchClasses?.toSet() ?: emptySet()
+    val avoid = scale?.avoid ?: emptySet()
+    val tonic = scale?.primary?.root
     val measurer = rememberTextMeasurer()
     val click by rememberUpdatedState(onKeyClick)
     val byNote = notes.groupBy { it.note }
@@ -109,6 +122,7 @@ fun PianoKeyboard(
             drawKey(r, Palette.whiteKey)
             if (c != null) drawKey(r, c)
             drawRect(Palette.keyBorder, r.topLeft, r.size, style = Stroke(1f))
+            drawScaleMark(n, r, r.bottom - 24.dp.toPx(), scalePcs, avoid, tonic, pressed = c != null)
             if (Notes.pc(n) == 0) {
                 // Étiquette mesurée puis centrée en bas de la touche (quelle que soit l'échelle Windows)
                 val layout = measurer.measure(Notes.nameWithOctave(n), labelStyle)
@@ -128,7 +142,38 @@ fun PianoKeyboard(
             drawKey(r, Palette.blackKey)
             if (c != null) drawKey(r, c)
             drawRect(Palette.keyBorder, r.topLeft, r.size, style = Stroke(1f))
+            drawScaleMark(n, r, r.bottom - 9.dp.toPx(), scalePcs, avoid, tonic, pressed = c != null)
         }
+    }
+}
+
+/** Repère de gamme : point (note de la gamme), point plus gros (tonique de la gamme), cercle rouge (à éviter). */
+private fun DrawScope.drawScaleMark(note: Int, r: Rect, cy: Float, scale: Set<Int>, avoid: Set<Int>, tonic: Int?, pressed: Boolean) {
+    val pc = Notes.pc(note)
+    if (pc !in scale) return
+    val center = Offset(r.center.x, cy)
+    // Taille limitée par la largeur de la touche (clavier étroit)
+    val maxR = r.width * 0.3f
+    if (pc in avoid) {
+        drawCircle(Palette.danger, radius = minOf(4.dp.toPx(), maxR), center = center, style = Stroke(1.8.dp.toPx()))
+    } else {
+        val radius = if (pc == tonic) 4.5.dp.toPx() else 3.dp.toPx()
+        val color = if (Notes.isBlack(note) && !pressed) Palette.scaleMarkOnBlack else Palette.scaleMarkOnWhite
+        drawCircle(color, radius = minOf(radius, maxR), center = center)
+    }
+}
+
+/** Légende des repères de gamme (mêmes dessins que sur le clavier). */
+@Composable
+fun ScaleLegend(text: String, avoid: Boolean = false, tonic: Boolean = false) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Canvas(Modifier.size(12.dp)) {
+            val c = Offset(size.width / 2, size.height / 2)
+            if (avoid) drawCircle(Palette.danger, radius = 4.dp.toPx(), center = c, style = Stroke(1.8.dp.toPx()))
+            else drawCircle(Palette.scaleMarkOnBlack, radius = (if (tonic) 4.5.dp else 3.dp).toPx(), center = c)
+        }
+        Spacer(Modifier.width(6.dp))
+        Text(text, fontSize = 12.sp, color = Palette.muted)
     }
 }
 

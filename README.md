@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.7.2 (étapes 1 à 4)
+## Version 0.8 (étapes 1 à 5a)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -29,6 +29,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Écran organisé selon le temps : en haut accord courant (présent) | suites probables (avenir) | tonalité (contexte) ; au milieu l'historique (passé) ; en bas le clavier pleine largeur. Frontières déplaçables à la souris (disposition mémorisée) ; réglages compacts en deux colonnes.
 - Historique annoté : flèche pleine (dominante qui résout une quinte plus bas), flèche pointillée (substitution tritonique), crochet sous les II-V, bordure pointillée des accords arpégés.
 - Arbre des suites probables à droite de l'historique (forme réglable, 4-2-1 par défaut) : modèle théorique par style et mode, règles de contexte (II-V, dominantes, substitutions), mémoire des boucles du morceau sur 1 à 4 accords, mini clavier optionnel (masqué par défaut) avec conduite des voix minimale.
+- Gamme de l'accord (étape 5a) : gamme conseillée selon le type, la fonction et la résolution (dorien sur IIm7, phrygien sur IIIm7, mixolydien ♭9 ♭13 sur une dominante vers un accord mineur, lydien ♭7 sur une substitution tritonique, altérée sur 7(♯9)…), notes à éviter, tensions disponibles, variantes (pentatoniques en pop / rock) ; repères de la gamme sur le clavier (option) ; notes de mélodie classées (note de l'accord, tension, à éviter, chromatique).
 - Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
 ## Organisation
@@ -43,6 +44,6 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 2. ~~Tonalité probable et chiffrage romain~~
 3. ~~Historique annoté (flèches, crochets II-V, accords tenus / arpégés)~~
 4. ~~Arbre des accords suivants (modèle théorique par style)~~ ; statistiques réelles avec le futur corpus
-5. Analyses avancées : gammes d'accord, conduite des voix, voicings, séparation harmonie / mélodie
+5. Analyses avancées : ~~5a gammes d'accord, notes à éviter, mélodie classée~~ ; 5b voicings, conduite des voix, séparation harmonie / mélodie ; 5c parcours sur le cercle, courbe de tension, rythme harmonique, grille exportable
 
 Backlog : outil de création de corpus (à partir de fichiers MIDI) pour les statistiques d'enchaînements ; choix dièses / bémols pour les tonalités et accords enharmoniques (F♯ / G♭…) ; mise au point de la forme par défaut de l'arbre des suites ; réanalyse a posteriori, lors d'un changement de tonalité, des accords précédents compatibles avec la nouvelle tonalité.

@@ -58,6 +58,9 @@ import fr.declodeur.harmonie.engine.AnalysisSettings
 import fr.declodeur.harmonie.engine.ChordCandidate
 import fr.declodeur.harmonie.engine.ChordResult
 import fr.declodeur.harmonie.engine.EngineSnapshot
+import fr.declodeur.harmonie.engine.ChordScaleResult
+import fr.declodeur.harmonie.engine.ChordScales
+import fr.declodeur.harmonie.engine.MelodyRole
 import fr.declodeur.harmonie.engine.HarmonicAnalysis
 import fr.declodeur.harmonie.engine.HarmonicFunction
 import fr.declodeur.harmonie.engine.HistoryEntry
@@ -101,6 +104,7 @@ fun App(controller: AppController) {
                     spelling = spelling,
                     style = settings.style,
                     showMiniKeyboards = settings.prediction.showMiniKeyboards,
+                    showScaleOnKeyboard = settings.scaleOnKeyboard,
                     savedLayout = layoutPrefs,
                     onLayoutChanged = controller::saveLayout,
                     onClearHistory = controller::clearHistory,
@@ -191,6 +195,8 @@ private fun CurrentChordPanel(
     modifier: Modifier,
 ) {
     Panel("Accord courant", modifier, help = Help.CURRENT_CHORD) {
+      // Défilement à la molette si le cadre est trop bas pour tout afficher
+      Column(Modifier.verticalScroll(rememberScrollState())) {
         val best = result?.best
         if (result == null) {
             Text("Jouez un accord…", fontSize = 22.sp, color = Palette.muted)
@@ -214,6 +220,7 @@ private fun CurrentChordPanel(
         } else {
             ChordDetails(best, result, analysis, snap, spelling)
         }
+      }
     }
 }
 
@@ -266,6 +273,7 @@ private fun ChordDetails(
     InfoLine("Type", best.type.frenchName)
     InfoLine("Renversement", inversion, Help.INVERSION)
     NotesLine(result, best, snap, spelling)
+    snap.currentScale?.let { ScaleLines(it, spelling) }
     if (best.omittedFifth) {
         Text("Accord reconnu sans sa quinte (voicing courant).", fontSize = 13.sp, color = Palette.warning)
     }
@@ -312,11 +320,102 @@ private fun NotesLine(result: ChordResult, best: ChordCandidate?, snap: EngineSn
         Spacer(Modifier.width(6.dp))
         HelpBubble(Help.NOTES)
     }
-    val melody = snap.notes.filter { it.melody }.sortedBy { it.note }
+    val melody = snap.notes.filter { it.melody || it.solo }.sortedBy { it.note }
     if (melody.isNotEmpty()) {
-        Row(Modifier.padding(vertical = 2.dp)) {
-            Text("Mélodie : ", fontSize = 14.sp, color = Palette.muted)
-            Text(melody.joinToString("  ") { Notes.nameWithOctave(it.note, spelling) }, fontSize = 14.sp, color = Palette.melody)
+        val melodyText = buildAnnotatedString {
+            melody.forEachIndexed { i, m ->
+                if (i > 0) append("   ")
+                val role = m.melodyRole
+                withStyle(SpanStyle(color = melodyRoleColor(role), fontWeight = FontWeight.Medium)) {
+                    append(Notes.nameWithOctave(m.note, spelling))
+                }
+                val label = when {
+                    role == null || best == null -> null
+                    role == MelodyRole.CHORD_TONE -> best.degreeOf(m.note)
+                    role == MelodyRole.TENSION -> ChordScales.intervalLabel(Notes.pc(m.note), best)
+                    role == MelodyRole.AVOID -> "à éviter"
+                    else -> "chromatique"
+                }
+                if (label != null) withStyle(SpanStyle(color = Palette.muted, fontSize = 12.sp)) { append(" $label") }
+            }
+        }
+        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Mélodie : ", fontSize = 15.sp, color = Palette.muted)
+            Text(melodyText, fontSize = 15.sp)
+            Spacer(Modifier.width(6.dp))
+            HelpBubble(Help.MELODY_ROLES)
+        }
+    }
+}
+
+/** Couleur d'une note de mélodie selon son rôle sur l'accord (même code que le clavier). */
+fun melodyRoleColor(role: MelodyRole?): Color = when (role) {
+    MelodyRole.CHORD_TONE -> Palette.chordTone
+    MelodyRole.TENSION -> Palette.tension
+    MelodyRole.AVOID -> Palette.danger
+    MelodyRole.CHROMATIC -> Palette.pending
+    null -> Palette.melody
+}
+
+/**
+ * Gamme de l'accord : nom et notes (fondamentale, notes de l'accord, tensions, notes à éviter
+ * colorées comme sur le clavier), tensions disponibles, notes à éviter, variantes.
+ * La bulle d'aide explique pourquoi cette gamme.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ScaleLines(scale: ChordScaleResult, spelling: Spelling) {
+    val chord = scale.chord
+    val primary = scale.primary
+    val avoid = scale.avoid
+    val tones = chord.chordPitchClasses
+    val notes = buildAnnotatedString {
+        primary.pitchClasses.forEachIndexed { i, pc ->
+            if (i > 0) append(" ")
+            val color = when {
+                pc == chord.root -> Palette.root
+                pc in tones -> Palette.chordTone
+                pc in avoid -> Palette.danger
+                else -> Palette.tension
+            }
+            withStyle(SpanStyle(color = color, fontWeight = FontWeight.Medium)) { append(Notes.name(pc, spelling)) }
+        }
+    }
+    FlowRow(
+        Modifier.padding(vertical = 3.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text("Gamme : ", fontSize = 15.sp, color = Palette.muted, modifier = Modifier.align(Alignment.CenterVertically))
+        Text(primary.name(spelling), fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.align(Alignment.CenterVertically))
+        Text(notes, fontSize = 15.sp, modifier = Modifier.align(Alignment.CenterVertically))
+        Box(Modifier.align(Alignment.CenterVertically)) { HelpBubble(primary.reason + "\n\n" + Help.SCALE) }
+    }
+    val detail = buildAnnotatedString {
+        if (avoid.isEmpty()) {
+            withStyle(SpanStyle(color = Palette.muted)) { append("Aucune note à éviter") }
+        } else {
+            withStyle(SpanStyle(color = Palette.muted)) { append("À éviter : ") }
+            withStyle(SpanStyle(color = Palette.danger, fontWeight = FontWeight.Medium)) {
+                append(primary.pitchClasses.filter { it in avoid }.joinToString(" ") { Notes.name(it, spelling) })
+            }
+        }
+        val tensions = scale.tensions
+        if (tensions.isNotEmpty()) {
+            withStyle(SpanStyle(color = Palette.muted)) { append("   ·   Tensions : ") }
+            withStyle(SpanStyle(color = Palette.tension)) { append(tensions.joinToString(" ")) }
+        }
+    }
+    Text(detail, fontSize = 14.sp, modifier = Modifier.padding(vertical = 2.dp))
+    if (scale.alternatives.isNotEmpty()) {
+        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Aussi : " + scale.alternatives.joinToString(", ") { it.name(spelling) },
+                fontSize = 13.sp,
+                color = Palette.muted,
+            )
+            Spacer(Modifier.width(6.dp))
+            HelpBubble(scale.alternatives.joinToString("\n") { "• " + it.name(spelling) + " : " + it.reason })
         }
     }
 }
@@ -349,7 +448,7 @@ private fun InfoLine(label: String, value: String, help: String? = null) {
 }
 
 @Composable
-private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modifier: Modifier) {
+private fun KeyboardPanel(snap: EngineSnapshot, showScale: Boolean, onKeyClick: (Int) -> Unit, modifier: Modifier) {
     Panel(
         "Clavier",
         modifier,
@@ -364,6 +463,10 @@ private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modif
                 LegendItem(Palette.pending, "Non analysée")
                 LegendItem(Palette.melody, "Mélodie")
                 LegendItem(Palette.chordTone.copy(alpha = 0.5f), "Pédale (pâle)")
+                if (showScale) {
+                    ScaleLegend("Gamme (gros : tonique)", tonic = true)
+                    ScaleLegend("À éviter", avoid = true)
+                }
             }
         },
     ) {
@@ -372,6 +475,7 @@ private fun KeyboardPanel(snap: EngineSnapshot, onKeyClick: (Int) -> Unit, modif
             chord = snap.current?.best,
             onKeyClick = onKeyClick,
             modifier = Modifier.fillMaxWidth().weight(1f).heightIn(min = 40.dp),
+            scale = if (showScale) snap.currentScale else null,
         )
     }
 }
@@ -407,6 +511,7 @@ private fun MainArea(
     spelling: Spelling,
     style: MusicStyle,
     showMiniKeyboards: Boolean,
+    showScaleOnKeyboard: Boolean,
     savedLayout: LayoutPrefs,
     onLayoutChanged: (LayoutPrefs) -> Unit,
     onClearHistory: () -> Unit,
@@ -462,7 +567,7 @@ private fun MainArea(
                 },
                 onDragEnd = save,
             )
-            KeyboardPanel(snap, onKeyClick = onKeyClick, modifier = Modifier.fillMaxWidth().height(keyboardH))
+            KeyboardPanel(snap, showScaleOnKeyboard, onKeyClick = onKeyClick, modifier = Modifier.fillMaxWidth().height(keyboardH))
         }
     }
 }
@@ -572,6 +677,11 @@ private fun SettingsDialog(
                             "Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
                             settings.keyMemorySeconds.toFloat(), 4f..60f, 2f,
                         ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Gammes")
+                        SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
+                            onChange(settings.copy(scaleOnKeyboard = it))
+                        }
                     }
                 }
                 Spacer(Modifier.height(20.dp))

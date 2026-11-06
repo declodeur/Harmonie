@@ -180,6 +180,7 @@ class AppController(scope: CoroutineScope) {
             melodyWeightPercent = prefs.getInt(KEY_MELODY_WEIGHT, d.melodyWeightPercent).coerceIn(0, 100),
             fastKeyChange = prefs.getBoolean(KEY_FAST_KEY, d.fastKeyChange),
             arpeggioDetection = prefs.getBoolean(KEY_ARPEGGIO, d.arpeggioDetection),
+            scaleOnKeyboard = prefs.getBoolean(KEY_SCALE_KEYBOARD, d.scaleOnKeyboard),
             arpeggioWindowMs = prefs.getInt(KEY_ARPEGGIO_WINDOW, d.arpeggioWindowMs).coerceIn(500, 5000),
             arpeggioMaxNotes = prefs.getInt(KEY_ARPEGGIO_NOTES, d.arpeggioMaxNotes).coerceIn(3, 12),
             prediction = PredictionSettings(
@@ -205,6 +206,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putInt(KEY_MELODY_WEIGHT, s.melodyWeightPercent)
         prefs.putBoolean(KEY_FAST_KEY, s.fastKeyChange)
         prefs.putBoolean(KEY_ARPEGGIO, s.arpeggioDetection)
+        prefs.putBoolean(KEY_SCALE_KEYBOARD, s.scaleOnKeyboard)
         prefs.putInt(KEY_ARPEGGIO_WINDOW, s.arpeggioWindowMs)
         prefs.putInt(KEY_ARPEGGIO_NOTES, s.arpeggioMaxNotes)
         prefs.putInt(KEY_P_CONTEXT, s.prediction.contextSize)
@@ -233,6 +235,7 @@ class AppController(scope: CoroutineScope) {
         const val KEY_KEY_MEMORY = "keyMemorySeconds"
         const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
         const val KEY_ARPEGGIO = "arpeggioDetection"
+        const val KEY_SCALE_KEYBOARD = "scaleOnKeyboard"
         const val KEY_FAST_KEY = "fastKeyChange"
         const val KEY_L_CHORD = "layout2ChordRatio"
         const val KEY_L_CIRCLE = "layout2CircleRatio"

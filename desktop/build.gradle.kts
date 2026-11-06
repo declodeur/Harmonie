@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-val appVersion = "0.7.2"
+val appVersion = "0.8"
 val buildNumber: String = System.getenv("GITHUB_RUN_NUMBER") ?: "dev"
 
 // Génère BuildInfo.kt (version et numéro de build affichés dans l'application)

@@ -46,6 +46,8 @@ data class AnalysisSettings(
     val arpeggioMaxNotes: Int = 6,
     /** Prédictions : forme de l'arbre et taille du contexte. */
     val prediction: PredictionSettings = PredictionSettings(),
+    /** Affichage : repérer la gamme de l'accord courant sur le grand clavier. */
+    val scaleOnKeyboard: Boolean = true,
 )
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
@@ -59,6 +61,10 @@ data class SoundingNote(
     val melody: Boolean,
     /** Prise en compte dans la reconnaissance d'accord. */
     val analysed: Boolean,
+    /** Jouée seule (mode Complète) : traitée comme une note de mélodie pour la tonalité et la gamme. */
+    val solo: Boolean = false,
+    /** Rôle de la note de mélodie sur l'accord courant (notes de mélodie et notes seules uniquement). */
+    val melodyRole: MelodyRole? = null,
 )
 
 /** Type de résolution entre un accord et le précédent (notation d'analyse jazz). */
@@ -112,6 +118,8 @@ data class EngineSnapshot(
     val history: List<HistoryEntry>,
     /** Arbre des suites probables (vide tant que la tonalité est inconnue). */
     val predictions: List<PredictionNode> = emptyList(),
+    /** Gamme de l'accord courant (et variantes), avec notes à éviter et tensions. */
+    val currentScale: ChordScaleResult? = null,
 )
 
 /**
@@ -354,8 +362,12 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
 
     @Synchronized
     fun snapshot(): EngineSnapshot {
+        val best = current?.best
+        val currentAnalysis = best?.let { analyze(it) }
+        val scale = best?.let { ChordScales.suggest(it, currentAnalysis, keyEstimate?.current, settings.style) }
         val notes = tracker.sounding().map { n ->
             val melody = !isChordChannel(n.channel)
+            val solo = !melody && (n.channel to n.note) in melodicNotes
             SoundingNote(
                 note = n.note,
                 channel = n.channel,
@@ -363,10 +375,13 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 sustained = n.sustained,
                 melody = melody,
                 analysed = !melody && (settings.includeSustain || !n.sustained),
+                solo = solo,
+                melodyRole = if ((melody || solo) && scale != null) ChordScales.classify(n.note, scale) else null,
             )
         }
-        val currentAnalysis = current?.best?.let { analyze(it) }
-        return EngineSnapshot(version, notes, current, currentAnalysis, keyEstimate, history.toList(), predictions)
+        return EngineSnapshot(
+            version, notes, current, currentAnalysis, keyEstimate, history.toList(), predictions, scale,
+        )
     }
 
     private fun isChordChannel(channel: Int): Boolean =

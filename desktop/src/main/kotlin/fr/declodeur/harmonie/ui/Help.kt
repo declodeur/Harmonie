@@ -54,7 +54,7 @@ object Help {
         "Les notes de l'accord, avec leur octave (C4 = do central) et leur degré : 1 = fondamentale, 3 ou ♭3 = " +
             "tierce majeure ou mineure, 5 = quinte, 7 ou ♭7 = septième majeure ou mineure, 9 / 11 / 13 = tensions " +
             "(notes ajoutées au-dessus de la septième). Couleurs comme sur le clavier ; couleur pâle : note tenue " +
-            "par la pédale. En mode « Accords + mélodie », les notes de la mélodie s'affichent en dessous, en vert."
+            "par la pédale. Les notes de mélodie s'affichent en dessous, classées par rapport à l'accord."
 
     const val HISTORY =
         "Les accords reconnus successivement, du plus ancien (à gauche) au plus récent (encadré). Un même " +
@@ -73,7 +73,9 @@ object Help {
     const val KEYBOARD =
         "Les touches qui sonnent sont colorées selon leur rôle dans l'accord courant. " +
             "Cliquez sur une touche pour l'enfoncer, cliquez à nouveau pour la relâcher : pratique pour " +
-            "tester sans instrument. « Relâcher tout » remet le clavier à zéro."
+            "tester sans instrument. « Relâcher tout » remet le clavier à zéro.\n\n" +
+            "Repères de gamme (désactivables dans les Réglages) : un point sur chaque note de la gamme de " +
+            "l'accord courant, plus gros sur sa tonique ; un cercle rouge sur les notes à éviter."
 
     const val STABILITY =
         "Durée pendant laquelle les notes doivent rester stables avant que l'accord soit validé. Plus court : " +
@@ -187,4 +189,27 @@ object Help {
         "Affiche sous chaque proposition du premier niveau un mini clavier montrant une position à jouer, " +
             "choisie pour bouger le moins possible depuis l'accord courant. Masqué par défaut pour gagner de " +
             "la place et de la lisibilité."
+
+    const val SCALE =
+        "Gamme de l'accord : la gamme qui convient pour improviser ou écrire une mélodie sur cet accord. " +
+            "Elle dépend du type de l'accord, de sa fonction dans la tonalité (un IIm7 appelle le dorien, un " +
+            "IIIm7 le phrygien) et, pour une dominante, de l'accord vers lequel elle résout (mixolydien vers " +
+            "un accord majeur, mixolydien ♭9 ♭13 vers un accord mineur, altérée si l'accord contient ♯9 ou ♭13).\n\n" +
+            "Couleurs des notes : bleu foncé = fondamentale, bleu clair = notes de l'accord, orange = tensions " +
+            "disponibles, rouge = notes à éviter.\n\n" +
+            "Note à éviter : note de la gamme située un demi-ton au-dessus d'une note de l'accord (le F sur CM7). " +
+            "Tenue longtemps, elle frotte et sonne comme une fausse note ; en note de passage, elle est très " +
+            "bien. Exceptions : la ♭9 et la ♭13 d'une dominante sont des tensions.\n\n" +
+            "« Aussi » : d'autres gammes possibles (pentatoniques en pop / rock, variantes plus tendues en jazz)."
+
+    const val SCALE_KEYBOARD =
+        "Repère sur le grand clavier chaque note de la gamme de l'accord courant (un point, plus gros sur " +
+            "sa tonique) et chaque note à éviter (un cercle rouge). Utile pour voir où placer les doigts quand " +
+            "on improvise."
+
+    const val MELODY_ROLES =
+        "Notes de mélodie : celles des autres canaux en mode « Accords + mélodie », ou les notes jouées " +
+            "seules en mode « Complète ». Chacune est classée par rapport à l'accord courant : bleu clair = " +
+            "note de l'accord (avec son degré), orange = tension de la gamme (9, 11, 13…), rouge = note à " +
+            "éviter, gris = note chromatique, hors de la gamme (note de passage, broderie, ou couleur voulue)."
 }
