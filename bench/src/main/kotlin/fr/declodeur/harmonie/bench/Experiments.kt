@@ -17,20 +17,76 @@ data class Experiment(
 )
 
 object Experiments {
+    private fun AnalysisSettings.interp(f: (fr.declodeur.harmonie.engine.InterpretationSettings) -> fr.declodeur.harmonie.engine.InterpretationSettings) =
+        copy(interpretation = f(interpretation))
+
     val ALL = listOf(
         Experiment(
-            "memoire-6s", "Mémoire de tonalité 6 s",
-            "La tonalité suit trop lentement les modulations : une mémoire plus courte (6 s au lieu de 12) devrait la rendre plus réactive.",
-            active = false,
-        ) { it.copy(keyMemorySeconds = 6) },
+            "version-0.8", "Moteur de la version 0.8",
+            "Contrôle : toutes les règles d'interprétation désactivées, mémoire de tonalité de 12 s et inertie de 3, comme avant le banc d'essai. " +
+                "Mesure le chemin parcouru.",
+            active = true,
+        ) {
+            it.copy(
+                keyMemorySeconds = 12,
+                keyInertiaPercent = 3,
+                interpretation = it.interpretation.copy(
+                    sixthAsSeventh = false, diminishedByKey = false, suspensions = false,
+                    keepChordOnSubset = false, completeDyads = false, harmonicWindowMs = 0,
+                ),
+            )
+        },
         Experiment(
-            "memoire-4s", "Mémoire de tonalité 4 s",
-            "Même hypothèse, poussée plus loin.",
+            "sans-sixte-septieme", "Sans : sixte ajoutée lue comme septième",
+            "Retire la règle : en style classique, C6 est lu Am7/C et Cm6 Am7♭5/C, comme vi6/5 et ii6/5 chez les experts.",
             active = false,
-        ) { it.copy(keyMemorySeconds = 4) },
+        ) { it.interp { i -> i.copy(sixthAsSeventh = false) } },
+        Experiment(
+            "sans-diminue-sensible", "Sans : septième diminuée nommée d'après la sensible",
+            "Retire la règle : une septième diminuée est nommée d'après la note qui monte vers un degré de la tonalité.",
+            active = false,
+        ) { it.interp { i -> i.copy(diminishedByKey = false) } },
+        Experiment(
+            "sans-retards", "Sans : retards (sus4 lu avec sa tierce)",
+            "Retire la règle : en style classique, une quarte à la place de la tierce est un retard ; l'accord est nommé avec sa tierce.",
+            active = false,
+        ) { it.interp { i -> i.copy(suspensions = false) } },
+        Experiment(
+            "sans-sous-ensemble", "Sans : une ou deux notes de l'accord ne le remplacent pas",
+            "Retire la règle : quand il ne reste qu'une ou deux notes de l'accord en cours, l'accord continue.",
+            active = false,
+        ) { it.interp { i -> i.copy(keepChordOnSubset = false) } },
+        Experiment(
+            "sans-dyades", "Sans : tierces et quintes seules lues comme accords",
+            "Retire la règle : deux notes à la tierce ou à la sixte (et à la quinte en style classique) sont lues comme l'accord parfait.",
+            active = false,
+        ) { it.interp { i -> i.copy(completeDyads = false) } },
+        Experiment(
+            "fenetre-600", "Fenêtre harmonique de 600 ms",
+            "Quand une ou deux notes seulement sont tenues, compléter avec les notes jouées dans les 600 dernières ms. " +
+                "Essai du 6 novembre : utile seule, mais n'apporte plus rien une fois les autres règles en place (désactivée par défaut).",
+            active = false,
+        ) { it.interp { i -> i.copy(harmonicWindowMs = 600) } },
+        Experiment("fenetre-400", "Fenêtre harmonique de 400 ms", "Même essai avec une fenêtre plus courte.", active = false) {
+            it.interp { i -> i.copy(harmonicWindowMs = 400) }
+        },
+        Experiment("memoire-12s", "Mémoire de tonalité 12 s", "Ancienne valeur par défaut (4 s aujourd'hui).", active = false) {
+            it.copy(keyMemorySeconds = 12)
+        },
+        Experiment("memoire-3s", "Mémoire de tonalité 3 s", "Mémoire plus courte que la valeur par défaut (4 s).", active = false) {
+            it.copy(keyMemorySeconds = 3)
+        },
+        Experiment("inertie-3", "Inertie de tonalité 3", "Ancienne valeur de l'hystérésis de la tonalité retenue (1 aujourd'hui).", active = false) {
+            it.copy(keyInertiaPercent = 3)
+        },
+        Experiment(
+            "cadence", "Cadence parfaite : nouvelle tonalité tout de suite",
+            "Un V7 → I vers une tonalité plausible (parmi les 3 plus probables) la fait retenir immédiatement.",
+            active = false,
+        ) { it.copy(cadenceKeyChange = true) },
         Experiment(
             "sans-changement-immediat", "Sans changement immédiat de tonalité",
-            "Contrôle : effet de l'option « Changement immédiat sur un accord hors tonalité ».",
+            "Effet de l'option « Changement immédiat sur un accord hors tonalité ».",
             active = false,
         ) { it.copy(fastKeyChange = false) },
     )

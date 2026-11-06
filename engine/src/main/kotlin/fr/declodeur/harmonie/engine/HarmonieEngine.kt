@@ -33,7 +33,11 @@ data class AnalysisSettings(
     /** Exceptions à la règle de la basse détachée. */
     val bassOptions: BassReadingOptions = BassReadingOptions(),
     /** Mémoire de la tonalité : demi-vie, en secondes, du poids des notes passées. */
-    val keyMemorySeconds: Int = 12,
+    val keyMemorySeconds: Int = 4,
+    /** Une cadence parfaite (V7 → I) vers une tonalité plausible la fait retenir tout de suite. */
+    val cadenceKeyChange: Boolean = false,
+    /** Inertie de la tonalité retenue, en centièmes de score (0 = suit toujours la plus probable). */
+    val keyInertiaPercent: Int = 1,
     /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
     val melodyWeightPercent: Int = 70,
     /** Changement de tonalité immédiat quand un accord sort franchement de la tonalité. */
@@ -46,6 +50,8 @@ data class AnalysisSettings(
     val arpeggioMaxNotes: Int = 6,
     /** Prédictions : forme de l'arbre et taille du contexte. */
     val prediction: PredictionSettings = PredictionSettings(),
+    /** Règles d'interprétation contextuelle (issues du banc d'essai). */
+    val interpretation: InterpretationSettings = InterpretationSettings(),
     /** Affichage : repérer la gamme de l'accord courant sur le grand clavier. */
     val scaleOnKeyboard: Boolean = true,
 )
@@ -147,6 +153,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     private var version = 0L
     private val keyDetector = KeyDetector(settings.keyMemorySeconds * 1000L).apply {
         style = settings.style
+        switchMargin = settings.keyInertiaPercent / 100.0
         melodyWeight = settings.melodyWeightPercent / 100.0
     }
 
@@ -204,6 +211,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         keyDetector.halfLifeMs = newSettings.keyMemorySeconds * 1000L
         keyDetector.style = newSettings.style
         keyDetector.melodyWeight = newSettings.melodyWeightPercent / 100.0
+        keyDetector.switchMargin = newSettings.keyInertiaPercent / 100.0
         attackSinceCommit = true
         peakSet = emptySet()
         analysisSet = emptySet()
@@ -274,9 +282,33 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
         var result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
-        // Reconnaissance d'arpège seulement en secours, quand aucun accord n'est tenu
+        val interp = settings.interpretation
+        val key = keyEstimate?.current
+        if (result.pitchClasses.size < 3) {
+            // Une ou deux notes de l'accord en cours ne le remplacent pas
+            val cur = current?.best
+            if (interp.keepChordOnSubset && cur != null && result.pitchClasses.isNotEmpty() &&
+                cur.chordPitchClasses.containsAll(result.pitchClasses)
+            ) {
+                attackSinceCommit = false
+                peakSet = emptySet()
+                return false
+            }
+        }
+        // Reconnaissance d'arpège seulement en secours, quand aucun accord n'est tenu : d'abord la
+        // plus longue suite de notes formant un accord exact, sinon la fenêtre harmonique
         val holdsChord = result.best != null && result.pitchClasses.size >= 3
-        if (!holdsChord && settings.arpeggioDetection) arpeggio(nowMs)?.let { result = it }
+        if (!holdsChord && settings.arpeggioDetection) {
+            val arp = arpeggio(nowMs)
+            if (arp != null) result = arp
+            else if (interp.harmonicWindowMs > 0 && result.pitchClasses.size < 3) windowChord(nowMs, set)?.let { result = it }
+        }
+        if (interp.completeDyads && result.pitchClasses.size == 2 &&
+            (result.best == null || result.best?.type == ChordType.ONE_PLUS_FIVE)
+        ) {
+            result = ChordInterpreter.dyad(result, key, settings.style)
+        }
+        result = ChordInterpreter.interpret(result, key, settings.style, interp)
         if (result.best == null && result.pitchClasses.size < 2) return false
         attackSinceCommit = false
         peakSet = emptySet()
@@ -289,6 +321,12 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 keyDetector.forget()
             }
             keyDetector.addChord(best, previous)
+            if (settings.cadenceKeyChange && previous != null && previous.type.isDominant &&
+                Notes.pc(previous.root - best.root) == 7 && (best.type.isMajorTriadBased || best.type.isMinorTriadBased) &&
+                !best.type.isDominant
+            ) {
+                keyDetector.cadenceTo(Key(best.root, best.type.isMinorTriadBased))
+            }
             refreshKey()
             val last = history.lastOrNull()
             if (last?.chord?.best?.symbol != best.symbol) {
@@ -342,6 +380,20 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
             if (ok) found = r.copy(arpeggiated = true) else if (found != null) break
         }
         return found
+    }
+
+    /**
+     * Fenêtre harmonique : notes tenues + notes attaquées dans les [InterpretationSettings.harmonicWindowMs]
+     * dernières ms. Gardée si elle forme un accord d'au moins trois notes (exact, ou sans sa quinte).
+     */
+    private fun windowChord(nowMs: Long, held: Set<Int>): ChordResult? {
+        val window = settings.interpretation.harmonicWindowMs
+        val notes = held + recentAttacks.filter { nowMs - it.second <= window }.map { it.first }
+        val r = ChordRecognizer.recognize(notes, settings.slashMinGap, settings.bassOptions)
+        val b = r.best ?: return null
+        if (r.pitchClasses.size < 3 || b.extraNotes.isNotEmpty()) return null
+        if (b.type == ChordType.ONE_PLUS_FIVE || b.type == ChordType.ONE_PLUS_EIGHT) return null
+        return r.copy(arpeggiated = true)
     }
 
     /** Recalcule la tonalité ; renvoie true si ce qui est affiché a changé. */

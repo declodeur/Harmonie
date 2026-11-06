@@ -19,6 +19,8 @@ data class ChordCandidate(
      * Sinon l'accord est noté comme à l'état fondamental, même s'il est renversé.
      */
     val bassDetached: Boolean = true,
+    /** Explication quand la lecture vient d'une règle d'interprétation (retard, sixte lue comme septième…). */
+    val interpretation: String? = null,
 ) {
     val isExact: Boolean get() = !omittedFifth && extraNotes.isEmpty()
     val rootName: String get() = rootNameIn(Spelling.DEFAULT)

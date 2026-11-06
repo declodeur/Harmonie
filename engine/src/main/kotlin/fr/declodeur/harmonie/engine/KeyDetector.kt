@@ -79,6 +79,9 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
 
     /** Poids de la mélodie par rapport à l'harmonie (0 = ignorée, 1 = autant que l'harmonie). */
     var melodyWeight: Double = 0.7
+
+    /** Inertie : la tonalité retenue ne change que si une autre la dépasse de cet écart de score. */
+    var switchMargin: Double = SWITCH_MARGIN
         set(value) {
             field = value.coerceIn(0.0, 1.0)
         }
@@ -142,6 +145,21 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         current = null
     }
 
+    /**
+     * Cadence parfaite (V7 → I) vers [key] : si cette tonalité fait partie des [CADENCE_TOP]
+     * plus probables, elle est retenue tout de suite ; le passé est en partie oublié.
+     * Renvoie true si la tonalité retenue a changé.
+     */
+    fun cadenceTo(key: Key): Boolean {
+        if (current == key) return false
+        val top = estimate().ranking.take(CADENCE_TOP).map { it.key }
+        if (key !in top) return false
+        forget(CADENCE_KEEP)
+        current = key
+        bonus[key.index] += CADENCE_BONUS * 3
+        return true
+    }
+
     /** Un accord vient d'être reconnu ; [previous] est l'accord précédent. */
     fun addChord(chord: ChordCandidate, previous: ChordCandidate?) {
         for (pc in chord.chordPitchClasses) harmony[pc] += CHORD_WEIGHT
@@ -162,7 +180,7 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         val scored = Key.ALL.map { key -> Triple(key, score(key, combined), fit(key, combined)) }
         val (bestKey, bestScore) = scored.maxBy { it.second }.let { it.first to it.second }
         val currentScore = current?.let { score(it, combined) }
-        if (current == null || currentScore == null || bestScore > currentScore + SWITCH_MARGIN) {
+        if (current == null || currentScore == null || bestScore > currentScore + switchMargin) {
             current = bestKey
         }
         // Peu d'indices = probabilités plus étalées (un seul accord ne suffit pas à conclure)
@@ -244,6 +262,8 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         const val CHORD_WEIGHT = 0.4
         const val CADENCE_BONUS = 0.06
         const val SWITCH_MARGIN = 0.03
+        const val CADENCE_TOP = 3
+        const val CADENCE_KEEP = 0.5
         const val SOFTMAX_BETA = 30.0
         const val MIN_TOTAL_WEIGHT = 1.0
         const val COMPATIBLE_FIT = 0.97
