@@ -84,7 +84,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <main class="page">
 <header style="display:flex;flex-direction:column;gap:10px">
 <h1>Banc d'essai Harmonie</h1>
-<div class="meta"><span>6 novembre 2026 à 11:53</span><span>moteur au commit <span class="mono">6fd072f</span></span><span>calcul : 82 s</span></div>
+<div class="meta"><span>6 novembre 2026 à 12:29</span><span>moteur au commit <span class="mono">0a8c7f4</span></span><span>calcul : 71 s</span></div>
 <p class="lead">Des morceaux analysés par des experts sont rejoués dans le moteur d'Harmonie, note par note, comme si on les jouait en direct. Pour chaque accord noté par l'expert, on compare ce que l'application affiche à ce que l'expert a écrit.</p>
 </header>
 <section>
@@ -112,11 +112,11 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Corpus</th><th class="n">Enchaînements</th><th class="n">Théorie : 1re</th><th class="n">Théorie : 4 premières</th><th class="n">Corpus : 1re</th><th class="n">Corpus : 4 premières</th></tr>
 <tr><td>Chorals de Bach</td><td class="n">15 935</td><td class="n">41,7 %</td><td class="n">68,3 %</td><td class="n up">44,0 %</td><td class="n up">84,0 %</td></tr>
 <tr><td>Sonates pour piano de Mozart</td><td class="n">12 955</td><td class="n">46,5 %</td><td class="n">70,3 %</td><td class="n up">50,7 %</td><td class="n up">82,0 %</td></tr>
-<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,5 %</td><td class="n up">77,0 %</td></tr>
-<tr><td>Clavier bien tempéré I, préludes</td><td class="n">1 832</td><td class="n">34,8 %</td><td class="n">57,2 %</td><td class="n up">35,5 %</td><td class="n up">70,4 %</td></tr>
+<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,5 %</td><td class="n up">77,1 %</td></tr>
+<tr><td>Clavier bien tempéré I, préludes</td><td class="n">1 832</td><td class="n">34,8 %</td><td class="n">57,2 %</td><td class="n up">35,5 %</td><td class="n up">70,5 %</td></tr>
 <tr><td>Rock et pop : corpus RS 200</td><td class="n">17 779</td><td class="n">79,7 %</td><td class="n">95,7 %</td><td class="n">79,6 %</td><td class="n up">96,2 %</td></tr>
 <tr><td>Pop : Beatles, Queen, Carole King…</td><td class="n">16 535</td><td class="n">65,7 %</td><td class="n">86,7 %</td><td class="n">65,7 %</td><td class="n up">88,1 %</td></tr>
-<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,7 %</td><td class="n up">80,0 %</td></tr>
+<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,7 %</td><td class="n up">80,1 %</td></tr>
 </table></div>
 </div>
 </section>
@@ -153,18 +153,18 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>Exemples perdus</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>001</td><td class="num">m5 t2</td><td class="mono">G2 B3 E4 D5</td><td class="exp"><span class="mono">vi6/5</span> en G majeur = <b>Em7/G</b></td><td class="app">G6 · I6 · G majeur</td></tr>
-<tr><td>144</td><td class="num">m5 t1</td><td class="mono">D3 A3 F♯4 B4</td><td class="exp"><span class="mono">ii6/5</span> en A majeur = <b>Bm7/D</b></td><td class="app">D6 · ♭VI6 · F♯ mineur</td></tr>
+<tr><td>144</td><td class="num">m5 t1</td><td class="mono">D3 A3 F♯4 B4</td><td class="exp"><span class="mono">ii6/5</span> en A majeur = <b>Bm7/D</b></td><td class="app">D6 · VI6 · F♯ mineur</td></tr>
 <tr><td>268</td><td class="num">m4 t1.5</td><td class="mono">F3 C4 A4 D5</td><td class="exp"><span class="mono">ii6/5</span> en C majeur = <b>Dm7/F</b></td><td class="app">F6 · IV6 · C majeur</td></tr>
 <tr><td>K280-3</td><td class="num">m24 t1</td><td class="mono">F3 F4 A4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">aucun accord · F majeur</td></tr>
 <tr><td>K309-2</td><td class="num">m47 t3.5</td><td class="mono">F3 A3 A4</td><td class="exp"><span class="mono">vi6</span> en F majeur = <b>Dm/F</b></td><td class="app">F6 · I6 · F majeur</td></tr>
 <tr><td>K331-2</td><td class="num">m52 t1</td><td class="mono">D2 D3 F♯4 D5</td><td class="exp"><span class="mono">I</span> en D majeur = <b>D</b></td><td class="app">aucun accord · A majeur</td></tr>
 <tr><td>K533-3</td><td class="num">m85 t1</td><td class="mono">B♭4 A5</td><td class="exp"><span class="mono">V2</span> en F majeur = <b>C7/B♭</b></td><td class="app">aucun accord · F majeur</td></tr>
-<tr><td>07</td><td class="num">m42 t1</td><td class="mono">E♭3 B♭3 A♭4 B♭4</td><td class="exp"><span class="mono">V7</span> en A♭ majeur = <b>E♭7</b></td><td class="app">E♭sus4 · ♭IIIsus4 · C mineur</td></tr>
+<tr><td>07</td><td class="num">m42 t1</td><td class="mono">E♭3 B♭3 A♭4 B♭4</td><td class="exp"><span class="mono">V7</span> en A♭ majeur = <b>E♭7</b></td><td class="app">E♭sus4 · IIIsus4 · C mineur</td></tr>
 </table></div></details>
 <p><b>Tonalité</b> : 5 765 accords gagnés, 12 604 perdus.</p>
 <details><summary>Exemples gagnés</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>003</td><td class="num">m7 t1</td><td class="mono">F3 A3 C4 A4</td><td class="exp"><span class="mono">VI</span> en A mineur = <b>F</b></td><td class="app">F · ♭VI · A mineur</td></tr>
+<tr><td>003</td><td class="num">m7 t1</td><td class="mono">F3 A3 C4 A4</td><td class="exp"><span class="mono">VI</span> en A mineur = <b>F</b></td><td class="app">F · VI · A mineur</td></tr>
 <tr><td>162</td><td class="num">m11 t4</td><td class="mono">A2 C4 E4</td><td class="exp"><span class="mono">i</span> en A mineur = <b>Am</b></td><td class="app">Am · Im · A mineur</td></tr>
 <tr><td>311</td><td class="num">m11 t1</td><td class="mono">B♭3 C4 E4 G4</td><td class="exp"><span class="mono">V2</span> en F majeur = <b>C7/B♭</b></td><td class="app">C7 · V7 · F majeur</td></tr>
 <tr><td>K284-3</td><td class="num">m33 t1</td><td class="mono">D4 F♯5</td><td class="exp"><span class="mono">I</span> en D majeur = <b>D</b></td><td class="app">D · I · D majeur</td></tr>
@@ -180,7 +180,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>K283-1</td><td class="num">m28 t1</td><td class="mono">A4 E5</td><td class="exp"><span class="mono">V6</span> en D majeur = <b>A/C♯</b></td><td class="app">A7(13)/C♯ · V7(13)/V · G majeur</td></tr>
 <tr><td>10</td><td class="num">m23 t1</td><td class="mono">C4 C5 A5</td><td class="exp"><span class="mono">i</span> en A mineur = <b>Am</b></td><td class="app">aucun accord · E mineur</td></tr>
 <tr><td>i_heard_it_through_the_grapevine</td><td class="num">m26 t1</td><td class="mono">E♭2 G♭3 B♭3 E♭4</td><td class="exp"><span class="mono">i</span> en E♭ majeur = <b>E♭m</b></td><td class="app">E♭m · IVm · B♭ mineur</td></tr>
-<tr><td>yesterday</td><td class="num">m18 t3</td><td class="mono">C2 G3 C4 E4</td><td class="exp"><span class="mono">V</span> en F majeur = <b>C</b></td><td class="app">C · ♭VII · D mineur</td></tr>
+<tr><td>yesterday</td><td class="num">m18 t3</td><td class="mono">C2 G3 C4 E4</td><td class="exp"><span class="mono">V</span> en F majeur = <b>C</b></td><td class="app">C · VII · D mineur</td></tr>
 <tr><td>The Beatles — Dig a Pony</td><td class="num">69.625 s</td><td class="mono">A2 E3 A3 C♯4</td><td class="exp"><span class="mono">A</span> en A majeur = <b>A</b></td><td class="app">A · V · D majeur</td></tr>
 <tr><td>The Beatles — Another Girl</td><td class="num">25.4438 s</td><td class="mono">A2 A3 C♯4 E4</td><td class="exp"><span class="mono">A</span> en A majeur = <b>A</b></td><td class="app">A · V · D majeur</td></tr>
 </table></div></details>
@@ -209,7 +209,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>259</td><td class="num">m16 t1</td><td class="mono">F♯3 F♯4 A4 C♯5</td><td class="exp"><span class="mono">i</span> en F♯ mineur = <b>F♯m</b></td><td class="app">F♯m · Im · F♯ mineur</td></tr>
 <tr><td>329</td><td class="num">m2 t1</td><td class="mono">C3 C4 E4 E5</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">Cadd9 · Iadd9 · C majeur</td></tr>
 <tr><td>K284-3</td><td class="num">m166 t2</td><td class="mono">F♯2 F♯3 D4 D5</td><td class="exp"><span class="mono">I6</span> en D majeur = <b>D/F♯</b></td><td class="app">D · I · D majeur</td></tr>
-<tr><td>K533-1</td><td class="num">m173 t1.5</td><td class="mono">G♭3 A3 C5</td><td class="exp"><span class="mono">V65/ii</span> en F majeur = <b>D7/G♭</b></td><td class="app">D · ♭VII · E mineur</td></tr>
+<tr><td>K533-1</td><td class="num">m173 t1.5</td><td class="mono">G♭3 A3 C5</td><td class="exp"><span class="mono">V65/ii</span> en F majeur = <b>D7/G♭</b></td><td class="app">D · VII · E mineur</td></tr>
 <tr><td>04</td><td class="num">m9 t1</td><td class="mono">D♯3 C4 A4</td><td class="exp"><span class="mono">V43</span> en C♯ mineur = <b>G♯7/D♯</b></td><td class="app">G♯7 · V7 · C♯ mineur</td></tr>
 </table></div></details>
 <details><summary>Exemples perdus</summary><div class="scroll"><table>
@@ -220,8 +220,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>224</td><td class="num">m3 t4</td><td class="mono">A3 E4 C5 E5</td><td class="exp"><span class="mono">vi</span> en C majeur = <b>Am</b></td><td class="app">C/G · I · C majeur</td></tr>
 <tr><td>334</td><td class="num">m13 t1</td><td class="mono">D4 F♯4 A4 F♯5</td><td class="exp"><span class="mono">I</span> en D majeur = <b>D</b></td><td class="app">F♯m · IIIm · D majeur</td></tr>
 <tr><td>K284-1</td><td class="num">m84 t1</td><td class="mono">G2 G3 D6</td><td class="exp"><span class="mono">ii65</span> en D majeur = <b>Em7/G</b></td><td class="app">Bm · IIIm · G majeur</td></tr>
-<tr><td>K333-3</td><td class="num">m92 t1</td><td class="mono">D4 B4 F5</td><td class="exp"><span class="mono">#viio65/vi</span> en E♭ majeur = <b>Bdim7/D</b></td><td class="app">A♭dim/D · ♯Vdim · C mineur</td></tr>
-<tr><td>06</td><td class="num">m20 t1</td><td class="mono">G♭3 A4</td><td class="exp"><span class="mono">V7</span> en G mineur = <b>D7</b></td><td class="app">E♭dim/G♭ · ♯Vdim · G mineur</td></tr>
+<tr><td>K333-3</td><td class="num">m92 t1</td><td class="mono">D4 B4 F5</td><td class="exp"><span class="mono">#viio65/vi</span> en E♭ majeur = <b>Bdim7/D</b></td><td class="app">A♭dim/D · VIdim · C mineur</td></tr>
+<tr><td>06</td><td class="num">m20 t1</td><td class="mono">G♭3 A4</td><td class="exp"><span class="mono">V7</span> en G mineur = <b>D7</b></td><td class="app">E♭dim/G♭ · VIdim · G mineur</td></tr>
 </table></div></details>
 <p><b>Tonalité</b> : 3 710 accords gagnés, 4 733 perdus.</p>
 <details><summary>Exemples gagnés</summary><div class="scroll"><table>
@@ -231,19 +231,19 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>304</td><td class="num">m8 t1</td><td class="mono">E♭3 B♭3 G4 C5</td><td class="exp"><span class="mono">ii6/5</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">Cm7/E♭ · IIm7 · B♭ majeur</td></tr>
 <tr><td>K457-1</td><td class="num">m21 t1</td><td class="mono">B♭1 B♭2 A♭5</td><td class="exp"><span class="mono">V7</span> en E♭ majeur = <b>B♭7</b></td><td class="app">aucun accord · E♭ majeur</td></tr>
 <tr><td>light_my_fire</td><td class="num">m96 t1</td><td class="mono">A♭2 E♭4 A♭4 B4</td><td class="exp"><span class="mono">i</span> en A♭ majeur = <b>A♭m</b></td><td class="app">G♯m · Im · G♯ mineur</td></tr>
-<tr><td>when_doves_cry</td><td class="num">m12 t3</td><td class="mono">G2 G3 B3 D4</td><td class="exp"><span class="mono">bVII</span> en A majeur = <b>G</b></td><td class="app">G · ♭VII · A mineur</td></tr>
+<tr><td>when_doves_cry</td><td class="num">m12 t3</td><td class="mono">G2 G3 B3 D4</td><td class="exp"><span class="mono">bVII</span> en A majeur = <b>G</b></td><td class="app">G · VII · A mineur</td></tr>
 <tr><td>The Beatles — Not A Second Time</td><td class="num">43.8484 s</td><td class="mono">E2 B3 E4 G4</td><td class="exp"><span class="mono">E:min</span> en E mineur = <b>Em</b></td><td class="app">Em · Im · E mineur</td></tr>
 <tr><td>Carole King — It's Too Late</td><td class="num">206.779 s</td><td class="mono">F2 E3 F3 A3 C4</td><td class="exp"><span class="mono">F:maj7</span> en F majeur = <b>FM7</b></td><td class="app">FM7 · IM7 · F majeur</td></tr>
 </table></div></details>
 <details><summary>Exemples perdus</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>002</td><td class="num">m1 t2</td><td class="mono">C♯3 C♯4 E4 A4</td><td class="exp"><span class="mono">I6</span> en A majeur = <b>A/C♯</b></td><td class="app">A/C♯ · ♭III · F♯ mineur</td></tr>
-<tr><td>K310-2</td><td class="num">m13 t3</td><td class="mono">B♭2 D♭6</td><td class="exp"><span class="mono">ii</span> en F majeur = <b>Gm</b></td><td class="app">B♭ · ♭III · G mineur</td></tr>
-<tr><td>every_breath_you_take</td><td class="num">m95 t1</td><td class="mono">D2 F♯4 A4 D5</td><td class="exp"><span class="mono">IV</span> en A majeur = <b>D</b></td><td class="app">D · ♭VI · F♯ mineur</td></tr>
+<tr><td>002</td><td class="num">m1 t2</td><td class="mono">C♯3 C♯4 E4 A4</td><td class="exp"><span class="mono">I6</span> en A majeur = <b>A/C♯</b></td><td class="app">A/C♯ · III · F♯ mineur</td></tr>
+<tr><td>K310-2</td><td class="num">m13 t3</td><td class="mono">B♭2 D♭6</td><td class="exp"><span class="mono">ii</span> en F majeur = <b>Gm</b></td><td class="app">B♭ · III · G mineur</td></tr>
+<tr><td>every_breath_you_take</td><td class="num">m95 t1</td><td class="mono">D2 F♯4 A4 D5</td><td class="exp"><span class="mono">IV</span> en A majeur = <b>D</b></td><td class="app">D · VI · F♯ mineur</td></tr>
 <tr><td>like_a_rolling_stone</td><td class="num">m112 t1</td><td class="mono">E2 G3 B3 E4</td><td class="exp"><span class="mono">iii</span> en C majeur = <b>Em</b></td><td class="app">Em · VIm · G majeur</td></tr>
 <tr><td>wont_get_fooled_again</td><td class="num">m91 t1</td><td class="mono">D2 F♯3 A3 D4</td><td class="exp"><span class="mono">IV</span> en A majeur = <b>D</b></td><td class="app">D · I · D majeur</td></tr>
 <tr><td>The Beatles — Maxwell's Silver Hammer</td><td class="num">141.9546 s</td><td class="mono">C♯2 A3 C♯4 E4</td><td class="exp"><span class="mono">A/3</span> en D majeur = <b>A/C♯</b></td><td class="app">A/C♯ · I · A majeur</td></tr>
-<tr><td>The Beatles — Not A Second Time</td><td class="num">68.6938 s</td><td class="mono">G2 B3 D4 G4</td><td class="exp"><span class="mono">G</span> en G majeur = <b>G</b></td><td class="app">G · ♭III · E mineur</td></tr>
+<tr><td>The Beatles — Not A Second Time</td><td class="num">68.6938 s</td><td class="mono">G2 B3 D4 G4</td><td class="exp"><span class="mono">G</span> en G majeur = <b>G</b></td><td class="app">G · III · E mineur</td></tr>
 <tr><td>The Beatles — Another Girl</td><td class="num">36.1482 s</td><td class="mono">A2 A3 C♯4 E4</td><td class="exp"><span class="mono">A</span> en A majeur = <b>A</b></td><td class="app">A · V · D majeur</td></tr>
 </table></div></details>
 </div>
@@ -276,6 +276,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -295,7 +296,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>197</td><td class="num">m7 t2</td><td class="mono">E3 G3 D4 G4</td><td class="exp"><span class="mono">viio6/5</span> en D mineur = <b>D♭dim7/E</b></td><td class="app">Em7 · IIm7 · D mineur</td></tr>
-<tr><td>226</td><td class="num">m8 t1</td><td class="mono">E♭3 D4 G4</td><td class="exp"><span class="mono">iv6</span> en G mineur = <b>Cm/E♭</b></td><td class="app">E♭M7 · ♭VIM7 · G mineur</td></tr>
+<tr><td>226</td><td class="num">m8 t1</td><td class="mono">E♭3 D4 G4</td><td class="exp"><span class="mono">iv6</span> en G mineur = <b>Cm/E♭</b></td><td class="app">E♭M7 · VIM7 · G mineur</td></tr>
 <tr><td>269</td><td class="num">m14 t1.5</td><td class="mono">A2 C4 G4 A4</td><td class="exp"><span class="mono">ii/o7</span> en G mineur = <b>Am7♭5</b></td><td class="app">Am7 · IIm7 · G mineur</td></tr>
 <tr><td>319</td><td class="num">m2 t4</td><td class="mono">G3 C4 G4 D5</td><td class="exp"><span class="mono">V</span> en C majeur = <b>G</b></td><td class="app">Gm · IIm · F majeur</td></tr>
 </table></div></details>
@@ -328,11 +329,11 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>001</td><td class="num">m19 t1</td><td class="mono">G3 D4 A4 D5</td><td class="exp"><span class="mono">V6</span> en G majeur = <b>D/F♯</b></td><td class="app">G · I · G majeur</td></tr>
 <tr><td>070</td><td class="num">m19 t3</td><td class="mono">C3 C4 E4 A4</td><td class="exp"><span class="mono">V</span> en G majeur = <b>D</b></td><td class="app">CM7 · IM7 · C majeur</td></tr>
 <tr><td>127</td><td class="num">m5 t2</td><td class="mono">C3 D4 F4 D5</td><td class="exp"><span class="mono">viio</span> en C majeur = <b>Bdim</b></td><td class="app">Dm7/C · IIm7 · C majeur</td></tr>
-<tr><td>172</td><td class="num">m4 t2</td><td class="mono">E♭3 B♭3 G4 D5</td><td class="exp"><span class="mono">ii6/5</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">E♭M7 · ♭VIM7 · G mineur</td></tr>
+<tr><td>172</td><td class="num">m4 t2</td><td class="mono">E♭3 B♭3 G4 D5</td><td class="exp"><span class="mono">ii6/5</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">E♭M7 · VIM7 · G mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>212</td><td class="num">m12 t4</td><td class="mono">E♭3 F4 A♭4 B♭4</td><td class="exp"><span class="mono">I</span> en E♭ majeur = <b>E♭</b></td><td class="app">B♭7/E♭ · ♭VII7 · C mineur</td></tr>
+<tr><td>212</td><td class="num">m12 t4</td><td class="mono">E♭3 F4 A♭4 B♭4</td><td class="exp"><span class="mono">I</span> en E♭ majeur = <b>E♭</b></td><td class="app">B♭7/E♭ · VII7 · C mineur</td></tr>
 <tr><td>237</td><td class="num">m4 t2</td><td class="mono">G2 D4 A4 C5</td><td class="exp"><span class="mono">i</span> en G mineur = <b>Gm</b></td><td class="app">D7/G · V7 · G mineur</td></tr>
 <tr><td>261</td><td class="num">m10 t2.75</td><td class="mono">G♯3 A3 D4 F♯4</td><td class="exp"><span class="mono">vii/o7/ii</span> en G majeur = <b>G♯m7♭5</b></td><td class="app">D · V · G majeur</td></tr>
 <tr><td>328</td><td class="num">m1 t3</td><td class="mono">G3 A3 D4 A4</td><td class="exp"><span class="mono">V6</span> en G majeur = <b>D/F♯</b></td><td class="app">G · I · G majeur</td></tr>
@@ -382,7 +383,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">Sixte augmentée (italienne, allemande, française) ou napolitain : l'application ne les connaît pas encore.</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>019</td><td class="num">m1 t2</td><td class="mono">E♭3 G3 D4 G4</td><td class="exp"><span class="mono">It6</span> en G mineur = <b>sixte italienne (E♭ G D♭)</b></td><td class="app">E♭M7 · ♭VIM7 · G mineur</td></tr>
+<tr><td>019</td><td class="num">m1 t2</td><td class="mono">E♭3 G3 D4 G4</td><td class="exp"><span class="mono">It6</span> en G mineur = <b>sixte italienne (E♭ G D♭)</b></td><td class="app">E♭M7 · VIM7 · G mineur</td></tr>
 <tr><td>216</td><td class="num">m15 t4</td><td class="mono">G3 F4 B4</td><td class="exp"><span class="mono">It6/ii</span> en A majeur = <b>sixte italienne (G B F)</b></td><td class="app">G7 · SubV7/II · E majeur</td></tr>
 <tr><td>332</td><td class="num">m13 t3</td><td class="mono">F3 C4 A4</td><td class="exp"><span class="mono">N</span> en E mineur = <b>F</b></td><td class="app">Am7(9) · VIm7(9) · C majeur</td></tr>
 </table></div>
@@ -417,7 +418,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>004</td><td class="num">m6 t1.5</td><td class="mono">E3 B3 B4 D♯5</td><td class="exp"><span class="mono">IV</span> en B majeur = <b>E</b></td><td class="app">EM7 · IVM7 · B majeur</td></tr>
-<tr><td>069</td><td class="num">m21 t3</td><td class="mono">G2 G3 B3 G4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">GM7 · ♭VIIM7 · A mineur</td></tr>
+<tr><td>069</td><td class="num">m21 t3</td><td class="mono">G2 G3 B3 G4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">GM7 · VIIM7 · A mineur</td></tr>
 <tr><td>109</td><td class="num">m14 t3</td><td class="mono">G3 D♭4 A4 E5</td><td class="exp"><span class="mono">V</span> en D mineur = <b>A</b></td><td class="app">A7 · V7/VI · F majeur</td></tr>
 <tr><td>125</td><td class="num">m7 t1</td><td class="mono">G3 D4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">GM7 · IM7 · G majeur</td></tr>
 </table></div>
@@ -426,7 +427,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>176</td><td class="num">m3 t1</td><td class="mono">F3 C4 G4 A4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">FM7 · IM7 · F majeur</td></tr>
 <tr><td>201</td><td class="num">m5 t3</td><td class="mono">E♭3 B♭3 G4</td><td class="exp"><span class="mono">I</span> en E♭ majeur = <b>E♭</b></td><td class="app">E♭M7 · IM7 · E♭ majeur</td></tr>
 <tr><td>268</td><td class="num">m14 t3.5</td><td class="mono">C3 G3 E4 B4</td><td class="exp"><span class="mono">IV</span> en G majeur = <b>C</b></td><td class="app">CM7 · IM7 · C majeur</td></tr>
-<tr><td>312</td><td class="num">m15 t2.5</td><td class="mono">G3 D4 F♯4</td><td class="exp"><span class="mono">IV</span> en D majeur = <b>G</b></td><td class="app">GM7 · ♭VIM7 · B mineur</td></tr>
+<tr><td>312</td><td class="num">m15 t2.5</td><td class="mono">G3 D4 F♯4</td><td class="exp"><span class="mono">IV</span> en D majeur = <b>G</b></td><td class="app">GM7 · VIM7 · B mineur</td></tr>
 </table></div></details>
 </div>
 </div>
@@ -440,7 +441,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>002</td><td class="num">m4 t4</td><td class="mono">C♯3 G♯3 C♯5 E5</td><td class="exp"><span class="mono">iii</span> en A majeur = <b>C♯m</b></td><td class="app">C♯m · VIm · E majeur</td></tr>
-<tr><td>052</td><td class="num">m3 t3</td><td class="mono">A3 B3 E4 C♯5</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">Aadd9 · ♭IIIadd9 · F♯ mineur</td></tr>
+<tr><td>052</td><td class="num">m3 t3</td><td class="mono">A3 B3 E4 C♯5</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">Aadd9 · IIIadd9 · F♯ mineur</td></tr>
 <tr><td>100</td><td class="num">m9 t2</td><td class="mono">F3 A♭3 E♭4 F4</td><td class="exp"><span class="mono">viio6</span> en E♭ majeur = <b>Ddim/F</b></td><td class="app">Fm7 · IVm7 · C mineur</td></tr>
 <tr><td>146</td><td class="num">m8 t1</td><td class="mono">D3 A3 F♯4 D5</td><td class="exp"><span class="mono">IV</span> en A mineur = <b>D</b></td><td class="app">D · V/V · C majeur</td></tr>
 </table></div>
@@ -459,14 +460,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>007</td><td class="num">m5 t3</td><td class="mono">C♯3 B3 F4 C♯5</td><td class="exp"><span class="mono">V7/vi</span> en A majeur = <b>C♯7</b></td><td class="app">C♯7 · V7 · F♯ mineur</td></tr>
-<tr><td>060</td><td class="num">m10 t4</td><td class="mono">F♯3 A3 D4 A4</td><td class="exp"><span class="mono">I6</span> en D majeur = <b>D/F♯</b></td><td class="app">D · ♭III · B mineur</td></tr>
+<tr><td>060</td><td class="num">m10 t4</td><td class="mono">F♯3 A3 D4 A4</td><td class="exp"><span class="mono">I6</span> en D majeur = <b>D/F♯</b></td><td class="app">D · III · B mineur</td></tr>
 <tr><td>108</td><td class="num">m3 t2</td><td class="mono">F3 C4 A♭4 E♭5</td><td class="exp"><span class="mono">ii7</span> en E♭ majeur = <b>Fm7</b></td><td class="app">Fm7 · IVm7 · C mineur</td></tr>
-<tr><td>153</td><td class="num">m12 t2</td><td class="mono">A3 C♯4 E4</td><td class="exp"><span class="mono">V</span> en D majeur = <b>A</b></td><td class="app">A · ♭VII · B mineur</td></tr>
+<tr><td>153</td><td class="num">m12 t2</td><td class="mono">A3 C♯4 E4</td><td class="exp"><span class="mono">V</span> en D majeur = <b>A</b></td><td class="app">A · VII · B mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>180</td><td class="num">m7 t2</td><td class="mono">A2 A3 C4 F4</td><td class="exp"><span class="mono">III6</span> en D mineur = <b>F/A</b></td><td class="app">F/A · I · F majeur</td></tr>
-<tr><td>242</td><td class="num">m5 t4</td><td class="mono">G3 D4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">G · ♭III · E mineur</td></tr>
+<tr><td>242</td><td class="num">m5 t4</td><td class="mono">G3 D4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">G · III · E mineur</td></tr>
 <tr><td>277</td><td class="num">m6 t1.5</td><td class="mono">D3 C4 A4 D5</td><td class="exp"><span class="mono">ii7</span> en C majeur = <b>Dm7</b></td><td class="app">Dm7(11) · IVm7(11) · A mineur</td></tr>
 <tr><td>325</td><td class="num">m6 t1</td><td class="mono">G3 B♭3 E4 G4</td><td class="exp"><span class="mono">viio6/IV</span> en C majeur = <b>Edim/G</b></td><td class="app">Edim · Vdim · A mineur</td></tr>
 </table></div></details>
@@ -479,7 +480,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>003</td><td class="num">m5 t1.5</td><td class="mono">F♯3 A3 D♯4 A4</td><td class="exp"><span class="mono">viio6</span> en E mineur = <b>D♯dim/F♯</b></td><td class="app">E♭dim · ♯IVdim · A mineur</td></tr>
 <tr><td>058</td><td class="num">m17 t2</td><td class="mono">A♯3 C♯4 F♯4 C♯5</td><td class="exp"><span class="mono">V6</span> en B mineur = <b>F♯/A♯</b></td><td class="app">F♯ · V/II · A majeur</td></tr>
-<tr><td>110</td><td class="num">m9 t2</td><td class="mono">C3 C4 E♭4 A4</td><td class="exp"><span class="mono">viio6</span> en B♭ majeur = <b>Adim/C</b></td><td class="app">Adim/C · VIdim · C mineur</td></tr>
+<tr><td>110</td><td class="num">m9 t2</td><td class="mono">C3 C4 E♭4 A4</td><td class="exp"><span class="mono">viio6</span> en B♭ majeur = <b>Adim/C</b></td><td class="app">Adim/C · ♯VIdim · C mineur</td></tr>
 <tr><td>152</td><td class="num">m11 t3</td><td class="mono">A2 C♯4 E4 A4</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">A · IV · E majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -487,7 +488,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>205</td><td class="num">m33 t1.5</td><td class="mono">D♭3 A3 E4 G4</td><td class="exp"><span class="mono">V6/5</span> en D mineur = <b>A7/D♭</b></td><td class="app">A7/C♯ · V7/II · C majeur</td></tr>
 <tr><td>262</td><td class="num">m7 t2</td><td class="mono">D3 F3 D4 B♭4</td><td class="exp"><span class="mono">I6</span> en B♭ majeur = <b>B♭/D</b></td><td class="app">B♭ · IV · F majeur</td></tr>
 <tr><td>284</td><td class="num">m9 t2</td><td class="mono">F3 C4 G4 A4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">Fadd9 · IVadd9 · C majeur</td></tr>
-<tr><td>324</td><td class="num">m9 t1</td><td class="mono">G3 B3 D4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">G · ♭III · E mineur</td></tr>
+<tr><td>324</td><td class="num">m9 t1</td><td class="mono">G3 B3 D4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">G · III · E mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -499,7 +500,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>003</td><td class="num">m10 t2</td><td class="mono">E♭3 F♯3 A4 C5</td><td class="exp"><span class="mono">viio7/V</span> en A mineur = <b>E♭dim7</b></td><td class="app">D♯dim7 · VIIdim7 · E mineur</td></tr>
 <tr><td>031</td><td class="num">m1 t2</td><td class="mono">F3 C4 F4 A4</td><td class="exp"><span class="mono">IV</span> en C majeur = <b>F</b></td><td class="app">F · I · F majeur</td></tr>
 <tr><td>070</td><td class="num">m0 t4</td><td class="mono">G2 B3 D4 G4</td><td class="exp"><span class="mono">V</span> en C majeur = <b>G</b></td><td class="app">G · I · G majeur</td></tr>
-<tr><td>114</td><td class="num">m11 t1</td><td class="mono">C3 G3 C4 E4</td><td class="exp"><span class="mono">III</span> en A mineur = <b>C</b></td><td class="app">C · ♭VI · E mineur</td></tr>
+<tr><td>114</td><td class="num">m11 t1</td><td class="mono">C3 G3 C4 E4</td><td class="exp"><span class="mono">III</span> en A mineur = <b>C</b></td><td class="app">C · VI · E mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -518,7 +519,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>003</td><td class="num">m0 t4</td><td class="mono">E3 E4 A♭4 B4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">E · I · E majeur</td></tr>
 <tr><td>066</td><td class="num">m10 t1</td><td class="mono">D♭3 A3 E4 A4</td><td class="exp"><span class="mono">V6</span> en D mineur = <b>A/D♭</b></td><td class="app">A/C♯ · V/II · C majeur</td></tr>
 <tr><td>105</td><td class="num">m8 t4</td><td class="mono">E3 F♯4 A4</td><td class="exp"><span class="mono">viio/iv</span> en B mineur = <b>D♯dim</b></td><td class="app">F♯m7/E · VIIm7 · G majeur</td></tr>
-<tr><td>135</td><td class="num">m2 t3</td><td class="mono">A2 E4 A4 C♯5</td><td class="exp"><span class="mono">V</span> en D majeur = <b>A</b></td><td class="app">A · ♭III · F♯ mineur</td></tr>
+<tr><td>135</td><td class="num">m2 t3</td><td class="mono">A2 E4 A4 C♯5</td><td class="exp"><span class="mono">V</span> en D majeur = <b>A</b></td><td class="app">A · III · F♯ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -962,6 +963,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -982,7 +984,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K330-3</td><td class="num">m15 t1</td><td class="mono">A5</td><td class="exp"><span class="mono">ii6</span> en C majeur = <b>Dm/F</b></td><td class="app">A♭M7aug/E · ♭VIM7aug · C majeur</td></tr>
 <tr><td>K333-1</td><td class="num">m42 t3</td><td class="mono">C4 B5</td><td class="exp"><span class="mono">I6</span> en F majeur = <b>F/A</b></td><td class="app">Am · Im · A mineur</td></tr>
-<tr><td>K457-3</td><td class="num">m280 t1</td><td class="mono">E3</td><td class="exp"><span class="mono">V65</span> en F mineur = <b>C7/E</b></td><td class="app">A♭M7aug · ♭IIIM7aug · F mineur</td></tr>
+<tr><td>K457-3</td><td class="num">m280 t1</td><td class="mono">E3</td><td class="exp"><span class="mono">V65</span> en F mineur = <b>C7/E</b></td><td class="app">A♭M7aug · IIIM7aug · F mineur</td></tr>
 <tr><td>K545-1</td><td class="num">m60 t1</td><td class="mono">G4 C5</td><td class="exp"><span class="mono">V2[no3][add4]</span> en C majeur = <b>G7/F</b></td><td class="app">F · IV · C majeur</td></tr>
 </table></div></details>
 </div>
@@ -1012,7 +1014,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K279-1</td><td class="num">m2 t3</td><td class="mono">B4</td><td class="exp"><span class="mono">V2</span> en C majeur = <b>G7/F</b></td><td class="app">Dm/F · IIm · C majeur</td></tr>
-<tr><td>K281-1</td><td class="num">m63 t1</td><td class="mono">F3 A♭3 B♭3 D4 A♭5</td><td class="exp"><span class="mono">V43/IV</span> en B♭ majeur = <b>B♭7/F</b></td><td class="app">E♭ · ♭VI · G mineur</td></tr>
+<tr><td>K281-1</td><td class="num">m63 t1</td><td class="mono">F3 A♭3 B♭3 D4 A♭5</td><td class="exp"><span class="mono">V43/IV</span> en B♭ majeur = <b>B♭7/F</b></td><td class="app">E♭ · VI · G mineur</td></tr>
 <tr><td>K284-1</td><td class="num">m55 t1</td><td class="mono">F♯4 B5</td><td class="exp"><span class="mono">V64</span> en E mineur = <b>B/F♯</b></td><td class="app">EmM7(9) · ImM7(9) · E mineur</td></tr>
 <tr><td>K309-2</td><td class="num">m9 t1.5</td><td class="mono">B♭4</td><td class="exp"><span class="mono">viio6</span> en F majeur = <b>Edim/G</b></td><td class="app">F · I · F majeur</td></tr>
 </table></div>
@@ -1037,7 +1039,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>K330-2</td><td class="num">m50 t2.5</td><td class="mono">B♭3 D♭4 E4</td><td class="exp"><span class="mono">viio43</span> en F majeur = <b>Edim7/B♭</b></td><td class="app">B♭dim · ♯IIdim · G mineur</td></tr>
+<tr><td>K330-2</td><td class="num">m50 t2.5</td><td class="mono">B♭3 D♭4 E4</td><td class="exp"><span class="mono">viio43</span> en F majeur = <b>Edim7/B♭</b></td><td class="app">B♭dim · IIIdim · G mineur</td></tr>
 <tr><td>K332-3</td><td class="num">m27 t2</td><td class="mono">B♭2 B♭3</td><td class="exp"><span class="mono">ii6</span> en F majeur = <b>Gm/B♭</b></td><td class="app">B♭1+8 · IV · F majeur</td></tr>
 <tr><td>K457-1</td><td class="num">m50 t1</td><td class="mono">C3 C4 C5</td><td class="exp"><span class="mono">V/ii</span> en E♭ majeur = <b>C</b></td><td class="app">C1+8 · I · C mineur</td></tr>
 <tr><td>K533-2</td><td class="num">m74 t1</td><td class="mono">G3 D♭4 E4</td><td class="exp"><span class="mono">viio65/V</span> en B♭ majeur = <b>Edim7/G</b></td><td class="app">D♭dim · ♯IIdim · B♭ majeur</td></tr>
@@ -1050,16 +1052,16 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K279-3</td><td class="num">m69 t1</td><td class="mono">F3 F4</td><td class="exp"><span class="mono">It6</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">F7 · SubV7/V · A mineur</td></tr>
-<tr><td>K282-1</td><td class="num">m19 t4</td><td class="mono">B3 E♭4 A4</td><td class="exp"><span class="mono">It6</span> en E♭ majeur = <b>sixte italienne (B E♭ A)</b></td><td class="app">B7 · SubV7/♭VII · C mineur</td></tr>
+<tr><td>K282-1</td><td class="num">m19 t4</td><td class="mono">B3 E♭4 A4</td><td class="exp"><span class="mono">It6</span> en E♭ majeur = <b>sixte italienne (B E♭ A)</b></td><td class="app">B7 · SubV7/VII · C mineur</td></tr>
 <tr><td>K284-1</td><td class="num">m16 t1</td><td class="mono">A♯2 A♯3 D5 D6</td><td class="exp"><span class="mono">Ger6</span> en D majeur = <b>sixte allemande (A♯ D F G♯)</b></td><td class="app">Ddim/F · IIdim · C mineur</td></tr>
-<tr><td>K310-3</td><td class="num">m100 t1</td><td class="mono">F3 A3 A4</td><td class="exp"><span class="mono">It6[no1][add2]</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">F · ♭VI · A mineur</td></tr>
+<tr><td>K310-3</td><td class="num">m100 t1</td><td class="mono">F3 A3 A4</td><td class="exp"><span class="mono">It6[no1][add2]</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">F · VI · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K331-3</td><td class="num">m20 t1</td><td class="mono">F3 C6</td><td class="exp"><span class="mono">Ger6</span> en A mineur = <b>sixte allemande (F A C E♭)</b></td><td class="app">Adim · Idim · A mineur</td></tr>
-<tr><td>K333-1</td><td class="num">m84 t3</td><td class="mono">D♭4</td><td class="exp"><span class="mono">Ger6</span> en G mineur = <b>sixte allemande (E♭ G B♭ D♭)</b></td><td class="app">E♭ · ♭VI · G mineur</td></tr>
+<tr><td>K333-1</td><td class="num">m84 t3</td><td class="mono">D♭4</td><td class="exp"><span class="mono">Ger6</span> en G mineur = <b>sixte allemande (E♭ G B♭ D♭)</b></td><td class="app">E♭ · VI · G mineur</td></tr>
 <tr><td>K457-3</td><td class="num">m57 t1</td><td class="mono">B2 G♭5</td><td class="exp"><span class="mono">Ger6</span> en E♭ majeur = <b>sixte allemande (B E♭ G♭ A)</b></td><td class="app">B7♯11 · SubV7♯11/V · E♭ majeur</td></tr>
-<tr><td>K533-1</td><td class="num">m115 t2.5</td><td class="mono">B♭2 D4 D5</td><td class="exp"><span class="mono">It6</span> en D mineur = <b>sixte italienne (B♭ D A♭)</b></td><td class="app">B♭M7 · ♭VIM7 · D mineur</td></tr>
+<tr><td>K533-1</td><td class="num">m115 t2.5</td><td class="mono">B♭2 D4 D5</td><td class="exp"><span class="mono">It6</span> en D mineur = <b>sixte italienne (B♭ D A♭)</b></td><td class="app">B♭M7 · VIM7 · D mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -1140,8 +1142,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>K331-1</td><td class="num">m50 t1.6667</td><td class="mono">D♯4 B4</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">A · ♭VI · C♯ mineur</td></tr>
-<tr><td>K333-2</td><td class="num">m47 t3</td><td class="mono">E♭3 A♭4 E5</td><td class="exp"><span class="mono">iv6</span> en E♭ majeur = <b>A♭m/B</b></td><td class="app">EM7/D♯ · ♭IIIM7 · C♯ mineur</td></tr>
+<tr><td>K331-1</td><td class="num">m50 t1.6667</td><td class="mono">D♯4 B4</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">A · VI · C♯ mineur</td></tr>
+<tr><td>K333-2</td><td class="num">m47 t3</td><td class="mono">E♭3 A♭4 E5</td><td class="exp"><span class="mono">iv6</span> en E♭ majeur = <b>A♭m/B</b></td><td class="app">EM7/D♯ · IIIM7 · C♯ mineur</td></tr>
 <tr><td>K533-1</td><td class="num">m173 t2</td><td class="mono">G3 B♭3 B♭4</td><td class="exp"><span class="mono">ii</span> en F majeur = <b>Gm</b></td><td class="app">Gm · Im · G mineur</td></tr>
 <tr><td>K533-3</td><td class="num">m159 t2.25</td><td class="mono">C4 C5 G5 C6 E6</td><td class="exp"><span class="mono">I6</span> en F mineur = <b>F/A</b></td><td class="app">C · I · C majeur</td></tr>
 </table></div></details>
@@ -1173,14 +1175,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K279-1</td><td class="num">m27 t3</td><td class="mono">A4</td><td class="exp"><span class="mono">ii6</span> en G majeur = <b>Am/C</b></td><td class="app">Am · IVm · E mineur</td></tr>
 <tr><td>K283-3</td><td class="num">m35 t1</td><td class="mono">G4 B4</td><td class="exp"><span class="mono">ii65[no1][add2]</span> en G majeur = <b>Am7/C</b></td><td class="app">aucun accord · E mineur</td></tr>
-<tr><td>K284-3</td><td class="num">m72 t1</td><td class="mono">A3 F♯4 D5</td><td class="exp"><span class="mono">Cad64</span> en D majeur = <b>D/A</b></td><td class="app">D/A · ♭III · B mineur</td></tr>
+<tr><td>K284-3</td><td class="num">m72 t1</td><td class="mono">A3 F♯4 D5</td><td class="exp"><span class="mono">Cad64</span> en D majeur = <b>D/A</b></td><td class="app">D/A · III · B mineur</td></tr>
 <tr><td>K310-3</td><td class="num">m26 t2</td><td class="mono">E4 A5</td><td class="exp"><span class="mono">I6</span> en C majeur = <b>C/E</b></td><td class="app">Am · Im · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K331-3</td><td class="num">m13 t2</td><td class="mono">C3 E5</td><td class="exp"><span class="mono">i6</span> en A mineur = <b>Am/C</b></td><td class="app">Am · VIm · C majeur</td></tr>
 <tr><td>K333-1</td><td class="num">m141 t2</td><td class="mono">E♭4 C5 E♭6</td><td class="exp"><span class="mono">ii6</span> en B♭ majeur = <b>Cm/E♭</b></td><td class="app">Cmadd9/E♭ · IVmadd9 · G mineur</td></tr>
-<tr><td>K533-1</td><td class="num">m68 t2</td><td class="mono">B3</td><td class="exp"><span class="mono">V6</span> en C majeur = <b>G/B</b></td><td class="app">FmM7 · ♭VImM7 · A mineur</td></tr>
+<tr><td>K533-1</td><td class="num">m68 t2</td><td class="mono">B3</td><td class="exp"><span class="mono">V6</span> en C majeur = <b>G/B</b></td><td class="app">FmM7 · VImM7 · A mineur</td></tr>
 <tr><td>K570-1</td><td class="num">m163 t1</td><td class="mono">G3 B♭3 B♭4</td><td class="exp"><span class="mono">vi</span> en B♭ majeur = <b>Gm</b></td><td class="app">Gm · Im · G mineur</td></tr>
 </table></div></details>
 </div>
@@ -1192,8 +1194,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K279-2</td><td class="num">m18 t2</td><td class="mono">G2 G3</td><td class="exp"><span class="mono">V</span> en C majeur = <b>G</b></td><td class="app">Cm/G · Im · C mineur</td></tr>
 <tr><td>K309-3</td><td class="num">m158 t1</td><td class="mono">G3 D4 F5</td><td class="exp"><span class="mono">V7</span> en C majeur = <b>G7</b></td><td class="app">G7 · V7 · C mineur</td></tr>
-<tr><td>K330-2</td><td class="num">m42 t2</td><td class="mono">D3 A3 F4</td><td class="exp"><span class="mono">vi</span> en F majeur = <b>Dm</b></td><td class="app">Dm · VIm · F mineur</td></tr>
-<tr><td>K332-1</td><td class="num">m198 t1</td><td class="mono">E♭2 E♭3 G4 D♭5</td><td class="exp"><span class="mono">V7/bIII</span> en F majeur = <b>E♭7</b></td><td class="app">E♭7 · ♭VII7 · F mineur</td></tr>
+<tr><td>K330-2</td><td class="num">m42 t2</td><td class="mono">D3 A3 F4</td><td class="exp"><span class="mono">vi</span> en F majeur = <b>Dm</b></td><td class="app">Dm · ♯VIm · F mineur</td></tr>
+<tr><td>K332-1</td><td class="num">m198 t1</td><td class="mono">E♭2 E♭3 G4 D♭5</td><td class="exp"><span class="mono">V7/bIII</span> en F majeur = <b>E♭7</b></td><td class="app">E♭7 · VII7 · F mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -1217,8 +1219,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K311-2</td><td class="num">m39 t2</td><td class="mono">F♯3 D4 A4</td><td class="exp"><span class="mono">V6</span> en G majeur = <b>D/F♯</b></td><td class="app">D/F♯ · I · D majeur</td></tr>
-<tr><td>K331-3</td><td class="num">m24 t2</td><td class="mono">A4 A5</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">C♯1+8/A · III · A mineur</td></tr>
-<tr><td>K457-3</td><td class="num">m45 t1</td><td class="mono">B♭1 B♭2 F3 A♭3 B♭3 D4</td><td class="exp"><span class="mono">V7</span> en E♭ majeur = <b>B♭7</b></td><td class="app">B♭7 · ♭VII7 · C mineur</td></tr>
+<tr><td>K331-3</td><td class="num">m24 t2</td><td class="mono">A4 A5</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">C♯1+8/A · ♯III · A mineur</td></tr>
+<tr><td>K457-3</td><td class="num">m45 t1</td><td class="mono">B♭1 B♭2 F3 A♭3 B♭3 D4</td><td class="exp"><span class="mono">V7</span> en E♭ majeur = <b>B♭7</b></td><td class="app">B♭7 · VII7 · C mineur</td></tr>
 <tr><td>K545-3</td><td class="num">m9 t1</td><td class="mono">G4 G5</td><td class="exp"><span class="mono">I6</span> en G majeur = <b>G/B</b></td><td class="app">G1+8 · V · C majeur</td></tr>
 </table></div></details>
 </div>
@@ -1228,15 +1230,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">L'expert note une tonalité pendant moins de 2 mesures (tonicisation) ; l'application reste dans la tonalité principale.</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>K283-2</td><td class="num">m17 t4.5</td><td class="mono">A4 E5</td><td class="exp"><span class="mono">IV64</span> en C majeur = <b>F/C</b></td><td class="app">Fadd9/C · ♭IIIadd9 · D mineur</td></tr>
+<tr><td>K283-2</td><td class="num">m17 t4.5</td><td class="mono">A4 E5</td><td class="exp"><span class="mono">IV64</span> en C majeur = <b>F/C</b></td><td class="app">Fadd9/C · IIIadd9 · D mineur</td></tr>
 <tr><td>K283-2</td><td class="num">m18 t2</td><td class="mono">G4 F5</td><td class="exp"><span class="mono">V65</span> en C majeur = <b>G7/B</b></td><td class="app">aucun accord · D mineur</td></tr>
-<tr><td>K283-3</td><td class="num">m146 t1.6667</td><td class="mono">G2 G3 D5 F5 B5</td><td class="exp"><span class="mono">V7</span> en C majeur = <b>G7</b></td><td class="app">G7 · V7/♭VI · E mineur</td></tr>
+<tr><td>K283-3</td><td class="num">m146 t1.6667</td><td class="mono">G2 G3 D5 F5 B5</td><td class="exp"><span class="mono">V7</span> en C majeur = <b>G7</b></td><td class="app">G7 · V7/VI · E mineur</td></tr>
 <tr><td>K332-2</td><td class="num">m27 t1</td><td class="mono">B♭3 D♭6</td><td class="exp"><span class="mono">V7[addb9]</span> en F majeur = <b>C7</b></td><td class="app">B♭madd9 · Imadd9 · B♭ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>K332-2</td><td class="num">m27 t3.5</td><td class="mono">A♭3 F5</td><td class="exp"><span class="mono">bVI</span> en F majeur = <b>D♭</b></td><td class="app">F1+8 · I · F mineur</td></tr>
-<tr><td>K332-2</td><td class="num">m28 t2</td><td class="mono">B♭3 F4</td><td class="exp"><span class="mono">V7[no3][add4]</span> en F majeur = <b>C7</b></td><td class="app">D♭M7♯11 · ♭VIM7♯11 · F mineur</td></tr>
+<tr><td>K332-2</td><td class="num">m28 t2</td><td class="mono">B♭3 F4</td><td class="exp"><span class="mono">V7[no3][add4]</span> en F majeur = <b>C7</b></td><td class="app">D♭M7♯11 · VIM7♯11 · F mineur</td></tr>
 <tr><td>K570-2</td><td class="num">m15 t4.5</td><td class="mono">E4 G4 D♭5</td><td class="exp"><span class="mono">viio6/V</span> en G mineur = <b>D♭dim/E</b></td><td class="app">C♯dim · IIdim · B mineur</td></tr>
 <tr><td>K570-2</td><td class="num">m16 t2</td><td class="mono">A4 C5</td><td class="exp"><span class="mono">iio6</span> en G mineur = <b>Adim/C</b></td><td class="app">Cm7(9) · VIm7(9) · E♭ majeur</td></tr>
 </table></div></details>
@@ -1353,6 +1355,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1367,14 +1370,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>Aldwell Edward-Harmony and Voice Leading-2c</td><td class="num">m3 t1</td><td class="mono">E3 B3 F♯4 G4</td><td class="exp"><span class="mono">i</span> en E mineur = <b>Em</b></td><td class="app">GM7 · IM7 · G majeur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex18-4</td><td class="num">m0 t3</td><td class="mono">G5</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">Cm · Im · C mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex19-1</td><td class="num">m2 t1</td><td class="mono">D3 E5</td><td class="exp"><span class="mono">I6</span> en G majeur = <b>G/B</b></td><td class="app">CM7(9) · IVM7(9) · G majeur</td></tr>
-<tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m3 t1.5</td><td class="mono">E♭3 B♭3 F4 F5</td><td class="exp"><span class="mono">I6</span> en B♭ majeur = <b>B♭/D</b></td><td class="app">E♭ · ♭VI · G mineur</td></tr>
+<tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m3 t1.5</td><td class="mono">E♭3 B♭3 F4 F5</td><td class="exp"><span class="mono">I6</span> en B♭ majeur = <b>B♭/D</b></td><td class="app">E♭ · VI · G mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Reger Max-Modulation-20</td><td class="num">m1 t3</td><td class="mono">F♯2 F♯3 C♯4 A♯4</td><td class="exp"><span class="mono">ii7</span> en E majeur = <b>F♯m7</b></td><td class="app">G♭ · IV · D♭ majeur</td></tr>
 <tr><td>Reger Max-Modulation-50</td><td class="num">m1 t4</td><td class="mono">G♯2 C♯4 D♯4 G♯4</td><td class="exp"><span class="mono">V</span> en C♯ mineur = <b>G♯</b></td><td class="app">G♯m · IIm · F♯ mineur</td></tr>
 <tr><td>Reger Max-Modulation-90</td><td class="num">m1 t1</td><td class="mono">C♯3 F3 C♯4 G♯4</td><td class="exp"><span class="mono">i</span> en C♯ mineur = <b>C♯m</b></td><td class="app">D♭ · I · D♭ majeur</td></tr>
-<tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-24b</td><td class="num">m2 t1</td><td class="mono">G4 B4 D5 G5</td><td class="exp"><span class="mono">bVII</span> en A mineur = <b>F♯</b></td><td class="app">G · ♭VII · A mineur</td></tr>
+<tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-24b</td><td class="num">m2 t1</td><td class="mono">G4 B4 D5 G5</td><td class="exp"><span class="mono">bVII</span> en A mineur = <b>F♯</b></td><td class="app">G · VII · A mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -1403,7 +1406,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Aldwell Edward-Harmony and Voice Leading-2a</td><td class="num">m2 t1.5</td><td class="mono">G2 D4 F4 B4</td><td class="exp"><span class="mono">viio6</span> en C majeur = <b>Bdim/D</b></td><td class="app">G7 · V7/IV · G majeur</td></tr>
-<tr><td>Aldwell Edward-Harmony and Voice Leading-7</td><td class="num">m10 t2</td><td class="mono">F3 A3 F5</td><td class="exp"><span class="mono">V</span> en B♭ majeur = <b>F</b></td><td class="app">B♭M7 · ♭VIIM7 · C mineur</td></tr>
+<tr><td>Aldwell Edward-Harmony and Voice Leading-7</td><td class="num">m10 t2</td><td class="mono">F3 A3 F5</td><td class="exp"><span class="mono">V</span> en B♭ majeur = <b>F</b></td><td class="app">B♭M7 · VIIM7 · C mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m2 t1</td><td class="mono">D3 E5</td><td class="exp"><span class="mono">V</span> en D mineur = <b>A</b></td><td class="app">DmM7(9) · ImM7(9) · D mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex19-3</td><td class="num">m2 t2.5</td><td class="mono">C2 G2 D3 F♯3</td><td class="exp"><span class="mono">V2/V</span> en C majeur = <b>D7/C</b></td><td class="app">C · I · C majeur</td></tr>
 </table></div>
@@ -1458,7 +1461,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>Aldwell Edward-Harmony and Voice Leading-2b</td><td class="num">m0 t3.5</td><td class="mono">E♭3 C4 F4 A4</td><td class="exp"><span class="mono">V2</span> en B♭ majeur = <b>F7/E♭</b></td><td class="app">F/E♭ · V · B♭ mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex18-7</td><td class="num">m7 t2</td><td class="mono">D2 D3 G♭4 A4</td><td class="exp"><span class="mono">V7</span> en G mineur = <b>D7</b></td><td class="app">D · V/III · E♭ majeur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-14c</td><td class="num">m1 t3</td><td class="mono">G3 E4 A4 C♯5</td><td class="exp"><span class="mono">V2/iv</span> en A mineur = <b>A7/G</b></td><td class="app">A/G · V/IV · A mineur</td></tr>
-<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-173h</td><td class="num">m1 t3</td><td class="mono">C♯3 B♭3 G4 E♭5</td><td class="exp"><span class="mono">V2/bVI</span> en C majeur = <b>E♭7/C♯</b></td><td class="app">E♭/D♭ · ♭VII · F mineur</td></tr>
+<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-173h</td><td class="num">m1 t3</td><td class="mono">C♯3 B♭3 G4 E♭5</td><td class="exp"><span class="mono">V2/bVI</span> en C majeur = <b>E♭7/C♯</b></td><td class="app">E♭/D♭ · VII · F mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -1474,7 +1477,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">L'application ajoute une septième que l'expert considère comme une note de passage.</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Aldwell Edward-Harmony and Voice Leading-7</td><td class="num">m10 t1</td><td class="mono">B♭2 B♭3 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭M7 · ♭VIIM7 · C mineur</td></tr>
+<tr><td>Aldwell Edward-Harmony and Voice Leading-7</td><td class="num">m10 t1</td><td class="mono">B♭2 B♭3 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭M7 · VIIM7 · C mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m4 t1</td><td class="mono">D3 A4</td><td class="exp"><span class="mono">i</span> en D mineur = <b>Dm</b></td><td class="app">DmM7(9) · ImM7(9) · D mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex19-6</td><td class="num">m2 t1.5</td><td class="mono">A1 A2 G3 A3 D♭4 E4 A4 A5</td><td class="exp"><span class="mono">V</span> en D mineur = <b>A</b></td><td class="app">A7 · V7 · D mineur</td></tr>
 <tr><td>Reger Max-Modulation-18</td><td class="num">m1 t4</td><td class="mono">C♯3 B3 F4 G♯4</td><td class="exp"><span class="mono">V</span> en F♯ majeur = <b>C♯</b></td><td class="app">C♯7 · V7 · F♯ majeur</td></tr>
@@ -1482,7 +1485,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Reger Max-Modulation-36</td><td class="num">m1 t2</td><td class="mono">F3 A3 E♭4 C5</td><td class="exp"><span class="mono">V</span> en B♭ mineur = <b>F</b></td><td class="app">F7 · IV7 · C majeur</td></tr>
-<tr><td>Reger Max-Modulation-43a</td><td class="num">m1 t4</td><td class="mono">E♭3 D♭4 G4 B♭4</td><td class="exp"><span class="mono">V</span> en A♭ majeur = <b>E♭</b></td><td class="app">E♭7 · V7/♭VI · C mineur</td></tr>
+<tr><td>Reger Max-Modulation-43a</td><td class="num">m1 t4</td><td class="mono">E♭3 D♭4 G4 B♭4</td><td class="exp"><span class="mono">V</span> en A♭ majeur = <b>E♭</b></td><td class="app">E♭7 · V7/VI · C mineur</td></tr>
 <tr><td>Reger Max-Modulation-57</td><td class="num">m1 t4</td><td class="mono">C3 C4 E♭4 C5</td><td class="exp"><span class="mono">i</span> en C mineur = <b>Cm</b></td><td class="app">CmM7 · ImM7 · C majeur</td></tr>
 <tr><td>Reger Max-Modulation-98A</td><td class="num">m2 t3</td><td class="mono">A♭3 C4 A♭4</td><td class="exp"><span class="mono">V</span> en D♭ majeur = <b>A♭</b></td><td class="app">A♭M7 · ♭VIIM7 · B♭ majeur</td></tr>
 </table></div></details>
@@ -1499,7 +1502,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Aldwell Edward-Harmony and Voice Leading-2b</td><td class="num">m0 t3</td><td class="mono">F3 C4 F4 A4</td><td class="exp"><span class="mono">V</span> en B♭ majeur = <b>F</b></td><td class="app">F · I · F majeur</td></tr>
 <tr><td>Reger Max-Modulation-19</td><td class="num">m1 t3</td><td class="mono">F♯3 D♯4 B4</td><td class="exp"><span class="mono">Cad64</span> en B majeur = <b>B/F♯</b></td><td class="app">B/F♯ · IV · F♯ majeur</td></tr>
-<tr><td>Reger Max-Modulation-43b</td><td class="num">m1 t4</td><td class="mono">D♯3 C♯4 G4 A♯4</td><td class="exp"><span class="mono">V</span> en G♯ mineur = <b>D♯</b></td><td class="app">E♭7 · V7/♭VI · C mineur</td></tr>
+<tr><td>Reger Max-Modulation-43b</td><td class="num">m1 t4</td><td class="mono">D♯3 C♯4 G4 A♯4</td><td class="exp"><span class="mono">V</span> en G♯ mineur = <b>D♯</b></td><td class="app">E♭7 · V7/VI · C mineur</td></tr>
 <tr><td>Reger Max-Modulation-62</td><td class="num">m1 t4.5</td><td class="mono">G♯3 C4 F♯4 G♯4</td><td class="exp"><span class="mono">V7</span> en C♯ mineur = <b>G♯7</b></td><td class="app">A♭7 · IV7 · E♭ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -1507,7 +1510,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>Reger Max-Modulation-85</td><td class="num">m1 t4</td><td class="mono">F♯3 C♯4 F♯4 A♯4</td><td class="exp"><span class="mono">V/V</span> en E majeur = <b>F♯</b></td><td class="app">F♯ · I · F♯ majeur</td></tr>
 <tr><td>Reger Max-Modulation-93A</td><td class="num">m2 t1</td><td class="mono">E♭3 B♭3 E♭4 G4</td><td class="exp"><span class="mono">V</span> en A♭ majeur = <b>E♭</b></td><td class="app">E♭ · I · E♭ majeur</td></tr>
 <tr><td>Reger Max-Modulation-98B</td><td class="num">m1 t3</td><td class="mono">G♯3 B3 E4 G♯4</td><td class="exp"><span class="mono">I6</span> en E majeur = <b>E/G♯</b></td><td class="app">E · IV · B majeur</td></tr>
-<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-173h</td><td class="num">m2 t1</td><td class="mono">C3 A♭3 A♭4 E♭5</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">A♭/C · ♭III · F mineur</td></tr>
+<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-173h</td><td class="num">m2 t1</td><td class="mono">C3 A♭3 A♭4 E♭5</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">A♭/C · III · F mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -1523,10 +1526,10 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Reger Max-Modulation-66</td><td class="num">m1 t3</td><td class="mono">G3 B3 F4 G4</td><td class="exp"><span class="mono">V7</span> en C majeur = <b>G7</b></td><td class="app">G7 · ♭VII7 · A mineur</td></tr>
+<tr><td>Reger Max-Modulation-66</td><td class="num">m1 t3</td><td class="mono">G3 B3 F4 G4</td><td class="exp"><span class="mono">V7</span> en C majeur = <b>G7</b></td><td class="app">G7 · VII7 · A mineur</td></tr>
 <tr><td>Reger Max-Modulation-83</td><td class="num">m1 t4</td><td class="mono">B2 D♯4 G♯4 B4</td><td class="exp"><span class="mono">ii6</span> en F♯ majeur = <b>G♯m/B</b></td><td class="app">A♭m/B · IVm · E♭ mineur</td></tr>
 <tr><td>Reger Max-Modulation-94B</td><td class="num">m1 t2.5</td><td class="mono">C4 D♯4 G♯4 C5</td><td class="exp"><span class="mono">N6</span> en G majeur = <b>G♯/C</b></td><td class="app">G♯ · V · C♯ mineur</td></tr>
-<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-183c</td><td class="num">m4 t1</td><td class="mono">A♭3 C4 A♭4</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">A♭ · ♭III · F mineur</td></tr>
+<tr><td>Tchaikovsky Piotr Ilyich-Guide to the Practical Study of Harmony-183c</td><td class="num">m4 t1</td><td class="mono">A♭3 C4 A♭4</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">A♭ · III · F mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -1544,7 +1547,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-17d</td><td class="num">m3 t3</td><td class="mono">C♯3 B♭3 E4 G4</td><td class="exp"><span class="mono">viio7/iv</span> en A mineur = <b>C♯dim7</b></td><td class="app">A♯dim7/C♯ · IIdim7 · G♯ mineur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23e</td><td class="num">m2 t2</td><td class="mono">E♭4 A4 C5 F5</td><td class="exp"><span class="mono">V2/N</span> en A mineur = <b>F7/E♭</b></td><td class="app">F7 · V7/IV · F majeur</td></tr>
-<tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23f</td><td class="num">m4 t1</td><td class="mono">E4 A4 C♯5</td><td class="exp"><span class="mono">Cad64/I</span> en A mineur = <b>A/E</b></td><td class="app">A · ♭III · F♯ mineur</td></tr>
+<tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23f</td><td class="num">m4 t1</td><td class="mono">E4 A4 C♯5</td><td class="exp"><span class="mono">Cad64/I</span> en A mineur = <b>A/E</b></td><td class="app">A · III · F♯ mineur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-5b</td><td class="num">m2 t3</td><td class="mono">B♭3 F4 B♭4 C♯5</td><td class="exp"><span class="mono">iv/iv</span> en C majeur = <b>B♭m</b></td><td class="app">B♭m · IVm · F mineur</td></tr>
 </table></div></details>
 </div>
@@ -1573,14 +1576,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">Même armure (C majeur / A mineur).</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m7 t3</td><td class="mono">C3 E3 G3 C4 G4</td><td class="exp"><span class="mono">V</span> en F majeur = <b>C</b></td><td class="app">C · ♭VII · D mineur</td></tr>
-<tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m8 t1</td><td class="mono">F3 A3 C4 F4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">F · ♭III · D mineur</td></tr>
+<tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m7 t3</td><td class="mono">C3 E3 G3 C4 G4</td><td class="exp"><span class="mono">V</span> en F majeur = <b>C</b></td><td class="app">C · VII · D mineur</td></tr>
+<tr><td>Kostka Stefan-Tonal Harmony-ex18-6</td><td class="num">m8 t1</td><td class="mono">F3 A3 C4 F4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">F · III · D mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m4 t1</td><td class="mono">E♭3 G4 B♭4 C5</td><td class="exp"><span class="mono">ii65</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">Cm7/E♭ · IVm7 · G mineur</td></tr>
 <tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m4 t1.25</td><td class="mono">C3 G4 B♭4 C5</td><td class="exp"><span class="mono">ii7</span> en B♭ majeur = <b>Cm7</b></td><td class="app">Cm7 · IVm7 · G mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m4 t2</td><td class="mono">B♭2 F4 B♭4 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭ · ♭III · G mineur</td></tr>
+<tr><td>Kostka Stefan-Tonal Harmony-ex19-11</td><td class="num">m4 t2</td><td class="mono">B♭2 F4 B♭4 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭ · III · G mineur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23a</td><td class="num">m2 t1</td><td class="mono">A3 A4 C5 E5</td><td class="exp"><span class="mono">vi</span> en C majeur = <b>Am</b></td><td class="app">Am · Im · A mineur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23a</td><td class="num">m2 t2</td><td class="mono">B3 A♭4 B4 E5</td><td class="exp"><span class="mono">Cad64/V/vi</span> en C majeur = <b>E/B</b></td><td class="app">E/B · V · A mineur</td></tr>
 <tr><td>Rimsky-Korsakov Nicolai-Practical Manual of Harmony-23d</td><td class="num">m3 t1</td><td class="mono">E4 B♭4 C5 G5</td><td class="exp"><span class="mono">V65/vi</span> en A mineur = <b>C♯7/F</b></td><td class="app">C7 · V7/IV · C majeur</td></tr>
@@ -1831,6 +1834,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1843,14 +1847,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>01</td><td class="num">m28 t1</td><td class="mono">G2 E♭3</td><td class="exp"><span class="mono">viio2/v</span> en C majeur = <b>F♯dim7/E♭</b></td><td class="app">Cm/G · Im · C mineur</td></tr>
-<tr><td>04</td><td class="num">m37 t2</td><td class="mono">D♯2 E5 G5</td><td class="exp"><span class="mono">viio7</span> en G♯ mineur = <b>Gdim7</b></td><td class="app">EmM7/D♯ · ♭VImM7 · G♯ mineur</td></tr>
+<tr><td>04</td><td class="num">m37 t2</td><td class="mono">D♯2 E5 G5</td><td class="exp"><span class="mono">viio7</span> en G♯ mineur = <b>Gdim7</b></td><td class="app">EmM7/D♯ · VImM7 · G♯ mineur</td></tr>
 <tr><td>07</td><td class="num">m29 t4.5</td><td class="mono">B♭3 A♭4 D5</td><td class="exp"><span class="mono">V7</span> en E♭ majeur = <b>B♭7</b></td><td class="app">Gm/B♭ · VIm · B♭ majeur</td></tr>
 <tr><td>10</td><td class="num">m18 t3</td><td class="mono">E3 A♯4 C♯5 E5</td><td class="exp"><span class="mono">viio65/v</span> en E mineur = <b>A♯dim7/C♯</b></td><td class="app">F♯7(♭9) · V7(♭9)/V · E majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>13</td><td class="num">m8 t2</td><td class="mono">G♭3 B♭5</td><td class="exp"><span class="mono">viio6</span> en E♭ mineur = <b>Ddim/F</b></td><td class="app">G♭M7(9)/D♭ · IVM7(9) · D♭ majeur</td></tr>
-<tr><td>16</td><td class="num">m3 t4</td><td class="mono">E♭3 C4 G4</td><td class="exp"><span class="mono">iv6</span> en G mineur = <b>Cm/E♭</b></td><td class="app">E♭ · ♭VI · G mineur</td></tr>
+<tr><td>16</td><td class="num">m3 t4</td><td class="mono">E♭3 C4 G4</td><td class="exp"><span class="mono">iv6</span> en G mineur = <b>Cm/E♭</b></td><td class="app">E♭ · VI · G mineur</td></tr>
 <tr><td>18</td><td class="num">m13 t2</td><td class="mono">B3 D4 F4</td><td class="exp"><span class="mono">viio43</span> en E♭ mineur = <b>Ddim7/A♭</b></td><td class="app">B♭ · V · E♭ mineur</td></tr>
 <tr><td>21</td><td class="num">m19 t3</td><td class="mono">F3</td><td class="exp"><span class="mono">V65</span> en B♭ majeur = <b>F7/A</b></td><td class="app">Cmadd9 · IImadd9 · B♭ majeur</td></tr>
 </table></div></details>
@@ -1862,8 +1866,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>02</td><td class="num">m12 t1</td><td class="mono">E♭3 G4</td><td class="exp"><span class="mono">IV65</span> en E♭ majeur = <b>A♭M7/C</b></td><td class="app">E♭ · I · E♭ majeur</td></tr>
-<tr><td>04</td><td class="num">m16 t2</td><td class="mono">B3 B4 D♯5</td><td class="exp"><span class="mono">vi7</span> en B majeur = <b>G♯m7</b></td><td class="app">Badd9 · ♭IIIadd9 · G♯ mineur</td></tr>
-<tr><td>06</td><td class="num">m12 t4.5</td><td class="mono">E3 D♭5</td><td class="exp"><span class="mono">viio63</span> en D mineur = <b>D♭dim/E</b></td><td class="app">FM7aug · ♭IIIM7aug · D mineur</td></tr>
+<tr><td>04</td><td class="num">m16 t2</td><td class="mono">B3 B4 D♯5</td><td class="exp"><span class="mono">vi7</span> en B majeur = <b>G♯m7</b></td><td class="app">Badd9 · IIIadd9 · G♯ mineur</td></tr>
+<tr><td>06</td><td class="num">m12 t4.5</td><td class="mono">E3 D♭5</td><td class="exp"><span class="mono">viio63</span> en D mineur = <b>D♭dim/E</b></td><td class="app">FM7aug · IIIM7aug · D mineur</td></tr>
 <tr><td>07</td><td class="num">m34 t2</td><td class="mono">C3 G3 E♭4 C5</td><td class="exp"><span class="mono">viio43</span> en G mineur = <b>G♭dim7/C</b></td><td class="app">Cm · IVm · G mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -1906,10 +1910,10 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>12</td><td class="num">m17 t4</td><td class="mono">C3 G3 E4 D♭5</td><td class="exp"><span class="mono">V9</span> en F mineur = <b>C7</b></td><td class="app">D♭dim/C · ♯Vdim · F mineur</td></tr>
-<tr><td>16</td><td class="num">m5 t4</td><td class="mono">G2 E3 G5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">Edim/G · VIdim · G mineur</td></tr>
+<tr><td>12</td><td class="num">m17 t4</td><td class="mono">C3 G3 E4 D♭5</td><td class="exp"><span class="mono">V9</span> en F mineur = <b>C7</b></td><td class="app">D♭dim/C · VIdim · F mineur</td></tr>
+<tr><td>16</td><td class="num">m5 t4</td><td class="mono">G2 E3 G5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">Edim/G · ♯VIdim · G mineur</td></tr>
 <tr><td>19</td><td class="num">m6 t1</td><td class="mono">B3 E5 G♯5</td><td class="exp"><span class="mono">ii65</span> en E majeur = <b>F♯m7/A</b></td><td class="app">A/C♯ · I · A majeur</td></tr>
-<tr><td>24</td><td class="num">m20 t1</td><td class="mono">A2 C♯5 G5</td><td class="exp"><span class="mono">V43</span> en D majeur = <b>A7/E</b></td><td class="app">C♯dim/G · VIdim · E mineur</td></tr>
+<tr><td>24</td><td class="num">m20 t1</td><td class="mono">A2 C♯5 G5</td><td class="exp"><span class="mono">V43</span> en D majeur = <b>A7/E</b></td><td class="app">C♯dim/G · ♯VIdim · E mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -1945,7 +1949,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>01</td><td class="num">m3 t1</td><td class="mono">B3 D4</td><td class="exp"><span class="mono">V65</span> en C majeur = <b>G7/B</b></td><td class="app">G · V · C majeur</td></tr>
 <tr><td>05</td><td class="num">m25 t3</td><td class="mono">F♯2 F♯4</td><td class="exp"><span class="mono">V65/IV</span> en D majeur = <b>D7/F♯</b></td><td class="app">Dadd9 · Iadd9 · D majeur</td></tr>
-<tr><td>07</td><td class="num">m42 t1</td><td class="mono">E♭3 B♭3 A♭4 B♭4</td><td class="exp"><span class="mono">V7</span> en A♭ majeur = <b>E♭7</b></td><td class="app">E♭ · ♭III · C mineur</td></tr>
+<tr><td>07</td><td class="num">m42 t1</td><td class="mono">E♭3 B♭3 A♭4 B♭4</td><td class="exp"><span class="mono">V7</span> en A♭ majeur = <b>E♭7</b></td><td class="app">E♭ · III · C mineur</td></tr>
 <tr><td>09</td><td class="num">m13 t1</td><td class="mono">F♯2 F♯4 A4</td><td class="exp"><span class="mono">i65</span> en F♯ mineur = <b>F♯m7/A</b></td><td class="app">F♯m/C♯ · Im · F♯ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -1988,13 +1992,13 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>01</td><td class="num">m6 t1</td><td class="mono">C4 D4</td><td class="exp"><span class="mono">V2</span> en G majeur = <b>D7/C</b></td><td class="app">D7 · V7/V · C majeur</td></tr>
 <tr><td>05</td><td class="num">m6 t4</td><td class="mono">A3 E5</td><td class="exp"><span class="mono">ii65</span> en E mineur = <b>F♯m7/A</b></td><td class="app">A6(9) · I6(9) · A majeur</td></tr>
 <tr><td>06</td><td class="num">m6 t3</td><td class="mono">D3 G♭3</td><td class="exp"><span class="mono">V7</span> en G mineur = <b>D7</b></td><td class="app">D7(♯9) · V7(♯9)/II · F majeur</td></tr>
-<tr><td>08</td><td class="num">m5 t3</td><td class="mono">A♯2 C♯3 F♯3 A♯3 E5</td><td class="exp"><span class="mono">V65</span> en B majeur = <b>F♯7/A♯</b></td><td class="app">G♭7 · V7/♭VI · E♭ mineur</td></tr>
+<tr><td>08</td><td class="num">m5 t3</td><td class="mono">A♯2 C♯3 F♯3 A♯3 E5</td><td class="exp"><span class="mono">V65</span> en B majeur = <b>F♯7/A♯</b></td><td class="app">G♭7 · V7/VI · E♭ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>11</td><td class="num">m11 t2</td><td class="mono">A3 A4</td><td class="exp"><span class="mono">V7</span> en B♭ majeur = <b>F7</b></td><td class="app">Fadd9 · ♭VIIadd9 · G majeur</td></tr>
 <tr><td>13</td><td class="num">m29 t1</td><td class="mono">F♯3 A♯5</td><td class="exp"><span class="mono">I</span> en F♯ majeur = <b>F♯</b></td><td class="app">C♯7(13)/F♯ · V7(13) · F♯ mineur</td></tr>
-<tr><td>18</td><td class="num">m4 t1.6667</td><td class="mono">E3 E4 E5</td><td class="exp"><span class="mono">ii6</span> en B majeur = <b>C♯m/E</b></td><td class="app">E6(9) · ♭VI6(9) · G♯ mineur</td></tr>
+<tr><td>18</td><td class="num">m4 t1.6667</td><td class="mono">E3 E4 E5</td><td class="exp"><span class="mono">ii6</span> en B majeur = <b>C♯m/E</b></td><td class="app">E6(9) · VI6(9) · G♯ mineur</td></tr>
 <tr><td>21</td><td class="num">m13 t2.75</td><td class="mono">C3 E♭3 G3 B♭3 G4 B♭4 C5 E♭5</td><td class="exp"><span class="mono">ii7</span> en B♭ majeur = <b>Cm7</b></td><td class="app">Cm7 · Im7 · C mineur</td></tr>
 </table></div></details>
 </div>
@@ -2025,7 +2029,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>01</td><td class="num">m12 t1</td><td class="mono">G3 B♭3</td><td class="exp"><span class="mono">viio43</span> en D mineur = <b>D♭dim7/G</b></td><td class="app">Edim · VIIdim · F mineur</td></tr>
 <tr><td>02</td><td class="num">m30 t1</td><td class="mono">B3 G5</td><td class="exp"><span class="mono">V</span> en C mineur = <b>G</b></td><td class="app">GM7(9) · IM7(9) · G majeur</td></tr>
-<tr><td>05</td><td class="num">m10 t4</td><td class="mono">D♯3 A5</td><td class="exp"><span class="mono">V7</span> en E mineur = <b>B7</b></td><td class="app">B7(♭13) · V7(♭13)/♭VII · F♯ mineur</td></tr>
+<tr><td>05</td><td class="num">m10 t4</td><td class="mono">D♯3 A5</td><td class="exp"><span class="mono">V7</span> en E mineur = <b>B7</b></td><td class="app">B7(♭13) · V7(♭13)/VII · F♯ mineur</td></tr>
 <tr><td>06</td><td class="num">m25 t1.5</td><td class="mono">D5</td><td class="exp"><span class="mono">vio</span> en D mineur = <b>Bdim</b></td><td class="app">Cdim · IIdim · B♭ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -2044,14 +2048,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>02</td><td class="num">m4 t1</td><td class="mono">E♭3 G4</td><td class="exp"><span class="mono">i</span> en C mineur = <b>Cm</b></td><td class="app">E♭ · I · E♭ majeur</td></tr>
 <tr><td>06</td><td class="num">m3 t4</td><td class="mono">D4 D5</td><td class="exp"><span class="mono">IV6</span> en F majeur = <b>B♭/D</b></td><td class="app">Dm7 · Im7 · D mineur</td></tr>
-<tr><td>07</td><td class="num">m60 t4</td><td class="mono">D4 B♭4 F5</td><td class="exp"><span class="mono">V6</span> en E♭ majeur = <b>B♭/D</b></td><td class="app">B♭/D · ♭VII · C mineur</td></tr>
+<tr><td>07</td><td class="num">m60 t4</td><td class="mono">D4 B♭4 F5</td><td class="exp"><span class="mono">V6</span> en E♭ majeur = <b>B♭/D</b></td><td class="app">B♭/D · VII · C mineur</td></tr>
 <tr><td>11</td><td class="num">m12 t2</td><td class="mono">G♭3 G♭4</td><td class="exp"><span class="mono">V7/vi</span> en B♭ majeur = <b>D7</b></td><td class="app">Dadd9 · Vadd9 · G mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>18</td><td class="num">m5 t1</td><td class="mono">B3 C♯4 E5</td><td class="exp"><span class="mono">I</span> en B majeur = <b>B</b></td><td class="app">C♯m7 · IVm7 · G♯ mineur</td></tr>
 <tr><td>19</td><td class="num">m9 t1</td><td class="mono">C♯4 D♯4 G♯5</td><td class="exp"><span class="mono">iii</span> en A majeur = <b>C♯m</b></td><td class="app">C♯m · Vm · F♯ mineur</td></tr>
-<tr><td>21</td><td class="num">m9 t2</td><td class="mono">D2 A4</td><td class="exp"><span class="mono">IV65</span> en F majeur = <b>B♭M7/D</b></td><td class="app">B♭M7(9) · ♭VIM7(9) · D mineur</td></tr>
+<tr><td>21</td><td class="num">m9 t2</td><td class="mono">D2 A4</td><td class="exp"><span class="mono">IV65</span> en F majeur = <b>B♭M7/D</b></td><td class="app">B♭M7(9) · VIM7(9) · D mineur</td></tr>
 <tr><td>24</td><td class="num">m33 t3</td><td class="mono">B2 D4 C♯5</td><td class="exp"><span class="mono">vi</span> en D majeur = <b>Bm</b></td><td class="app">Bmadd9 · Imadd9 · B mineur</td></tr>
 </table></div></details>
 </div>
@@ -2061,7 +2065,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">L'expert note une tonalité pendant moins de 2 mesures (tonicisation) ; l'application reste dans la tonalité principale.</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>03</td><td class="num">m34 t1</td><td class="mono">C4 A♭5</td><td class="exp"><span class="mono">V7</span> en E♭ mineur = <b>B♭7</b></td><td class="app">D7aug · SubV7aug/♭VI · F mineur</td></tr>
+<tr><td>03</td><td class="num">m34 t1</td><td class="mono">C4 A♭5</td><td class="exp"><span class="mono">V7</span> en E♭ mineur = <b>B♭7</b></td><td class="app">D7aug · SubV7aug/VI · F mineur</td></tr>
 <tr><td>03</td><td class="num">m41 t1</td><td class="mono">D4 G♭5</td><td class="exp"><span class="mono">ii42</span> en D♭ majeur = <b>E♭m7/D♭</b></td><td class="app">E♭mM7(9) · ImM7(9) · E♭ mineur</td></tr>
 <tr><td>05</td><td class="num">m16 t1</td><td class="mono">B2 A3</td><td class="exp"><span class="mono">V9</span> en E mineur = <b>B7</b></td><td class="app">aucun accord · G majeur</td></tr>
 <tr><td>10</td><td class="num">m14 t1</td><td class="mono">F♯3 F♯4 A4 D5</td><td class="exp"><span class="mono">IV42</span> en A mineur = <b>D7/C</b></td><td class="app">G · I · G majeur</td></tr>
@@ -2070,7 +2074,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>14</td><td class="num">m3 t3</td><td class="mono">C♯3 B4</td><td class="exp"><span class="mono">ii[no5]</span> en A majeur = <b>Bm</b></td><td class="app">Bm7(9) · IVm7(9) · F♯ mineur</td></tr>
 <tr><td>14</td><td class="num">m16 t1</td><td class="mono">C♯4 F♯4 B4</td><td class="exp"><span class="mono">vi64</span> en A majeur = <b>F♯m/C♯</b></td><td class="app">C♯7 · V7 · F♯ mineur</td></tr>
-<tr><td>19</td><td class="num">m7 t3</td><td class="mono">D4 D5 F♯5</td><td class="exp"><span class="mono">viio</span> en D majeur = <b>C♯dim</b></td><td class="app">DM7/C♯ · ♭IIIM7 · B mineur</td></tr>
+<tr><td>19</td><td class="num">m7 t3</td><td class="mono">D4 D5 F♯5</td><td class="exp"><span class="mono">viio</span> en D majeur = <b>C♯dim</b></td><td class="app">DM7/C♯ · IIIM7 · B mineur</td></tr>
 <tr><td>22</td><td class="num">m13 t3</td><td class="mono">B♭3 D5</td><td class="exp"><span class="mono">V7</span> en E♭ majeur = <b>B♭7</b></td><td class="app">Fm · IIm · E♭ mineur</td></tr>
 </table></div></details>
 </div>
@@ -2154,7 +2158,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 % <span class="up">+5,7</span></td><td class="n">81,5 % <span class="up">+5,7</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
-<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2168,7 +2173,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>a_change_is_gonna_come</td><td class="num">m1 t1</td><td class="mono">E♭2 C4 E♭4 G4 B♭4</td><td class="exp"><span class="mono">ii65</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">E♭6 · IV6 · B♭ majeur</td></tr>
 <tr><td>dream_on</td><td class="num">m21 t3</td><td class="mono">D♭2 B♭3 D♭4 F4 G4</td><td class="exp"><span class="mono">iih43</span> en F majeur = <b>Gm7♭5/D♭</b></td><td class="app">B♭m6/D♭ · IVm6 · F mineur</td></tr>
-<tr><td>good_vibrations</td><td class="num">m34 t1</td><td class="mono">D♭2 D♭4 F4 A♭4 B♭4</td><td class="exp"><span class="mono">v65</span> en E♭ majeur = <b>B♭m7/D♭</b></td><td class="app">D♭6 · ♭VII6 · E♭ mineur</td></tr>
+<tr><td>good_vibrations</td><td class="num">m34 t1</td><td class="mono">D♭2 D♭4 F4 A♭4 B♭4</td><td class="exp"><span class="mono">v65</span> en E♭ majeur = <b>B♭m7/D♭</b></td><td class="app">D♭6 · VII6 · E♭ mineur</td></tr>
 <tr><td>let_it_be</td><td class="num">m37 t3</td><td class="mono">F2 A3 C4 D4 F4</td><td class="exp"><span class="mono">ii65</span> en C majeur = <b>Dm7/F</b></td><td class="app">F6 · IV6 · C majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -2247,14 +2252,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>bohemian_rhapsody</td><td class="num">m0 t1</td><td class="mono">G2 B♭3 D4 G4</td><td class="exp"><span class="mono">vi</span> en B♭ majeur = <b>Gm</b></td><td class="app">Gm · Im · G mineur</td></tr>
-<tr><td>georgia_on_my_mind</td><td class="num">m30 t3</td><td class="mono">D2 G3 B3 D4 F4</td><td class="exp"><span class="mono">V43/IV</span> en G majeur = <b>G7/D</b></td><td class="app">G7/D · V7/♭VI · E mineur</td></tr>
-<tr><td>hallelujah</td><td class="num">m36 t1</td><td class="mono">C2 C4 E4 G4</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">C · ♭III · A mineur</td></tr>
+<tr><td>georgia_on_my_mind</td><td class="num">m30 t3</td><td class="mono">D2 G3 B3 D4 F4</td><td class="exp"><span class="mono">V43/IV</span> en G majeur = <b>G7/D</b></td><td class="app">G7/D · V7/VI · E mineur</td></tr>
+<tr><td>hallelujah</td><td class="num">m36 t1</td><td class="mono">C2 C4 E4 G4</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">C · III · A mineur</td></tr>
 <tr><td>hallelujah</td><td class="num">m113 t1</td><td class="mono">A2 A3 C4 E4</td><td class="exp"><span class="mono">vi</span> en C majeur = <b>Am</b></td><td class="app">Am · Im · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>hallelujah</td><td class="num">m203 t1</td><td class="mono">C2 E3 G3 C4</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">C · ♭III · A mineur</td></tr>
-<tr><td>one</td><td class="num">m58 t1</td><td class="mono">F2 A3 C4 F4</td><td class="exp"><span class="mono">IV</span> en C majeur = <b>F</b></td><td class="app">F · ♭VI · A mineur</td></tr>
+<tr><td>hallelujah</td><td class="num">m203 t1</td><td class="mono">C2 E3 G3 C4</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">C · III · A mineur</td></tr>
+<tr><td>one</td><td class="num">m58 t1</td><td class="mono">F2 A3 C4 F4</td><td class="exp"><span class="mono">IV</span> en C majeur = <b>F</b></td><td class="app">F · VI · A mineur</td></tr>
 <tr><td>paranoid_android</td><td class="num">m62 t3</td><td class="mono">A♭2 C4 E♭4 A♭4</td><td class="exp"><span class="mono">bVI</span> en C majeur = <b>A♭</b></td><td class="app">A♭ · VII · A mineur</td></tr>
 <tr><td>she_loves_you</td><td class="num">m51 t1</td><td class="mono">B2 F♯3 B3 D4</td><td class="exp"><span class="mono">iii</span> en G majeur = <b>Bm</b></td><td class="app">Bm · Vm · E mineur</td></tr>
 </table></div></details>
@@ -2285,7 +2290,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>good_vibrations</td><td class="num">m24 t1</td><td class="mono">A♭2 C4 E♭4 A♭4</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">A♭ · IV · E♭ mineur</td></tr>
-<tr><td>good_vibrations</td><td class="num">m26 t3</td><td class="mono">D♭2 D♭4 F4 A♭4</td><td class="exp"><span class="mono">IV</span> en A♭ majeur = <b>D♭</b></td><td class="app">D♭ · ♭VII · E♭ mineur</td></tr>
+<tr><td>good_vibrations</td><td class="num">m26 t3</td><td class="mono">D♭2 D♭4 F4 A♭4</td><td class="exp"><span class="mono">IV</span> en A♭ majeur = <b>D♭</b></td><td class="app">D♭ · VII · E♭ mineur</td></tr>
 <tr><td>good_vibrations</td><td class="num">m29 t1</td><td class="mono">B♭2 D4 F4 B♭4</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭ · V · E♭ mineur</td></tr>
 <tr><td>good_vibrations</td><td class="num">m31 t3</td><td class="mono">E♭2 E♭4 G4 B♭4</td><td class="exp"><span class="mono">IV</span> en B♭ majeur = <b>E♭</b></td><td class="app">E♭ · V/IV · E♭ mineur</td></tr>
 </table></div>
@@ -2528,6 +2533,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2549,7 +2555,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>Queen — You're My Best Friend</td><td class="num">121.327 s</td><td class="mono">C2 F3 A3 C4 D4</td><td class="exp"><span class="mono">D:min7/b7</span> en C majeur = <b>Dm7/C</b></td><td class="app">F6/C · I6 · F majeur</td></tr>
 <tr><td>The Beatles — The Fool On The Hill</td><td class="num">95.5565 s</td><td class="mono">D2 E3 G3 B3 D4</td><td class="exp"><span class="mono">G:maj6/5</span> en D majeur = <b>G/D</b></td><td class="app">Em7/D · IIm7 · D majeur</td></tr>
 <tr><td>Carole King — You've Got A Friend</td><td class="num">55.348 s</td><td class="mono">E♭2 B♭3 D♭4 F4 A♭4</td><td class="exp"><span class="mono">Db:maj6/2</span> en F mineur = <b>D♭/E♭</b></td><td class="app">B♭m7/E♭ · IVm7 · F mineur</td></tr>
-<tr><td>The Beatles — I Want You</td><td class="num">240.0891 s</td><td class="mono">D2 C4 D4 E4 G4 A4</td><td class="exp"><span class="mono">D:min7(2,*b3,4)</span> en D mineur = <b>D(sus4 7)</b></td><td class="app">C6(9)/D · ♭III6(9) · A mineur</td></tr>
+<tr><td>The Beatles — I Want You</td><td class="num">240.0891 s</td><td class="mono">D2 C4 D4 E4 G4 A4</td><td class="exp"><span class="mono">D:min7(2,*b3,4)</span> en D mineur = <b>D(sus4 7)</b></td><td class="app">C6(9)/D · III6(9) · A mineur</td></tr>
 </table></div></details>
 </div>
 <div class="category">
@@ -2560,14 +2566,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>The Beatles — The End</td><td class="num">114.1092 s</td><td class="mono">C2 G3 B♭3 E♭4</td><td class="exp"><span class="mono">Eb/6</span> en C majeur = <b>E♭/C</b></td><td class="app">Cm7 · Im7 · C mineur</td></tr>
 <tr><td>The Beatles — Maxwell's Silver Hammer</td><td class="num">80.063 s</td><td class="mono">C♯2 B3 E4 G4</td><td class="exp"><span class="mono">E:min/6</span> en D majeur = <b>Em/C♯</b></td><td class="app">C♯m7♭5 · VIIm7♭5 · D majeur</td></tr>
-<tr><td>The Beatles — While My Guitar Gently Weeps</td><td class="num">121.9361 s</td><td class="mono">F♯2 A3 C4 E4</td><td class="exp"><span class="mono">A:min/6</span> en A mineur = <b>Am/F♯</b></td><td class="app">F♯m7♭5 · VIm7♭5 · A mineur</td></tr>
-<tr><td>The Beatles — The Continuing Story of Bungalow Bill</td><td class="num">98.6716 s</td><td class="mono">C2 A♭3 B3 E4</td><td class="exp"><span class="mono">E/b6</span> en C majeur = <b>E/C</b></td><td class="app">CM7aug · ♭IIIM7aug · A mineur</td></tr>
+<tr><td>The Beatles — While My Guitar Gently Weeps</td><td class="num">121.9361 s</td><td class="mono">F♯2 A3 C4 E4</td><td class="exp"><span class="mono">A:min/6</span> en A mineur = <b>Am/F♯</b></td><td class="app">F♯m7♭5 · ♯VIm7♭5 · A mineur</td></tr>
+<tr><td>The Beatles — The Continuing Story of Bungalow Bill</td><td class="num">98.6716 s</td><td class="mono">C2 A♭3 B3 E4</td><td class="exp"><span class="mono">E/b6</span> en C majeur = <b>E/C</b></td><td class="app">CM7aug · IIIM7aug · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>The Beatles — Penny Lane</td><td class="num">103.9157 s</td><td class="mono">G♯2 B3 D♯4 F♯4</td><td class="exp"><span class="mono">B/6</span> en B majeur = <b>B/G♯</b></td><td class="app">G♯m7 · VIIm7 · A majeur</td></tr>
 <tr><td>Queen — Bohemian Rhapsody</td><td class="num">92.531 s</td><td class="mono">D2 F3 A♭3 C4</td><td class="exp"><span class="mono">F:min/6</span> en E♭ majeur = <b>Fm/D</b></td><td class="app">Dm7♭5 · IIIm7♭5 · B♭ majeur</td></tr>
-<tr><td>Queen — I Want It All</td><td class="num">163.09 s</td><td class="mono">G2 G4 D5</td><td class="exp"><span class="mono">G:(1,5)</span> en B mineur = <b>G(5)</b></td><td class="app">GM7 · ♭VIM7 · B mineur</td></tr>
+<tr><td>Queen — I Want It All</td><td class="num">163.09 s</td><td class="mono">G2 G4 D5</td><td class="exp"><span class="mono">G:(1,5)</span> en B mineur = <b>G(5)</b></td><td class="app">GM7 · VIM7 · B mineur</td></tr>
 <tr><td>The Beatles — What You're Doing</td><td class="num">135.5677 s</td><td class="mono">A2 A4</td><td class="exp"><span class="mono">A:(1)</span> en D majeur = <b>A(?)</b></td><td class="app">D · I · D majeur</td></tr>
 </table></div></details>
 </div>
@@ -2584,7 +2590,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Queen — Another One Bites The Dust</td><td class="num">81.363 s</td><td class="mono">A2 A3</td><td class="exp"><span class="mono">A:(1)</span> en E mineur = <b>A(?)</b></td><td class="app">Gadd9 · ♭IIIadd9 · E mineur</td></tr>
+<tr><td>Queen — Another One Bites The Dust</td><td class="num">81.363 s</td><td class="mono">A2 A3</td><td class="exp"><span class="mono">A:(1)</span> en E mineur = <b>A(?)</b></td><td class="app">Gadd9 · IIIadd9 · E mineur</td></tr>
 <tr><td>The Beatles — Strawberry Fields Forever</td><td class="num">90.6026 s</td><td class="mono">F2 F3</td><td class="exp"><span class="mono">F:(1)</span> en B♭ majeur = <b>F(?)</b></td><td class="app">E♭add9 · IVadd9 · B♭ majeur</td></tr>
 <tr><td>The Beatles — I Want You</td><td class="num">103.5674 s</td><td class="mono">D2 D4 G4</td><td class="exp"><span class="mono">D:(1,4)</span> en D mineur = <b>D(?)</b></td><td class="app">B♭6/D · ♭II6 · A mineur</td></tr>
 <tr><td>The Beatles — Helter Skelter</td><td class="num">109.5482 s</td><td class="mono">E2 C♯4 E4</td><td class="exp"><span class="mono">C#:(1,b3)/b3</span> en E majeur = <b>C♯m/E</b></td><td class="app">E6 · I6 · E majeur</td></tr>
@@ -2628,7 +2634,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>The Beatles — Let It Be</td><td class="num">37.9826 s</td><td class="mono">B2 E3 G3 C4</td><td class="exp"><span class="mono">C/7</span> en C majeur = <b>C/B</b></td><td class="app">CM7 · IM7 · C majeur</td></tr>
-<tr><td>The Beatles — Hello Goodbye</td><td class="num">22.8084 s</td><td class="mono">B2 E3 G3 C4</td><td class="exp"><span class="mono">C/7</span> en C majeur = <b>C/B</b></td><td class="app">CM7 · ♭IIIM7 · A mineur</td></tr>
+<tr><td>The Beatles — Hello Goodbye</td><td class="num">22.8084 s</td><td class="mono">B2 E3 G3 C4</td><td class="exp"><span class="mono">C/7</span> en C majeur = <b>C/B</b></td><td class="app">CM7 · IIIM7 · A mineur</td></tr>
 <tr><td>The Beatles — Hello Goodbye</td><td class="num">60.7745 s</td><td class="mono">B2 E3 G3 C4</td><td class="exp"><span class="mono">C/7</span> en C majeur = <b>C/B</b></td><td class="app">CM7 · IM7 · C majeur</td></tr>
 <tr><td>The Beatles — Hello Goodbye</td><td class="num">98.2848 s</td><td class="mono">B2 E3 G3 C4</td><td class="exp"><span class="mono">C/7</span> en C majeur = <b>C/B</b></td><td class="app">CM7 · IM7 · C majeur</td></tr>
 </table></div>
@@ -2662,11 +2668,11 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>The Beatles — Being For The Benefit Of Mr. Kite!</td><td class="num">9.1783 s</td><td class="mono">B♭2 D4 F4 B♭4</td><td class="exp"><span class="mono">Bb</span> en C mineur = <b>B♭</b></td><td class="app">B♭ · I · B♭ majeur</td></tr>
 <tr><td>The Beatles — Love You To</td><td class="num">146.7797 s</td><td class="mono">B♭2 B♭3 D4 F4</td><td class="exp"><span class="mono">Bb</span> en C mineur = <b>B♭</b></td><td class="app">B♭ · I · B♭ majeur</td></tr>
 <tr><td>The Beatles — Piggies</td><td class="num">20.9043 s</td><td class="mono">G2 C♯4 G4 A♯4</td><td class="exp"><span class="mono">G:dim</span> en A majeur = <b>Gdim</b></td><td class="app">Gdim · Idim · G mineur</td></tr>
-<tr><td>The Beatles — Devil In Her Heart</td><td class="num">5.0699 s</td><td class="mono">G2 D4 G4 B4</td><td class="exp"><span class="mono">G</span> en G majeur = <b>G</b></td><td class="app">G · ♭VII · A mineur</td></tr>
+<tr><td>The Beatles — Devil In Her Heart</td><td class="num">5.0699 s</td><td class="mono">G2 D4 G4 B4</td><td class="exp"><span class="mono">G</span> en G majeur = <b>G</b></td><td class="app">G · VII · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>Zweieck — Zuhause</td><td class="num">171.751 s</td><td class="mono">B♭2 F3 B♭3 D4</td><td class="exp"><span class="mono">Bb</span> en F majeur = <b>B♭</b></td><td class="app">B♭ · ♭VII · C mineur</td></tr>
+<tr><td>Zweieck — Zuhause</td><td class="num">171.751 s</td><td class="mono">B♭2 F3 B♭3 D4</td><td class="exp"><span class="mono">Bb</span> en F majeur = <b>B♭</b></td><td class="app">B♭ · VII · C mineur</td></tr>
 <tr><td>Queen — Somebody To Love</td><td class="num">108.359 s</td><td class="mono">G♭2 A3 D♭4 G♭4</td><td class="exp"><span class="mono">Gb:min</span> en D♭ majeur = <b>G♭m</b></td><td class="app">F♯m · Im · F♯ mineur</td></tr>
 <tr><td>The Beatles — And I Love Her</td><td class="num">19.4763 s</td><td class="mono">C♯2 C♯4 E4 G♯4</td><td class="exp"><span class="mono">C#:min</span> en E majeur = <b>C♯m</b></td><td class="app">C♯m · Vm · F♯ mineur</td></tr>
 <tr><td>The Beatles — Revolution 1</td><td class="num">48.8299 s</td><td class="mono">B2 D4 F♯4 B4</td><td class="exp"><span class="mono">B:min</span> en B majeur = <b>Bm</b></td><td class="app">Bm · IIm · A majeur</td></tr>
@@ -2699,13 +2705,13 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>The Beatles — Happiness is a Warm Gun</td><td class="num">0.2106 s</td><td class="mono">E2 E4</td><td class="exp"><span class="mono">E:(1)</span> en C majeur = <b>E(?)</b></td><td class="app">E1+8 · V · A mineur</td></tr>
 <tr><td>The Beatles — The Continuing Story of Bungalow Bill</td><td class="num">58.5917 s</td><td class="mono">D2 A3 D4 F4</td><td class="exp"><span class="mono">D:min</span> en C majeur = <b>Dm</b></td><td class="app">Dm · IVm · A mineur</td></tr>
-<tr><td>The Beatles — The Long and Winding Road</td><td class="num">184.9121 s</td><td class="mono">E♭2 B♭3 D♭4 E♭4 G4</td><td class="exp"><span class="mono">Eb:7</span> en E♭ majeur = <b>E♭7</b></td><td class="app">E♭7 · V7/♭VI · C mineur</td></tr>
-<tr><td>The Beatles — It Won't Be Long</td><td class="num">5.2167 s</td><td class="mono">E2 B3 E4 G♯4</td><td class="exp"><span class="mono">E</span> en E majeur = <b>E</b></td><td class="app">E · ♭III · C♯ mineur</td></tr>
+<tr><td>The Beatles — The Long and Winding Road</td><td class="num">184.9121 s</td><td class="mono">E♭2 B♭3 D♭4 E♭4 G4</td><td class="exp"><span class="mono">Eb:7</span> en E♭ majeur = <b>E♭7</b></td><td class="app">E♭7 · V7/VI · C mineur</td></tr>
+<tr><td>The Beatles — It Won't Be Long</td><td class="num">5.2167 s</td><td class="mono">E2 B3 E4 G♯4</td><td class="exp"><span class="mono">E</span> en E majeur = <b>E</b></td><td class="app">E · III · C♯ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>The Beatles — Your Mother Should Know</td><td class="num">118.8278 s</td><td class="mono">A2 E4 A4 C♯5</td><td class="exp"><span class="mono">A</span> en C majeur = <b>A</b></td><td class="app">A · V/IV · A mineur</td></tr>
-<tr><td>Queen — Bohemian Rhapsody</td><td class="num">305.157 s</td><td class="mono">E♭2 B♭3 E♭4 G4</td><td class="exp"><span class="mono">Eb:maj</span> en E♭ majeur = <b>E♭</b></td><td class="app">E♭ · ♭III · C mineur</td></tr>
+<tr><td>Queen — Bohemian Rhapsody</td><td class="num">305.157 s</td><td class="mono">E♭2 B♭3 E♭4 G4</td><td class="exp"><span class="mono">Eb:maj</span> en E♭ majeur = <b>E♭</b></td><td class="app">E♭ · III · C mineur</td></tr>
 <tr><td>The Beatles — Yesterday</td><td class="num">10.4163 s</td><td class="mono">D2 A3 D4 F4</td><td class="exp"><span class="mono">D:min</span> en F majeur = <b>Dm</b></td><td class="app">Dm · Im · D mineur</td></tr>
 <tr><td>The Beatles — When I Get Home</td><td class="num">91.969 s</td><td class="mono">A2 A3 C4 E4</td><td class="exp"><span class="mono">A:min</span> en C majeur = <b>Am</b></td><td class="app">Am · Im · A mineur</td></tr>
 </table></div></details>
@@ -2719,7 +2725,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>The Beatles — Here Comes The Sun</td><td class="num">0.3663 s</td><td class="mono">A2 C♯4 E4 A4</td><td class="exp"><span class="mono">A</span> en A mineur = <b>A</b></td><td class="app">A · I · A majeur</td></tr>
 <tr><td>The Beatles — Here Comes The Sun</td><td class="num">91.3653 s</td><td class="mono">G2 D4 G4 B4</td><td class="exp"><span class="mono">G</span> en A mineur = <b>G</b></td><td class="app">G · ♭VII · A majeur</td></tr>
 <tr><td>The Beatles — Here Comes The Sun</td><td class="num">159.1792 s</td><td class="mono">E2 A♭3 B3 D4 E4</td><td class="exp"><span class="mono">E:7</span> en A mineur = <b>E7</b></td><td class="app">E7 · V7 · A majeur</td></tr>
-<tr><td>The Beatles — While My Guitar Gently Weeps</td><td class="num">57.0452 s</td><td class="mono">C♯2 E3 G♯3 C♯4</td><td class="exp"><span class="mono">C#:min</span> en A majeur = <b>C♯m</b></td><td class="app">C♯m · IIIm · A mineur</td></tr>
+<tr><td>The Beatles — While My Guitar Gently Weeps</td><td class="num">57.0452 s</td><td class="mono">C♯2 E3 G♯3 C♯4</td><td class="exp"><span class="mono">C#:min</span> en A majeur = <b>C♯m</b></td><td class="app">C♯m · ♯IIIm · A mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -2743,7 +2749,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>Queen — Good Old-Fashioned Lover Boy</td><td class="num">48.024 s</td><td class="mono">F♯2 A♯3 C♯4 E4 F♯4</td><td class="exp"><span class="mono">Gb:7</span> en B majeur = <b>F♯7</b></td><td class="app">G♭7 · SubV7/II · E♭ majeur</td></tr>
-<tr><td>Queen — I Want It All</td><td class="num">45.209 s</td><td class="mono">A2 A3 C♯4 E4</td><td class="exp"><span class="mono">A</span> en D majeur = <b>A</b></td><td class="app">A · ♭VII · B mineur</td></tr>
+<tr><td>Queen — I Want It All</td><td class="num">45.209 s</td><td class="mono">A2 A3 C♯4 E4</td><td class="exp"><span class="mono">A</span> en D majeur = <b>A</b></td><td class="app">A · VII · B mineur</td></tr>
 <tr><td>The Beatles — I'll Be Back</td><td class="num">7.0536 s</td><td class="mono">G2 G3 B3 D4</td><td class="exp"><span class="mono">G</span> en A mineur = <b>G</b></td><td class="app">G · ♭VII · A majeur</td></tr>
 <tr><td>The Beatles — I'm Happy Just To Dance With You</td><td class="num">87.7778 s</td><td class="mono">G♯2 B3 D♯4 G♯4</td><td class="exp"><span class="mono">G#:min</span> en E majeur = <b>G♯m</b></td><td class="app">G♯m · Vm · C♯ mineur</td></tr>
 </table></div></details>
@@ -3030,6 +3036,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
+<tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -3043,14 +3050,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>01 Gute Nacht</td><td class="num">m2 t2.5</td><td class="mono">D3 G3 B♭3 D♭4 F4</td><td class="exp"><span class="mono">viio43</span> en D mineur = <b>D♭dim7/G</b></td><td class="app">Gm7 · IVm7 · D mineur</td></tr>
 <tr><td>03 Gefror’ne Thränen</td><td class="num">m43 t1</td><td class="mono">A♭3 F4 C5</td><td class="exp"><span class="mono">I</span> en A♭ majeur = <b>A♭</b></td><td class="app">Fm/A♭ · VIm · A♭ majeur</td></tr>
-<tr><td>05 Der Lindenbaum</td><td class="num">m6 t1</td><td class="mono">A2 F♯4</td><td class="exp"><span class="mono">ii6</span> en E majeur = <b>F♯m/A</b></td><td class="app">DM7/A · ♭VIM7 · F♯ mineur</td></tr>
-<tr><td>07 Auf dem Flusse</td><td class="num">m6 t1</td><td class="mono">B3 B4</td><td class="exp"><span class="mono">V54</span> en E mineur = <b>B</b></td><td class="app">G6(9) · ♭III6(9) · E mineur</td></tr>
+<tr><td>05 Der Lindenbaum</td><td class="num">m6 t1</td><td class="mono">A2 F♯4</td><td class="exp"><span class="mono">ii6</span> en E majeur = <b>F♯m/A</b></td><td class="app">DM7/A · VIM7 · F♯ mineur</td></tr>
+<tr><td>07 Auf dem Flusse</td><td class="num">m6 t1</td><td class="mono">B3 B4</td><td class="exp"><span class="mono">V54</span> en E mineur = <b>B</b></td><td class="app">G6(9) · III6(9) · E mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>08 Rückblick</td><td class="num">m13 t2.5</td><td class="mono">A2 G3 A3 E4 A4 D♭5 D5</td><td class="exp"><span class="mono">V7</span> en D mineur = <b>A7</b></td><td class="app">Gm/A · Im · G mineur</td></tr>
 <tr><td>11 Frühlingstraum</td><td class="num">m49 t1</td><td class="mono">A3 C♯4 E4</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">F♯m7 · VIm7 · A majeur</td></tr>
-<tr><td>15 Die Kraehe</td><td class="num">m31 t1.5</td><td class="mono">F3 C4 D5 D6</td><td class="exp"><span class="mono">iiø65[no5]</span> en C mineur = <b>Dm7♭5/F</b></td><td class="app">Dm7/F · VIm7 · F mineur</td></tr>
+<tr><td>15 Die Kraehe</td><td class="num">m31 t1.5</td><td class="mono">F3 C4 D5 D6</td><td class="exp"><span class="mono">iiø65[no5]</span> en C mineur = <b>Dm7♭5/F</b></td><td class="app">Dm7/F · ♯VIm7 · F mineur</td></tr>
 <tr><td>17 Im Dorfe</td><td class="num">m41 t1</td><td class="mono">A2 F3 D4 F4</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">Dm/A · Im · D majeur</td></tr>
 </table></div></details>
 </div>
@@ -3062,7 +3069,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>02 Die Wetterfahne</td><td class="num">m0 t2.5</td><td class="mono">A3 A4</td><td class="exp"><span class="mono">i64</span> en A mineur = <b>Am/E</b></td><td class="app">A1+8 · I · A mineur</td></tr>
 <tr><td>03 Gefror’ne Thränen</td><td class="num">m6 t2</td><td class="mono">B♭2 B♭3</td><td class="exp"><span class="mono">iio</span> en A♭ majeur = <b>B♭dim</b></td><td class="app">B♭1+8 · IV · F mineur</td></tr>
-<tr><td>04 Erstarrung</td><td class="num">m18 t1</td><td class="mono">B2 D4 D5</td><td class="exp"><span class="mono">viio7</span> en C mineur = <b>Bdim7</b></td><td class="app">A♭dim/B · ♯Vdim · C mineur</td></tr>
+<tr><td>04 Erstarrung</td><td class="num">m18 t1</td><td class="mono">B2 D4 D5</td><td class="exp"><span class="mono">viio7</span> en C mineur = <b>Bdim7</b></td><td class="app">A♭dim/B · VIdim · C mineur</td></tr>
 <tr><td>04 Erstarrung</td><td class="num">m81 t2</td><td class="mono">D3 D4</td><td class="exp"><span class="mono">viiø7</span> en E♭ majeur = <b>Dm7♭5</b></td><td class="app">D1+8 · VII · E♭ majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
@@ -3137,14 +3144,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>02 Die Wetterfahne</td><td class="num">m8 t2</td><td class="mono">F4 F5</td><td class="exp"><span class="mono">It</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">E1+8 · V · A mineur</td></tr>
-<tr><td>02 Die Wetterfahne</td><td class="num">m27 t2</td><td class="mono">F3 F4 F5</td><td class="exp"><span class="mono">It</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">F1+8 · ♭VI · A mineur</td></tr>
+<tr><td>02 Die Wetterfahne</td><td class="num">m27 t2</td><td class="mono">F3 F4 F5</td><td class="exp"><span class="mono">It</span> en A mineur = <b>sixte italienne (F A E♭)</b></td><td class="app">F1+8 · VI · A mineur</td></tr>
 <tr><td>03 Gefror’ne Thränen</td><td class="num">m22 t2</td><td class="mono">D♭2 D♭3</td><td class="exp"><span class="mono">It6</span> en F mineur = <b>sixte italienne (D♭ F B)</b></td><td class="app">D♭1+8 · IV · A♭ majeur</td></tr>
 <tr><td>12 Einsamkeit (Urspruengliche Fassung)</td><td class="num">m34 t1.5</td><td class="mono">B1 B2 B4</td><td class="exp"><span class="mono">Ger65</span> en B mineur = <b>sixte allemande (G B D F)</b></td><td class="app">Bm · IIIm · G majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>16 Letzte Hoffnung</td><td class="num">m21 t1</td><td class="mono">B4</td><td class="exp"><span class="mono">Fr6</span> en E♭ mineur = <b>sixte française (B E♭ F A)</b></td><td class="app">BM7(9) · ♭VIM7(9) · E♭ mineur</td></tr>
-<tr><td>16 Letzte Hoffnung</td><td class="num">m22 t1.5</td><td class="mono">B3 E♭4 A4 D5 F5</td><td class="exp"><span class="mono">Fr43</span> en E♭ mineur = <b>sixte française (B E♭ F A)</b></td><td class="app">Bm7♭5 · ♯Vm7♭5 · E♭ mineur</td></tr>
+<tr><td>16 Letzte Hoffnung</td><td class="num">m21 t1</td><td class="mono">B4</td><td class="exp"><span class="mono">Fr6</span> en E♭ mineur = <b>sixte française (B E♭ F A)</b></td><td class="app">BM7(9) · VIM7(9) · E♭ mineur</td></tr>
+<tr><td>16 Letzte Hoffnung</td><td class="num">m22 t1.5</td><td class="mono">B3 E♭4 A4 D5 F5</td><td class="exp"><span class="mono">Fr43</span> en E♭ mineur = <b>sixte française (B E♭ F A)</b></td><td class="app">Bm7♭5 · VIm7♭5 · E♭ mineur</td></tr>
 <tr><td>16 Letzte Hoffnung</td><td class="num">m23 t2.5</td><td class="mono">B3 E♭4 F5</td><td class="exp"><span class="mono">Fr43</span> en E♭ mineur = <b>sixte française (B E♭ F A)</b></td><td class="app">B7 · SubV7/V · E♭ mineur</td></tr>
 <tr><td>17 Im Dorfe</td><td class="num">m42 t4</td><td class="mono">A♯2 D3 F3 G♯3 D4 G♯4</td><td class="exp"><span class="mono">It6</span> en D majeur = <b>sixte italienne (A♯ D G♯)</b></td><td class="app">B♭7 · V7/IV · B♭ majeur</td></tr>
 </table></div></details>
@@ -3159,8 +3166,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">L'expert note une septième que l'application ne lit pas (souvent une septième de passage, ou absente au moment observé).</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>01 Gute Nacht</td><td class="num">m15 t2</td><td class="mono">E3 G3 G4 C5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">C · ♭VII · D mineur</td></tr>
-<tr><td>04 Erstarrung</td><td class="num">m41 t4</td><td class="mono">F2 D3 D4 A♭4</td><td class="exp"><span class="mono">iiø65</span> en C mineur = <b>Dm7♭5/F</b></td><td class="app">Ddim/F · VIdim · F mineur</td></tr>
+<tr><td>01 Gute Nacht</td><td class="num">m15 t2</td><td class="mono">E3 G3 G4 C5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">C · VII · D mineur</td></tr>
+<tr><td>04 Erstarrung</td><td class="num">m41 t4</td><td class="mono">F2 D3 D4 A♭4</td><td class="exp"><span class="mono">iiø65</span> en C mineur = <b>Dm7♭5/F</b></td><td class="app">Ddim/F · ♯VIdim · F mineur</td></tr>
 <tr><td>05 Der Lindenbaum</td><td class="num">m65 t1</td><td class="mono">B2 A3 F♯4 A4</td><td class="exp"><span class="mono">V7</span> en E majeur = <b>B7</b></td><td class="app">B · V · E majeur</td></tr>
 <tr><td>08 Rückblick</td><td class="num">m19 t1</td><td class="mono">E3 A♭3 D4 A♭4 D5</td><td class="exp"><span class="mono">V7/v</span> en D mineur = <b>E7</b></td><td class="app">E · V/V · D mineur</td></tr>
 </table></div>
@@ -3201,10 +3208,10 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">L'expert a changé de tonalité il y a moins de 4 temps ; l'application est encore dans l'ancienne.</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>01 Gute Nacht</td><td class="num">m15 t2</td><td class="mono">E3 G3 G4 C5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">C · ♭VII · D mineur</td></tr>
+<tr><td>01 Gute Nacht</td><td class="num">m15 t2</td><td class="mono">E3 G3 G4 C5</td><td class="exp"><span class="mono">V7</span> en F majeur = <b>C7</b></td><td class="app">C · VII · D mineur</td></tr>
 <tr><td>01 Gute Nacht</td><td class="num">m99 t1</td><td class="mono">A2 F3 A3 A4 D5 A5</td><td class="exp"><span class="mono">i64</span> en D mineur = <b>Dm/A</b></td><td class="app">Dm/A · Im · D majeur</td></tr>
-<tr><td>03 Gefror’ne Thränen</td><td class="num">m53 t1</td><td class="mono">G3 E♭4 B♭4 D♭5</td><td class="exp"><span class="mono">V65</span> en A♭ majeur = <b>E♭7/G</b></td><td class="app">E♭7/G · ♭VII7 · F mineur</td></tr>
-<tr><td>07 Auf dem Flusse</td><td class="num">m13 t1</td><td class="mono">B2 A3 D♯4 F♯4</td><td class="exp"><span class="mono">V7</span> en E mineur = <b>B7</b></td><td class="app">B · ♭VI · E♭ mineur</td></tr>
+<tr><td>03 Gefror’ne Thränen</td><td class="num">m53 t1</td><td class="mono">G3 E♭4 B♭4 D♭5</td><td class="exp"><span class="mono">V65</span> en A♭ majeur = <b>E♭7/G</b></td><td class="app">E♭7/G · VII7 · F mineur</td></tr>
+<tr><td>07 Auf dem Flusse</td><td class="num">m13 t1</td><td class="mono">B2 A3 D♯4 F♯4</td><td class="exp"><span class="mono">V7</span> en E mineur = <b>B7</b></td><td class="app">B · VI · E♭ mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
@@ -3221,15 +3228,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>01 Gute Nacht</td><td class="num">m27 t1</td><td class="mono">F3 A3 D4 A4 A5</td><td class="exp"><span class="mono">i6</span> en D mineur = <b>Dm/F</b></td><td class="app">Dm · IIIm · B♭ majeur</td></tr>
-<tr><td>03 Gefror’ne Thränen</td><td class="num">m40 t1.5</td><td class="mono">E♭3 E♭4 A♭4 C5</td><td class="exp"><span class="mono">I64</span> en A♭ majeur = <b>A♭/E♭</b></td><td class="app">A♭/E♭ · ♭VII · B♭ mineur</td></tr>
-<tr><td>05 Der Lindenbaum</td><td class="num">m53 t3</td><td class="mono">B1 B4</td><td class="exp"><span class="mono">V</span> en E majeur = <b>B</b></td><td class="app">B · ♭III · G♯ mineur</td></tr>
+<tr><td>03 Gefror’ne Thränen</td><td class="num">m40 t1.5</td><td class="mono">E♭3 E♭4 A♭4 C5</td><td class="exp"><span class="mono">I64</span> en A♭ majeur = <b>A♭/E♭</b></td><td class="app">A♭/E♭ · VII · B♭ mineur</td></tr>
+<tr><td>05 Der Lindenbaum</td><td class="num">m53 t3</td><td class="mono">B1 B4</td><td class="exp"><span class="mono">V</span> en E majeur = <b>B</b></td><td class="app">B · III · G♯ mineur</td></tr>
 <tr><td>12 Einsamkeit (Urspruengliche Fassung)</td><td class="num">m45 t2.5</td><td class="mono">F♯1 F♯2 E3 F♯3 C♯4 A♯4</td><td class="exp"><span class="mono">V7</span> en B mineur = <b>F♯7</b></td><td class="app">F♯7 · V7/III · G majeur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>16 Letzte Hoffnung</td><td class="num">m44 t1</td><td class="mono">B♭3 D♭4 B♭4 D♭5</td><td class="exp"><span class="mono">V7/iv</span> en E♭ majeur = <b>E♭7</b></td><td class="app">A♯dim · IIdim · G♯ mineur</td></tr>
 <tr><td>17 Im Dorfe</td><td class="num">m38 t1</td><td class="mono">A2 D3 F♯3 A3 D4 A4</td><td class="exp"><span class="mono">I64</span> en D majeur = <b>D/A</b></td><td class="app">D · V · G mineur</td></tr>
-<tr><td>19 Täuschung</td><td class="num">m29 t1</td><td class="mono">E3 G♯3 B3 E4 B4 E5</td><td class="exp"><span class="mono">V</span> en A majeur = <b>E</b></td><td class="app">E · ♭VI · G♯ mineur</td></tr>
+<tr><td>19 Täuschung</td><td class="num">m29 t1</td><td class="mono">E3 G♯3 B3 E4 B4 E5</td><td class="exp"><span class="mono">V</span> en A majeur = <b>E</b></td><td class="app">E · VI · G♯ mineur</td></tr>
 <tr><td>20 Der Wegweiser</td><td class="num">m79 t2</td><td class="mono">E♭2 B♭3 G4</td><td class="exp"><span class="mono">VI</span> en G mineur = <b>E♭</b></td><td class="app">E♭ · I · E♭ majeur</td></tr>
 </table></div></details>
 </div>
@@ -3266,8 +3273,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
 <tr><td>12 Einsamkeit (Urspruengliche Fassung)</td><td class="num">m33 t2.5</td><td class="mono">F♯1 F♯2 E3 F♯3 C♯4 A♯4</td><td class="exp"><span class="mono">V7</span> en B mineur = <b>F♯7</b></td><td class="app">F♯7 · V7/III · G majeur</td></tr>
-<tr><td>13 Die Post</td><td class="num">m29 t2.6667</td><td class="mono">C3 E♭4 G♭4 B♭4</td><td class="exp"><span class="mono">viiø7</span> en D♭ majeur = <b>Cm7♭5</b></td><td class="app">Cm7♭5 · VIm7♭5 · E♭ mineur</td></tr>
-<tr><td>15 Die Kraehe</td><td class="num">m20 t2</td><td class="mono">F4 A4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">F · ♭VI · A mineur</td></tr>
+<tr><td>13 Die Post</td><td class="num">m29 t2.6667</td><td class="mono">C3 E♭4 G♭4 B♭4</td><td class="exp"><span class="mono">viiø7</span> en D♭ majeur = <b>Cm7♭5</b></td><td class="app">Cm7♭5 · ♯VIm7♭5 · E♭ mineur</td></tr>
+<tr><td>15 Die Kraehe</td><td class="num">m20 t2</td><td class="mono">F4 A4</td><td class="exp"><span class="mono">I</span> en F majeur = <b>F</b></td><td class="app">F · VI · A mineur</td></tr>
 <tr><td>20 Der Wegweiser</td><td class="num">m14 t1</td><td class="mono">C3 E4 B♭4</td><td class="exp"><span class="mono">V</span> en F mineur = <b>C</b></td><td class="app">C · V/V · B♭ mineur</td></tr>
 </table></div></details>
 </div>
@@ -3277,14 +3284,14 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <p class="muted">Même armure (C majeur / A mineur).</p>
 <div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>01 Gute Nacht</td><td class="num">m17 t2.5</td><td class="mono">A2 F4 A4 C5</td><td class="exp"><span class="mono">I6</span> en F majeur = <b>F/A</b></td><td class="app">F/A · ♭III · D mineur</td></tr>
+<tr><td>01 Gute Nacht</td><td class="num">m17 t2.5</td><td class="mono">A2 F4 A4 C5</td><td class="exp"><span class="mono">I6</span> en F majeur = <b>F/A</b></td><td class="app">F/A · III · D mineur</td></tr>
 <tr><td>03 Gefror’ne Thränen</td><td class="num">m14 t1.5</td><td class="mono">E♭3 D♭4 E♭4 B♭4</td><td class="exp"><span class="mono">V7</span> en A♭ majeur = <b>E♭7</b></td><td class="app">aucun accord · F mineur</td></tr>
-<tr><td>04 Erstarrung</td><td class="num">m22 t1</td><td class="mono">A♭2 E♭4 C5</td><td class="exp"><span class="mono">IV</span> en E♭ majeur = <b>A♭</b></td><td class="app">A♭ · ♭VI · C mineur</td></tr>
-<tr><td>04 Erstarrung</td><td class="num">m79 t3</td><td class="mono">B♭2 E♭4 G4</td><td class="exp"><span class="mono">I64</span> en E♭ majeur = <b>E♭/B♭</b></td><td class="app">E♭/B♭ · ♭III · C mineur</td></tr>
+<tr><td>04 Erstarrung</td><td class="num">m22 t1</td><td class="mono">A♭2 E♭4 C5</td><td class="exp"><span class="mono">IV</span> en E♭ majeur = <b>A♭</b></td><td class="app">A♭ · VI · C mineur</td></tr>
+<tr><td>04 Erstarrung</td><td class="num">m79 t3</td><td class="mono">B♭2 E♭4 G4</td><td class="exp"><span class="mono">I64</span> en E♭ majeur = <b>E♭/B♭</b></td><td class="app">E♭/B♭ · III · C mineur</td></tr>
 </table></div>
 <details><summary>4 autres exemples</summary><div class="scroll"><table>
 <tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
-<tr><td>11 Frühlingstraum</td><td class="num">m3 t2</td><td class="mono">E3 D4 G♯5</td><td class="exp"><span class="mono">V7</span> en A majeur = <b>E7</b></td><td class="app">E7 · ♭VII7 · F♯ mineur</td></tr>
+<tr><td>11 Frühlingstraum</td><td class="num">m3 t2</td><td class="mono">E3 D4 G♯5</td><td class="exp"><span class="mono">V7</span> en A majeur = <b>E7</b></td><td class="app">E7 · VII7 · F♯ mineur</td></tr>
 <tr><td>15 Die Kraehe</td><td class="num">m14 t2.5</td><td class="mono">C5</td><td class="exp"><span class="mono">IV</span> en E♭ majeur = <b>A♭</b></td><td class="app">Cm7 · Im7 · C mineur</td></tr>
 <tr><td>19 Täuschung</td><td class="num">m4 t1</td><td class="mono">F♯2 F♯4 F♯5</td><td class="exp"><span class="mono">vi</span> en A majeur = <b>F♯m</b></td><td class="app">F♯m · Im · F♯ mineur</td></tr>
 <tr><td>23 Die Nebensonnen</td><td class="num">m12 t2</td><td class="mono">F♯2 C♯3 F♯3 A3 A4</td><td class="exp"><span class="mono">vi</span> en A majeur = <b>F♯m</b></td><td class="app">F♯m · Im · F♯ mineur</td></tr>
