@@ -84,7 +84,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <main class="page">
 <header style="display:flex;flex-direction:column;gap:10px">
 <h1>Banc d'essai Harmonie</h1>
-<div class="meta"><span>6 novembre 2026 à 14:53</span><span>moteur au commit <span class="mono">8a927f2</span></span><span>calcul : 53 s</span></div>
+<div class="meta"><span>6 novembre 2026 à 16:17</span><span>moteur au commit <span class="mono">6b214a3</span></span><span>calcul : 88 s</span></div>
 <p class="lead">Des morceaux analysés par des experts sont rejoués dans le moteur d'Harmonie, note par note, comme si on les jouait en direct. Pour chaque accord noté par l'expert, on compare ce que l'application affiche à ce que l'expert a écrit.</p>
 </header>
 <section>
@@ -112,11 +112,11 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Corpus</th><th class="n">Enchaînements</th><th class="n">Théorie : 1re</th><th class="n">Théorie : 4 premières</th><th class="n">Corpus : 1re</th><th class="n">Corpus : 4 premières</th></tr>
 <tr><td>Chorals de Bach</td><td class="n">15 935</td><td class="n">41,7 %</td><td class="n">68,3 %</td><td class="n up">44,0 %</td><td class="n up">84,0 %</td></tr>
 <tr><td>Sonates pour piano de Mozart</td><td class="n">12 955</td><td class="n">46,5 %</td><td class="n">70,3 %</td><td class="n up">50,7 %</td><td class="n up">82,0 %</td></tr>
-<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,5 %</td><td class="n up">77,1 %</td></tr>
+<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,4 %</td><td class="n up">77,3 %</td></tr>
 <tr><td>Clavier bien tempéré I, préludes</td><td class="n">1 832</td><td class="n">34,8 %</td><td class="n">57,2 %</td><td class="n up">35,5 %</td><td class="n up">70,4 %</td></tr>
 <tr><td>Rock et pop : corpus RS 200</td><td class="n">17 779</td><td class="n">79,7 %</td><td class="n">95,7 %</td><td class="n">79,6 %</td><td class="n up">96,2 %</td></tr>
 <tr><td>Pop : Beatles, Queen, Carole King…</td><td class="n">16 535</td><td class="n">65,7 %</td><td class="n">86,7 %</td><td class="n">65,7 %</td><td class="n up">88,1 %</td></tr>
-<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,7 %</td><td class="n up">80,2 %</td></tr>
+<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,7 %</td><td class="n up">80,0 %</td></tr>
 </table></div>
 </div>
 </section>
@@ -268,8 +268,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <h3>Évolution</h3>
 <div class="scroll"><table>
 <tr><th>Date</th><th>Commit</th><th class="n">Accord</th><th class="n">Exact</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
-<tr><td>2026-11-06 07:43</td><td class="mono">9fc0f7b</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">56,7 %</td><td class="n">52,9 %</td></tr>
-<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">91,5 % <span class="down">−0,2</span></td><td class="n">89,4 % <span class="down">−0,2</span></td><td class="n">61,5 % <span class="up">+4,7</span></td><td class="n">57,2 % <span class="up">+4,3</span></td></tr>
+<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">91,5 %</td><td class="n">89,4 %</td><td class="n">61,5 %</td><td class="n">57,2 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">91,7 % <span class="up">+0,2</span></td><td class="n">89,6 % <span class="up">+0,2</span></td><td class="n">58,3 % <span class="down">−3,2</span></td><td class="n">54,2 % <span class="down">−3,0</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
@@ -278,6 +277,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">91,7 %</td><td class="n">90,9 % <span class="up">+1,4</span></td><td class="n">58,4 % <span class="up">+0,1</span></td><td class="n">54,3 % <span class="up">+0,1</span></td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">91,7 %</td><td class="n">90,9 %</td><td class="n">58,4 %</td><td class="n">54,3 %</td></tr>
 <tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">91,7 %</td><td class="n">90,9 %</td><td class="n">58,4 %</td><td class="n">54,3 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">91,7 %</td><td class="n">90,9 %</td><td class="n">58,4 %</td><td class="n">54,3 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -957,8 +957,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <h3>Évolution</h3>
 <div class="scroll"><table>
 <tr><th>Date</th><th>Commit</th><th class="n">Accord</th><th class="n">Exact</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
-<tr><td>2026-11-06 07:43</td><td class="mono">9fc0f7b</td><td class="n">58,3 %</td><td class="n">47,8 %</td><td class="n">75,0 %</td><td class="n">45,5 %</td></tr>
-<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">58,1 % <span class="down">−0,2</span></td><td class="n">47,7 % <span class="down">−0,1</span></td><td class="n">71,7 % <span class="down">−3,3</span></td><td class="n">44,0 % <span class="down">−1,5</span></td></tr>
+<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">58,1 %</td><td class="n">47,7 %</td><td class="n">71,7 %</td><td class="n">44,0 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 % <span class="down">−0,1</span></td><td class="n">43,8 % <span class="down">−0,2</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
@@ -967,6 +966,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1351,8 +1351,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <h3>Évolution</h3>
 <div class="scroll"><table>
 <tr><th>Date</th><th>Commit</th><th class="n">Accord</th><th class="n">Exact</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
-<tr><td>2026-11-06 07:43</td><td class="mono">9fc0f7b</td><td class="n">95,7 %</td><td class="n">92,7 %</td><td class="n">50,1 %</td><td class="n">48,0 %</td></tr>
-<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">95,4 % <span class="down">−0,3</span></td><td class="n">92,4 % <span class="down">−0,3</span></td><td class="n">53,5 % <span class="up">+3,4</span></td><td class="n">51,6 % <span class="up">+3,6</span></td></tr>
+<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">53,5 %</td><td class="n">51,6 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 % <span class="up">+0,7</span></td><td class="n">52,3 % <span class="up">+0,7</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
@@ -1361,6 +1360,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">95,4 %</td><td class="n">93,9 % <span class="up">+1,5</span></td><td class="n">54,4 % <span class="up">+0,2</span></td><td class="n">52,5 % <span class="up">+0,2</span></td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">95,4 %</td><td class="n">93,9 %</td><td class="n">54,4 %</td><td class="n">52,5 %</td></tr>
 <tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">95,4 %</td><td class="n">93,9 %</td><td class="n">54,4 %</td><td class="n">52,5 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">95,4 %</td><td class="n">93,9 %</td><td class="n">54,4 %</td><td class="n">52,5 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1829,8 +1829,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <h3>Évolution</h3>
 <div class="scroll"><table>
 <tr><th>Date</th><th>Commit</th><th class="n">Accord</th><th class="n">Exact</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
-<tr><td>2026-11-06 07:43</td><td class="mono">9fc0f7b</td><td class="n">55,4 %</td><td class="n">41,1 %</td><td class="n">65,9 %</td><td class="n">37,2 %</td></tr>
-<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">55,1 % <span class="down">−0,4</span></td><td class="n">40,9 % <span class="down">−0,2</span></td><td class="n">69,5 % <span class="up">+3,6</span></td><td class="n">39,4 % <span class="up">+2,2</span></td></tr>
+<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">55,1 %</td><td class="n">40,9 %</td><td class="n">69,5 %</td><td class="n">39,4 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">55,2 % <span class="up">+0,1</span></td><td class="n">41,1 % <span class="up">+0,3</span></td><td class="n">68,3 % <span class="down">−1,2</span></td><td class="n">38,9 % <span class="down">−0,5</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
@@ -1839,6 +1838,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">55,2 %</td><td class="n">41,6 % <span class="up">+0,5</span></td><td class="n">68,2 % <span class="down">−0,1</span></td><td class="n">38,6 % <span class="down">−0,2</span></td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">55,2 %</td><td class="n">41,6 %</td><td class="n">68,2 %</td><td class="n">38,6 %</td></tr>
 <tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">55,2 %</td><td class="n">41,6 %</td><td class="n">68,2 %</td><td class="n">38,6 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">55,2 %</td><td class="n">41,6 %</td><td class="n">68,2 %</td><td class="n">38,6 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2166,7 +2166,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
-<tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
+<tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2544,6 +2545,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 <tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -3039,8 +3041,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <h3>Évolution</h3>
 <div class="scroll"><table>
 <tr><th>Date</th><th>Commit</th><th class="n">Accord</th><th class="n">Exact</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
-<tr><td>2026-11-06 07:43</td><td class="mono">9fc0f7b</td><td class="n">72,7 %</td><td class="n">66,7 %</td><td class="n">65,2 %</td><td class="n">47,1 %</td></tr>
-<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">72,4 % <span class="down">−0,4</span></td><td class="n">66,3 % <span class="down">−0,5</span></td><td class="n">69,6 % <span class="up">+4,4</span></td><td class="n">51,1 % <span class="up">+3,9</span></td></tr>
+<tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">72,4 %</td><td class="n">66,3 %</td><td class="n">69,6 %</td><td class="n">51,1 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">72,5 % <span class="up">+0,1</span></td><td class="n">66,4 % <span class="up">+0,1</span></td><td class="n">67,2 % <span class="down">−2,4</span></td><td class="n">49,0 % <span class="down">−2,1</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
@@ -3048,7 +3049,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 12:29</td><td class="mono">0a8c7f4</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 13:34</td><td class="mono">016407f</td><td class="n">72,3 % <span class="down">−0,1</span></td><td class="n">66,4 %</td><td class="n">67,3 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 14:02</td><td class="mono">635ee27</td><td class="n">72,3 %</td><td class="n">66,4 %</td><td class="n">67,3 %</td><td class="n">49,0 %</td></tr>
-<tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">72,3 %</td><td class="n">66,3 %</td><td class="n">67,3 %</td><td class="n">49,0 %</td></tr>
+<tr><td>2026-11-06 14:53</td><td class="mono">8a927f2</td><td class="n">72,3 %</td><td class="n">66,4 %</td><td class="n">67,3 %</td><td class="n">49,0 %</td></tr>
+<tr><td>2026-11-06 16:17</td><td class="mono">6b214a3</td><td class="n">72,3 %</td><td class="n">66,3 %</td><td class="n">67,3 %</td><td class="n">49,0 %</td></tr>
 </table></div>
 </div>
 <div class="card">
