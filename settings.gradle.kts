@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "harmonie"
 
-include(":engine", ":desktop")
+include(":engine", ":desktop", ":bench")

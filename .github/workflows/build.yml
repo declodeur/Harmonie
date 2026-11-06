@@ -3,6 +3,10 @@ name: Compilation Windows
 on:
   push:
     branches: [ main ]
+    # Le banc d'essai a son propre workflow : inutile de recompiler l'application pour lui seul
+    paths-ignore:
+      - 'bench/**'
+      - '.github/workflows/bench.yml'
   workflow_dispatch:
 
 permissions:

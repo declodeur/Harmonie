@@ -1,0 +1,55 @@
+name: Banc d'essai
+
+# Rejoue les morceaux annotés par des experts dans le moteur et publie le rapport.
+# Lancé quand le moteur ou le banc changent, ou à la demande (bouton « Run workflow »).
+# Ne bloque jamais la compilation de l'application (workflow séparé).
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'engine/src/main/**'
+      - 'bench/**'
+      - '.github/workflows/bench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bench
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Résultats précédents (historique des scores), sur la branche bench-results
+      - name: Résultats précédents
+        run: |
+          if git ls-remote --exit-code --heads origin bench-results; then
+            git clone --depth 1 --branch bench-results "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" results
+          else
+            mkdir results && cd results && git init -b bench-results
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Banc d'essai
+        run: ./gradlew --no-daemon --console=plain :bench:run --args="bench/data results results/history.tsv"
+
+      - name: Publication du rapport
+        run: |
+          cd results
+          touch .nojekyll
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Banc d'essai pour ${GITHUB_SHA::7}"
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:bench-results

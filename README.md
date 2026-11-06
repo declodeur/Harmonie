@@ -32,10 +32,24 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Gamme de l'accord (étape 5a) : gamme conseillée selon le type, la fonction et la résolution (dorien sur IIm7, phrygien sur IIIm7, mixolydien ♭9 ♭13 sur une dominante vers un accord mineur, lydien ♭7 sur une substitution tritonique, altérée sur 7(♯9)…), notes à éviter, tensions disponibles, variantes (pentatoniques en pop / rock) ; repères de la gamme sur le clavier (option) ; notes de mélodie classées (note de l'accord, tension, à éviter, chromatique).
 - Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
+## Banc d'essai
+
+Le moteur est mesuré sur de la vraie musique analysée par des experts : 363 chorals de Bach du corpus
+[When in Rome](https://github.com/MarkGotham/When-in-Rome) (100 d'entre eux avec une seconde analyse, pour mesurer
+l'accord entre experts). Chaque choral est rejoué dans le moteur comme en direct, puis l'accord, la tonalité et le
+chiffrage affichés sont comparés à ceux de l'expert.
+
+- Lancé automatiquement quand le moteur change, ou à la demande (onglet Actions, « Banc d'essai », *Run workflow*) ;
+  il ne bloque jamais la compilation.
+- Rapport et historique des scores : branche `bench-results`.
+- En local : `./gradlew :bench:run --args="bench/data bench/build/report"`.
+- Données : `bench/data` (CC BY-SA 4.0, voir son README), converties par `bench/tools/convert_when_in_rome.py`.
+
 ## Organisation
 
 - `engine/` : moteur d'analyse en Kotlin pur (aucune dépendance à Windows ou Android), avec ses tests.
 - `desktop/` : application Windows (Compose Multiplatform, API MIDI de Java).
+- `bench/` : banc d'essai (données annotées, convertisseur, comparaison et rapport).
 - Compilation automatique par GitHub Actions à chaque push sur `main` : tests, puis zip portable publié dans Releases (tag `build-N`).
 
 ## Feuille de route
