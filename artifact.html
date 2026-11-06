@@ -77,21 +77,21 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <main class="page">
 <header style="display:flex;flex-direction:column;gap:10px">
 <h1>Banc d'essai Harmonie</h1>
-<div class="meta"><span>6 novembre 2026 à 11:03</span><span>moteur au commit <span class="mono">4d1de81</span></span><span>calcul : 71 s</span></div>
+<div class="meta"><span>6 novembre 2026 à 11:53</span><span>moteur au commit <span class="mono">6fd072f</span></span><span>calcul : 82 s</span></div>
 <p class="lead">Des morceaux analysés par des experts sont rejoués dans le moteur d'Harmonie, note par note, comme si on les jouait en direct. Pour chaque accord noté par l'expert, on compare ce que l'application affiche à ce que l'expert a écrit.</p>
 </header>
 <section>
 <h2>Vue d'ensemble</h2>
 <div class="card">
 <div class="scroll"><table>
-<tr><th>Corpus</th><th class="n">Morceaux</th><th class="n">Accords</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
-<tr><td><a href="#bach-chorales">Chorals de Bach</a></td><td class="n">364</td><td class="n">20 619</td><td class="n">91,7 %<span class="ref exp">experts 96,9 %</span></td><td class="n">89,6 %</td><td class="n">58,3 %<span class="ref exp">experts 92,8 %</span></td><td class="n">83,1 %</td><td class="n">54,2 %<span class="ref exp">experts 91,3 %</span></td><td class="n">×1,3<span class="ref">2 592 contre 1 943</span></td></tr>
-<tr><td><a href="#mozart-sonatas">Sonates pour piano de Mozart</a></td><td class="n">54</td><td class="n">14 966</td><td class="n">58,1 %<span class="ref exp">experts 89,3 %</span><span class="ref" style="color:var(--soft)">logiciel 78,1 %</span></td><td class="n">47,6 %</td><td class="n">71,6 %<span class="ref exp">experts 93,7 %</span><span class="ref" style="color:var(--soft)">logiciel 91,3 %</span></td><td class="n">74,8 %</td><td class="n">43,8 %<span class="ref exp">experts 84,2 %</span><span class="ref" style="color:var(--soft)">logiciel 72,2 %</span></td><td class="n">×10,5<span class="ref">3 104 contre 296</span></td></tr>
-<tr><td><a href="#textbooks">Exemples de manuels d'harmonie</a></td><td class="n">194</td><td class="n">1 430</td><td class="n">95,4 %<span class="ref" style="color:var(--soft)">logiciel 94,1 %</span></td><td class="n">92,4 %</td><td class="n">54,2 %<span class="ref" style="color:var(--soft)">logiciel 60,4 %</span></td><td class="n">70,9 %</td><td class="n">52,3 %<span class="ref" style="color:var(--soft)">logiciel 57,4 %</span></td><td class="n">×1,4<span class="ref">499 contre 345</span></td></tr>
-<tr><td><a href="#bach-wtc1">Clavier bien tempéré I, préludes</a></td><td class="n">24</td><td class="n">2 154</td><td class="n">55,2 %<span class="ref" style="color:var(--soft)">logiciel 70,0 %</span></td><td class="n">41,1 %</td><td class="n">68,3 %<span class="ref" style="color:var(--soft)">logiciel 72,4 %</span></td><td class="n">78,8 %</td><td class="n">38,9 %<span class="ref" style="color:var(--soft)">logiciel 51,5 %</span></td><td class="n">×3,3<span class="ref">582 contre 174</span></td></tr>
-<tr><td><a href="#rock-corpus">Rock et pop : corpus RS 200</a></td><td class="n">195</td><td class="n">18 086</td><td class="n">99,5 %<span class="ref exp">experts 89,8 %</span></td><td class="n">99,5 %</td><td class="n">81,8 %<span class="ref exp">experts 98,2 %</span></td><td class="n">82,3 %</td><td class="n">81,4 %<span class="ref exp">experts 88,3 %</span></td><td class="n">×3,1<span class="ref">350 contre 112</span></td></tr>
-<tr><td><a href="#isophonics">Pop : Beatles, Queen, Carole King…</a></td><td class="n">224</td><td class="n">19 093</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">73,4 %</td><td class="n">70,8 %</td><td class="n">×4,2<span class="ref">917 contre 216</span></td></tr>
-<tr><td><a href="#schubert-winterreise">Schubert, Winterreise</a></td><td class="n">23</td><td class="n">2 618</td><td class="n">72,5 %<span class="ref" style="color:var(--soft)">logiciel 80,3 %</span></td><td class="n">66,4 %</td><td class="n">67,2 %<span class="ref" style="color:var(--soft)">logiciel 84,6 %</span></td><td class="n">80,5 %</td><td class="n">49,0 %<span class="ref" style="color:var(--soft)">logiciel 69,1 %</span></td><td class="n">×2,5<span class="ref">470 contre 185</span></td></tr>
+<tr><th>Corpus</th><th class="n">Morceaux</th><th class="n">Accords</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Tonalité de l'historique</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
+<tr><td><a href="#bach-chorales">Chorals de Bach</a></td><td class="n">364</td><td class="n">20 619</td><td class="n">91,7 %<span class="ref exp">experts 96,9 %</span></td><td class="n">89,6 %</td><td class="n">58,3 %<span class="ref exp">experts 92,8 %</span></td><td class="n">83,1 %</td><td class="n">70,6 %</td><td class="n">54,2 %<span class="ref exp">experts 91,3 %</span></td><td class="n">×1,3<span class="ref">2 592 contre 1 943</span></td></tr>
+<tr><td><a href="#mozart-sonatas">Sonates pour piano de Mozart</a></td><td class="n">54</td><td class="n">14 966</td><td class="n">58,1 %<span class="ref exp">experts 89,3 %</span><span class="ref" style="color:var(--soft)">logiciel 78,1 %</span></td><td class="n">47,6 %</td><td class="n">71,6 %<span class="ref exp">experts 93,7 %</span><span class="ref" style="color:var(--soft)">logiciel 91,3 %</span></td><td class="n">74,8 %</td><td class="n">73,8 %</td><td class="n">43,8 %<span class="ref exp">experts 84,2 %</span><span class="ref" style="color:var(--soft)">logiciel 72,2 %</span></td><td class="n">×10,5<span class="ref">3 104 contre 296</span></td></tr>
+<tr><td><a href="#textbooks">Exemples de manuels d'harmonie</a></td><td class="n">194</td><td class="n">1 430</td><td class="n">95,4 %<span class="ref" style="color:var(--soft)">logiciel 94,1 %</span></td><td class="n">92,4 %</td><td class="n">54,2 %<span class="ref" style="color:var(--soft)">logiciel 60,4 %</span></td><td class="n">70,9 %</td><td class="n">57,3 %</td><td class="n">52,3 %<span class="ref" style="color:var(--soft)">logiciel 57,4 %</span></td><td class="n">×1,4<span class="ref">499 contre 345</span></td></tr>
+<tr><td><a href="#bach-wtc1">Clavier bien tempéré I, préludes</a></td><td class="n">24</td><td class="n">2 154</td><td class="n">55,2 %<span class="ref" style="color:var(--soft)">logiciel 70,0 %</span></td><td class="n">41,1 %</td><td class="n">68,3 %<span class="ref" style="color:var(--soft)">logiciel 72,4 %</span></td><td class="n">78,8 %</td><td class="n">72,6 %</td><td class="n">38,9 %<span class="ref" style="color:var(--soft)">logiciel 51,5 %</span></td><td class="n">×3,3<span class="ref">582 contre 174</span></td></tr>
+<tr><td><a href="#rock-corpus">Rock et pop : corpus RS 200</a></td><td class="n">195</td><td class="n">18 086</td><td class="n">99,5 %<span class="ref exp">experts 89,8 %</span></td><td class="n">99,5 %</td><td class="n">81,8 %<span class="ref exp">experts 98,2 %</span></td><td class="n">82,3 %</td><td class="n">82,4 %</td><td class="n">81,4 %<span class="ref exp">experts 88,3 %</span></td><td class="n">×3,1<span class="ref">350 contre 112</span></td></tr>
+<tr><td><a href="#isophonics">Pop : Beatles, Queen, Carole King…</a></td><td class="n">224</td><td class="n">19 093</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">73,4 %</td><td class="n">73,4 %</td><td class="n">70,8 %</td><td class="n">×4,2<span class="ref">917 contre 216</span></td></tr>
+<tr><td><a href="#schubert-winterreise">Schubert, Winterreise</a></td><td class="n">23</td><td class="n">2 618</td><td class="n">72,5 %<span class="ref" style="color:var(--soft)">logiciel 80,3 %</span></td><td class="n">66,4 %</td><td class="n">67,2 %<span class="ref" style="color:var(--soft)">logiciel 84,6 %</span></td><td class="n">80,5 %</td><td class="n">73,6 %</td><td class="n">49,0 %<span class="ref" style="color:var(--soft)">logiciel 69,1 %</span></td><td class="n">×2,5<span class="ref">470 contre 185</span></td></tr>
 </table></div>
 <p class="muted">Changements de tonalité : combien de fois la tonalité retenue par l'application change, rapporté aux changements notés par l'expert (×1 = autant ; ×3 = trois fois trop). Une tonalité qui hésite d'un accord à l'autre se voit ici même quand son score reste correct.</p>
 <p class="muted">Sous chaque score : l'accord entre deux experts (quand le corpus a un second avis) et l'accord entre l'expert et AugmentedNet, logiciel d'analyse qui lit la partition entière hors ligne (il a été entraîné sur ces corpus, il est donc avantagé). L'application, elle, analyse en direct sans connaître la suite.</p>
@@ -105,11 +105,11 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><th>Corpus</th><th class="n">Enchaînements</th><th class="n">Théorie : 1re</th><th class="n">Théorie : 4 premières</th><th class="n">Corpus : 1re</th><th class="n">Corpus : 4 premières</th></tr>
 <tr><td>Chorals de Bach</td><td class="n">15 935</td><td class="n">41,7 %</td><td class="n">68,3 %</td><td class="n up">44,0 %</td><td class="n up">84,0 %</td></tr>
 <tr><td>Sonates pour piano de Mozart</td><td class="n">12 955</td><td class="n">46,5 %</td><td class="n">70,3 %</td><td class="n up">50,7 %</td><td class="n up">82,0 %</td></tr>
-<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,5 %</td><td class="n up">76,9 %</td></tr>
+<tr><td>Exemples de manuels d'harmonie</td><td class="n">840</td><td class="n">42,4 %</td><td class="n">61,4 %</td><td class="n up">49,5 %</td><td class="n up">77,0 %</td></tr>
 <tr><td>Clavier bien tempéré I, préludes</td><td class="n">1 832</td><td class="n">34,8 %</td><td class="n">57,2 %</td><td class="n up">35,5 %</td><td class="n up">70,4 %</td></tr>
 <tr><td>Rock et pop : corpus RS 200</td><td class="n">17 779</td><td class="n">79,7 %</td><td class="n">95,7 %</td><td class="n">79,6 %</td><td class="n up">96,2 %</td></tr>
 <tr><td>Pop : Beatles, Queen, Carole King…</td><td class="n">16 535</td><td class="n">65,7 %</td><td class="n">86,7 %</td><td class="n">65,7 %</td><td class="n up">88,1 %</td></tr>
-<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,8 %</td><td class="n up">80,2 %</td></tr>
+<tr><td>Schubert, Winterreise</td><td class="n">2 190</td><td class="n">49,0 %</td><td class="n">67,7 %</td><td class="n up">51,7 %</td><td class="n up">80,0 %</td></tr>
 </table></div>
 </div>
 </section>
@@ -120,15 +120,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <header style="display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline"><h3>Moteur de la version 0.8</h3><span class="pill">version-0.8</span></header>
 <p>Contrôle : toutes les règles d'interprétation désactivées, ancien modèle de tonalité (mémoire de 12 s, inertie 3, sans terme tonique), comme avant le banc d'essai. Mesure le chemin parcouru.</p>
 <div class="scroll"><table>
-<tr><th>Corpus</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
-<tr><td>Chorals de Bach</td><td class="delta down">−7,2</td><td class="delta down">−7,1</td><td class="delta down">−5,5</td><td class="delta down">−8,4</td><td class="delta down">−9,3</td><td class="delta up">×1,3 → ×0,7</td></tr>
-<tr><td>Sonates pour piano de Mozart</td><td class="delta down">−13,2</td><td class="delta down">−10,6</td><td class="delta up">+0,5</td><td class="delta up">+1,6</td><td class="delta down">−10,7</td><td class="delta up">×10,5 → ×5,6</td></tr>
-<tr><td>Exemples de manuels d'harmonie</td><td class="delta down">−4,6</td><td class="delta down">−4,6</td><td class="delta down">−6,8</td><td class="delta down">−10,7</td><td class="delta down">−8,4</td><td class="delta down">×1,4 → ×1,5</td></tr>
-<tr><td>Clavier bien tempéré I, préludes</td><td class="delta down">−16,4</td><td class="delta down">−10,5</td><td class="delta down">−11,7</td><td class="delta down">−8,4</td><td class="delta down">−16,5</td><td class="delta up">×3,3 → ×1,7</td></tr>
-<tr><td>Rock et pop : corpus RS 200</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−13,4</td><td class="delta down">−13,5</td><td class="delta down">−13,4</td><td class="delta down">×3,1 → ×6,8</td></tr>
-<tr><td>Pop : Beatles, Queen, Carole King…</td><td class="delta up">+0,2</td><td class="delta up">+0,2</td><td class="delta down">−14,2</td><td class="delta down">−14,1</td><td class="delta down">−13,9</td><td class="delta down">×4,2 → ×7,0</td></tr>
-<tr><td>Schubert, Winterreise</td><td class="delta down">−9,6</td><td class="delta down">−8,3</td><td class="delta down">−10,8</td><td class="delta down">−10,4</td><td class="delta down">−14,0</td><td class="delta up">×2,5 → ×1,5</td></tr>
-<tr><td><b>Ensemble</b></td><td style="font-weight:600" class="delta down">−5,2</td><td style="font-weight:600" class="delta down">−4,5</td><td style="font-weight:600" class="delta down">−8,7</td><td style="font-weight:600" class="delta down">−9,2</td><td style="font-weight:600" class="delta down">−12,0</td><td></td></tr>
+<tr><th>Corpus</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Tonalité de l'historique</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
+<tr><td>Chorals de Bach</td><td class="delta down">−7,2</td><td class="delta down">−7,1</td><td class="delta down">−5,5</td><td class="delta down">−8,4</td><td class="delta down">−11,4</td><td class="delta down">−9,3</td><td class="delta up">×1,3 → ×0,7</td></tr>
+<tr><td>Sonates pour piano de Mozart</td><td class="delta down">−13,2</td><td class="delta down">−10,6</td><td class="delta up">+0,5</td><td class="delta up">+1,6</td><td class="delta up">+1,1</td><td class="delta down">−10,7</td><td class="delta up">×10,5 → ×5,6</td></tr>
+<tr><td>Exemples de manuels d'harmonie</td><td class="delta down">−4,6</td><td class="delta down">−4,6</td><td class="delta down">−6,8</td><td class="delta down">−10,7</td><td class="delta down">−9,7</td><td class="delta down">−8,4</td><td class="delta down">×1,4 → ×1,5</td></tr>
+<tr><td>Clavier bien tempéré I, préludes</td><td class="delta down">−16,4</td><td class="delta down">−10,5</td><td class="delta down">−11,7</td><td class="delta down">−8,4</td><td class="delta down">−11,2</td><td class="delta down">−16,5</td><td class="delta up">×3,3 → ×1,7</td></tr>
+<tr><td>Rock et pop : corpus RS 200</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−13,4</td><td class="delta down">−13,5</td><td class="delta down">−14,0</td><td class="delta down">−13,4</td><td class="delta down">×3,1 → ×6,8</td></tr>
+<tr><td>Pop : Beatles, Queen, Carole King…</td><td class="delta up">+0,2</td><td class="delta up">+0,2</td><td class="delta down">−14,2</td><td class="delta down">−14,1</td><td class="delta down">−14,9</td><td class="delta down">−13,9</td><td class="delta down">×4,2 → ×7,0</td></tr>
+<tr><td>Schubert, Winterreise</td><td class="delta down">−9,6</td><td class="delta down">−8,3</td><td class="delta down">−10,8</td><td class="delta down">−10,4</td><td class="delta down">−11,7</td><td class="delta down">−14,0</td><td class="delta up">×2,5 → ×1,5</td></tr>
+<tr><td><b>Ensemble</b></td><td style="font-weight:600" class="delta down">−5,2</td><td style="font-weight:600" class="delta down">−4,5</td><td style="font-weight:600" class="delta down">−8,7</td><td style="font-weight:600" class="delta down">−9,2</td><td style="font-weight:600" class="delta down">−10,4</td><td style="font-weight:600" class="delta down">−12,0</td><td></td></tr>
 </table></div>
 <p class="muted">Écarts en points de pourcentage ; changements de tonalité : version actuelle → variante, rapportés à l'expert (moins = plus stable).</p>
 <p><b>Accord</b> : 589 accords gagnés, 4 692 perdus.</p>
@@ -182,15 +182,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <header style="display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline"><h3>Modèle de tonalité de la version 0.10</h3><span class="pill">tonalite-0.10</span></header>
 <p>Contrôle : inertie 1, sans maintien dans la gamme, sans arrivées ni premier accord (modèle de la version 0.10).</p>
 <div class="scroll"><table>
-<tr><th>Corpus</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
-<tr><td>Chorals de Bach</td><td class="delta down">−0,2</td><td class="delta down">−0,2</td><td class="delta up">+3,2</td><td class="delta up">+1,5</td><td class="delta up">+3,0</td><td class="delta down">×1,3 → ×1,9</td></tr>
-<tr><td>Sonates pour piano de Mozart</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta up">+0,1</td><td class="delta down">−0,2</td><td class="delta up">+0,2</td><td class="delta down">×10,5 → ×13,2</td></tr>
-<tr><td>Exemples de manuels d'harmonie</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−0,7</td><td class="delta down">−3,0</td><td class="delta down">−0,7</td><td class="delta down">×1,4 → ×1,7</td></tr>
-<tr><td>Clavier bien tempéré I, préludes</td><td class="delta down">−0,1</td><td class="delta down">−0,3</td><td class="delta up">+1,2</td><td class="delta up">+0,4</td><td class="delta up">+0,5</td><td class="delta down">×3,3 → ×4,6</td></tr>
-<tr><td>Rock et pop : corpus RS 200</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−5,7</td><td class="delta down">−5,7</td><td class="delta down">−5,7</td><td class="delta down">×3,1 → ×14,9</td></tr>
-<tr><td>Pop : Beatles, Queen, Carole King…</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−3,9</td><td class="delta down">−3,8</td><td class="delta down">−3,8</td><td class="delta down">×4,2 → ×8,8</td></tr>
-<tr><td>Schubert, Winterreise</td><td class="delta down">−0,1</td><td class="delta down">−0,1</td><td class="delta up">+2,4</td><td class="delta up">+1,8</td><td class="delta up">+2,1</td><td class="delta down">×2,5 → ×3,2</td></tr>
-<tr><td><b>Ensemble</b></td><td style="font-weight:600" class="delta down">−0,1</td><td style="font-weight:600" class="delta down">−0,1</td><td style="font-weight:600" class="delta down">−1,3</td><td style="font-weight:600" class="delta down">−1,8</td><td style="font-weight:600" class="delta down">−1,3</td><td></td></tr>
+<tr><th>Corpus</th><th class="n">Accord</th><th class="n">Accord exact</th><th class="n">Tonalité</th><th class="n">Tonalité, retard toléré</th><th class="n">Tonalité de l'historique</th><th class="n">Chiffrage</th><th class="n">Changements de tonalité</th></tr>
+<tr><td>Chorals de Bach</td><td class="delta down">−0,2</td><td class="delta down">−0,2</td><td class="delta up">+3,2</td><td class="delta up">+1,5</td><td class="delta up">+2,5</td><td class="delta up">+3,0</td><td class="delta down">×1,3 → ×1,9</td></tr>
+<tr><td>Sonates pour piano de Mozart</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta up">+0,1</td><td class="delta down">−0,2</td><td class="delta down">−0,6</td><td class="delta up">+0,2</td><td class="delta down">×10,5 → ×13,2</td></tr>
+<tr><td>Exemples de manuels d'harmonie</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−0,7</td><td class="delta down">−3,0</td><td class="delta down">−1,5</td><td class="delta down">−0,7</td><td class="delta down">×1,4 → ×1,7</td></tr>
+<tr><td>Clavier bien tempéré I, préludes</td><td class="delta down">−0,1</td><td class="delta down">−0,3</td><td class="delta up">+1,2</td><td class="delta up">+0,4</td><td class="delta up">+0,5</td><td class="delta up">+0,5</td><td class="delta down">×3,3 → ×4,6</td></tr>
+<tr><td>Rock et pop : corpus RS 200</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−5,7</td><td class="delta down">−5,7</td><td class="delta down">−5,7</td><td class="delta down">−5,7</td><td class="delta down">×3,1 → ×14,9</td></tr>
+<tr><td>Pop : Beatles, Queen, Carole King…</td><td class="delta muted">=</td><td class="delta muted">=</td><td class="delta down">−3,9</td><td class="delta down">−3,8</td><td class="delta down">−4,1</td><td class="delta down">−3,8</td><td class="delta down">×4,2 → ×8,8</td></tr>
+<tr><td>Schubert, Winterreise</td><td class="delta down">−0,1</td><td class="delta down">−0,1</td><td class="delta up">+2,4</td><td class="delta up">+1,8</td><td class="delta up">+1,1</td><td class="delta up">+2,1</td><td class="delta down">×2,5 → ×3,2</td></tr>
+<tr><td><b>Ensemble</b></td><td style="font-weight:600" class="delta down">−0,1</td><td style="font-weight:600" class="delta down">−0,1</td><td style="font-weight:600" class="delta down">−1,3</td><td style="font-weight:600" class="delta down">−1,8</td><td style="font-weight:600" class="delta down">−1,7</td><td style="font-weight:600" class="delta down">−1,3</td><td></td></tr>
 </table></div>
 <p class="muted">Écarts en points de pourcentage ; changements de tonalité : version actuelle → variante, rapportés à l'expert (moins = plus stable).</p>
 <p><b>Accord</b> : 111 accords gagnés, 154 perdus.</p>
@@ -251,6 +251,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 89,6 %"><div class="fill" style="width:89.55%"></div></div><div class="value">89,6 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 58,3 %"><div class="fill" style="width:58.26%"></div><div class="mark" style="left:92.79%" title="Experts entre eux : 92,8 %"></div></div><div class="value">58,3 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 83,1 %"><div class="fill" style="width:83.06%"></div></div><div class="value">83,1 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 70,6 %"><div class="fill" style="width:70.58%"></div></div><div class="value">70,6 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 54,2 %"><div class="fill" style="width:54.20%"></div><div class="mark" style="left:91.27%" title="Experts entre eux : 91,3 %"></div></div><div class="value">54,2 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch expert"></span>second expert (Bach Chorales Melody-Harmony Corpus (BCMH), 5 337 accords de 98 morceaux)</span></div>
@@ -267,6 +268,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">91,7 % <span class="up">+0,2</span></td><td class="n">89,6 % <span class="up">+0,2</span></td><td class="n">58,3 % <span class="down">−3,2</span></td><td class="n">54,2 % <span class="down">−3,0</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">91,7 %</td><td class="n">89,6 %</td><td class="n">58,3 %</td><td class="n">54,2 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -936,6 +938,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 47,6 %"><div class="fill" style="width:47.64%"></div></div><div class="value">47,6 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 71,6 %"><div class="fill" style="width:71.62%"></div><div class="mark" style="left:93.75%" title="Experts entre eux : 93,7 %"></div><div class="mark soft" style="left:91.31%" title="Logiciel AugmentedNet : 91,3 %"></div></div><div class="value">71,6 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 74,8 %"><div class="fill" style="width:74.79%"></div></div><div class="value">74,8 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 73,8 %"><div class="fill" style="width:73.77%"></div></div><div class="value">73,8 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 43,8 %"><div class="fill" style="width:43.79%"></div><div class="mark" style="left:84.23%" title="Experts entre eux : 84,2 %"></div><div class="mark soft" style="left:72.21%" title="Logiciel AugmentedNet : 72,2 %"></div></div><div class="value">43,8 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch expert"></span>second expert (Dmitri Tymoczko, 13 719 accords de 51 morceaux)</span><span><span class="swatch soft"></span>logiciel AugmentedNet</span></div>
@@ -951,6 +954,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 % <span class="down">−0,1</span></td><td class="n">43,8 % <span class="down">−0,2</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">58,1 %</td><td class="n">47,6 %</td><td class="n">71,6 %</td><td class="n">43,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1326,6 +1330,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 92,4 %"><div class="fill" style="width:92.38%"></div></div><div class="value">92,4 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 54,2 %"><div class="fill" style="width:54.20%"></div><div class="mark soft" style="left:60.41%" title="Logiciel AugmentedNet : 60,4 %"></div></div><div class="value">54,2 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 70,9 %"><div class="fill" style="width:70.91%"></div></div><div class="value">70,9 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 57,3 %"><div class="fill" style="width:57.27%"></div></div><div class="value">57,3 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 52,3 %"><div class="fill" style="width:52.31%"></div><div class="mark soft" style="left:57.38%" title="Logiciel AugmentedNet : 57,4 %"></div></div><div class="value">52,3 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch soft"></span>logiciel AugmentedNet</span></div>
@@ -1340,6 +1345,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 % <span class="up">+0,7</span></td><td class="n">52,3 % <span class="up">+0,7</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">95,4 %</td><td class="n">92,4 %</td><td class="n">54,2 %</td><td class="n">52,3 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -1802,6 +1808,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 41,1 %"><div class="fill" style="width:41.13%"></div></div><div class="value">41,1 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 68,3 %"><div class="fill" style="width:68.29%"></div><div class="mark soft" style="left:72.42%" title="Logiciel AugmentedNet : 72,4 %"></div></div><div class="value">68,3 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 78,8 %"><div class="fill" style="width:78.83%"></div></div><div class="value">78,8 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 72,6 %"><div class="fill" style="width:72.61%"></div></div><div class="value">72,6 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 38,9 %"><div class="fill" style="width:38.86%"></div><div class="mark soft" style="left:51.49%" title="Logiciel AugmentedNet : 51,5 %"></div></div><div class="value">38,9 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch soft"></span>logiciel AugmentedNet</span></div>
@@ -1816,6 +1823,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">55,2 % <span class="up">+0,1</span></td><td class="n">41,1 % <span class="up">+0,3</span></td><td class="n">68,3 % <span class="down">−1,2</span></td><td class="n">38,9 % <span class="down">−0,5</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">55,2 %</td><td class="n">41,1 %</td><td class="n">68,3 %</td><td class="n">38,9 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2125,6 +2133,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 99,5 %"><div class="fill" style="width:99.54%"></div></div><div class="value">99,5 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 81,8 %"><div class="fill" style="width:81.80%"></div><div class="mark" style="left:98.18%" title="Experts entre eux : 98,2 %"></div></div><div class="value">81,8 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 82,3 %"><div class="fill" style="width:82.34%"></div></div><div class="value">82,3 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 82,4 %"><div class="fill" style="width:82.38%"></div></div><div class="value">82,4 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 81,4 %"><div class="fill" style="width:81.45%"></div><div class="mark" style="left:88.27%" title="Experts entre eux : 88,3 %"></div></div><div class="value">81,4 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch expert"></span>second expert (Trevor de Clercq, 17 881 accords de 195 morceaux)</span></div>
@@ -2137,7 +2146,8 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 08:25</td><td class="mono">e85a96c</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">76,1 %</td><td class="n">75,8 %</td></tr>
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 % <span class="up">+5,7</span></td><td class="n">81,5 % <span class="up">+5,7</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
-<tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
+<tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,5 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">99,5 %</td><td class="n">99,5 %</td><td class="n">81,8 %</td><td class="n">81,4 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2498,6 +2508,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 98,1 %"><div class="fill" style="width:98.07%"></div></div><div class="value">98,1 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 72,0 %"><div class="fill" style="width:72.02%"></div></div><div class="value">72,0 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 73,4 %"><div class="fill" style="width:73.40%"></div></div><div class="value">73,4 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 73,4 %"><div class="fill" style="width:73.42%"></div></div><div class="value">73,4 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 70,8 %"><div class="fill" style="width:70.83%"></div></div><div class="value">70,8 %</div>
 </div>
 </div>
@@ -2509,6 +2520,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 % <span class="up">+3,9</span></td><td class="n">70,8 % <span class="up">+3,8</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">98,1 %</td><td class="n">98,1 %</td><td class="n">72,0 %</td><td class="n">70,8 %</td></tr>
 </table></div>
 </div>
 <div class="card">
@@ -2995,6 +3007,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 66,4 %"><div class="fill" style="width:66.39%"></div></div><div class="value">66,4 %</div>
 <div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 67,2 %"><div class="fill" style="width:67.23%"></div><div class="mark soft" style="left:84.64%" title="Logiciel AugmentedNet : 84,6 %"></div></div><div class="value">67,2 %</div>
 <div class="label">Tonalité, retard toléré<small>en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)</small></div><div class="bar" role="img" aria-label="Tonalité, retard toléré : 80,5 %"><div class="fill" style="width:80.52%"></div></div><div class="value">80,5 %</div>
+<div class="label">Tonalité de l'historique<small>tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)</small></div><div class="bar" role="img" aria-label="Tonalité de l'historique : 73,6 %"><div class="fill" style="width:73.64%"></div></div><div class="value">73,6 %</div>
 <div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 49,0 %"><div class="fill" style="width:49.01%"></div><div class="mark soft" style="left:69.14%" title="Logiciel AugmentedNet : 69,1 %"></div></div><div class="value">49,0 %</div>
 </div>
 <div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch soft"></span>logiciel AugmentedNet</span></div>
@@ -3009,6 +3022,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
 <tr><td>2026-11-06 10:16</td><td class="mono">88db4c8</td><td class="n">72,5 % <span class="up">+0,1</span></td><td class="n">66,4 % <span class="up">+0,1</span></td><td class="n">67,2 % <span class="down">−2,4</span></td><td class="n">49,0 % <span class="down">−2,1</span></td></tr>
 <tr><td>2026-11-06 10:47</td><td class="mono">79f4b6e</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 <tr><td>2026-11-06 11:03</td><td class="mono">4d1de81</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
+<tr><td>2026-11-06 11:53</td><td class="mono">6fd072f</td><td class="n">72,5 %</td><td class="n">66,4 %</td><td class="n">67,2 %</td><td class="n">49,0 %</td></tr>
 </table></div>
 </div>
 <div class="card">
