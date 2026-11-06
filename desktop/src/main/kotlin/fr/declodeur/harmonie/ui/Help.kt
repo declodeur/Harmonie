@@ -104,7 +104,8 @@ object Help {
         "Durée au bout de laquelle le poids des notes jouées est divisé par deux. Courte : l'analyse suit " +
             "vite les modulations progressives, mais s'égare plus facilement. Longue : plus stable. La mémoire " +
             "ne s'efface que pendant que l'on joue : un silence ne fait pas oublier la tonalité. Les ruptures " +
-            "franches sont traitées à part (voir « Changement immédiat »)."
+            "franches sont traitées à part (voir « Changement immédiat »).\n\n" +
+            "Banc d'essai : 4 s suit beaucoup mieux les modulations que 12 s (ancienne valeur), sur tous les corpus."
 
     const val FAST_KEY_CHANGE =
         "Comme à l'oreille : dès qu'un accord sort franchement de la tonalité, on sait qu'elle a changé. " +
@@ -212,4 +213,53 @@ object Help {
             "seules en mode « Complète ». Chacune est classée par rapport à l'accord courant : bleu clair = " +
             "note de l'accord (avec son degré), orange = tension de la gamme (9, 11, 13…), rouge = note à " +
             "éviter, gris = note chromatique, hors de la gamme (note de passage, broderie, ou couleur voulue)."
+
+    const val INTERPRETATION =
+        "Cette lecture vient d'une règle d'interprétation (Réglages → Interprétation des accords). Ces règles " +
+            "ont été mises au point en comparant l'application à des analyses d'experts (banc d'essai) ; chacune " +
+            "peut être désactivée."
+
+    const val SIXTH_AS_SEVENTH =
+        "Style Classique seulement. Do mi sol la peut se lire C6 (sixte ajoutée, notation de variété et de jazz) " +
+            "ou Am7/C (la mineur septième, 1er renversement). Les analyses classiques notent toujours la seconde " +
+            "lecture (vi6/5, ii6/5). De même, Cm6 devient Am7♭5/C.\n\n" +
+            "Banc d'essai : +3 points sur les chorals de Bach."
+
+    const val SUSPENSIONS =
+        "Style Classique seulement. Une quarte à la place de la tierce (Gsus4 = sol do ré) est le plus souvent " +
+            "un retard : le do va descendre sur si. L'accord est alors nommé avec sa tierce (G), la quarte étant " +
+            "montrée comme note étrangère. La tierce (majeure ou mineure) est prise dans la tonalité. Même chose " +
+            "pour 7sus4 (lu 7) et sus2.\n\nBanc d'essai : +3 à +4 points selon les corpus."
+
+    const val DIMINISHED_BY_KEY =
+        "Les quatre notes d'une septième diminuée sont à égale distance (tierces mineures) : n'importe laquelle " +
+            "peut être la fondamentale, et D°7, F°7, A♭°7 et B°7 sont le même accord. On choisit la note qui monte " +
+            "d'un demi-ton vers un degré de la tonalité : la sensible (B°7 en do majeur = vii°7), sinon la sensible " +
+            "d'un autre degré (F♯°7 = vii°7/V)."
+
+    const val KEEP_ON_SUBSET =
+        "Quand il ne reste qu'une ou deux notes de l'accord en cours (basse d'Alberti, notes répétées, une voix " +
+            "qui continue seule), l'accord affiché ne change pas. Sans cette option, ces notes isolées effacent " +
+            "l'accord.\n\nBanc d'essai : +1 point environ sur la musique pour piano."
+
+    const val COMPLETE_DYADS =
+        "Deux notes à la tierce (ou à la sixte, son renversement) suffisent pour nommer l'accord : la–do♯ = A, " +
+            "mi–sol = Em (la quinte est sous-entendue). En style Classique, une quinte seule est aussi complétée " +
+            "avec la tierce de la tonalité ; dans les autres styles, elle reste une quinte à vide (power chord).\n\n" +
+            "Banc d'essai : +5 points sur les sonates de Mozart."
+
+    const val HARMONIC_WINDOW =
+        "Quand une ou deux notes seulement sont tenues, l'accord est lu sur ces notes et sur celles jouées juste " +
+            "avant, dans ce délai (figurations, basse d'Alberti). 0 = désactivée.\n\nBanc d'essai : utile seule, " +
+            "elle n'apporte plus rien une fois les autres règles activées ; désactivée par défaut."
+
+    const val CADENCE_KEY_CHANGE =
+        "Une cadence parfaite (V7 → I) vers une tonalité plausible (parmi les trois plus probables) la fait " +
+            "retenir tout de suite.\n\nBanc d'essai : mieux sur les chorals et les manuels, moins bien sur Mozart ; " +
+            "désactivée par défaut."
+
+    const val KEY_INERTIA =
+        "La tonalité retenue ne change que si une autre la dépasse nettement. Plus d'inertie : tonalité plus " +
+            "stable mais plus lente à suivre une modulation. 0 = toujours la plus probable.\n\nBanc d'essai : " +
+            "1 donne les meilleurs résultats (3 auparavant)."
 }

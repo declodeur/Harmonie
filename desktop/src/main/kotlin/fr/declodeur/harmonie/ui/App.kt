@@ -260,6 +260,13 @@ private fun ChordDetails(
     } else {
         Text(best.type.frenchName.replaceFirstChar { it.uppercase() }, fontSize = 15.sp, color = Palette.muted)
     }
+    best.interpretation?.let {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(it, fontSize = 13.sp, color = Palette.muted, lineHeight = 17.sp, modifier = Modifier.weight(1f, fill = false))
+            Spacer(Modifier.width(6.dp))
+            HelpBubble(Help.INTERPRETATION)
+        }
+    }
     if (result.arpeggiated) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Accord arpégé (interprétation).", fontSize = 14.sp, color = Palette.warning)
@@ -585,12 +592,12 @@ private fun SettingsDialog(
             shape = RoundedCornerShape(16.dp),
             color = Palette.surface,
             border = BorderStroke(1.dp, Palette.border),
-            modifier = Modifier.width(900.dp),
+            modifier = Modifier.width(1240.dp),
         ) {
             Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
                 Text("Réglages", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         SectionTitle("Reconnaissance des accords")
                         SliderSetting(
@@ -616,6 +623,72 @@ private fun SettingsDialog(
                             Help.KEEP_FULL_WHEN_INCOMPLETE,
                             settings.bassOptions.keepFullReadingWhenUpperIncomplete,
                         ) { onChange(settings.copy(bassOptions = settings.bassOptions.copy(keepFullReadingWhenUpperIncomplete = it))) }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Accords arpégés")
+                        SwitchSetting("Reconnaître les accords arpégés", Help.ARPEGGIO, settings.arpeggioDetection) {
+                            onChange(settings.copy(arpeggioDetection = it))
+                        }
+                        SliderSetting(
+                            "Remonter jusqu'à ${settings.arpeggioMaxNotes} notes en arrière", Help.ARPEGGIO_WINDOW,
+                            settings.arpeggioMaxNotes.toFloat(), 3f..12f, 1f, enabled = settings.arpeggioDetection,
+                        ) { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) }
+                        SliderSetting(
+                            "… et au plus ${"%.2f".format(settings.arpeggioWindowMs / 1000.0).trimEnd('0').trimEnd(',', '.')} s en arrière",
+                            Help.ARPEGGIO_WINDOW,
+                            settings.arpeggioWindowMs.toFloat(), 500f..5000f, 250f, enabled = settings.arpeggioDetection,
+                        ) { onChange(settings.copy(arpeggioWindowMs = it.roundToInt())) }
+                        val win = settings.interpretation.harmonicWindowMs
+                        SliderSetting(
+                            if (win == 0) "Fenêtre harmonique : désactivée" else "Fenêtre harmonique : $win ms",
+                            Help.HARMONIC_WINDOW, win.toFloat(), 0f..1500f, 100f, enabled = settings.arpeggioDetection,
+                        ) { onChange(settings.copy(interpretation = settings.interpretation.copy(harmonicWindowMs = it.roundToInt()))) }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionTitle("Interprétation des accords")
+                        val ip = settings.interpretation
+                        SwitchSetting("Classique : sixte ajoutée lue comme septième (Am7/C)", Help.SIXTH_AS_SEVENTH, ip.sixthAsSeventh) {
+                            onChange(settings.copy(interpretation = ip.copy(sixthAsSeventh = it)))
+                        }
+                        SwitchSetting("Classique : retards (Gsus4 lu G, retard 4-3)", Help.SUSPENSIONS, ip.suspensions) {
+                            onChange(settings.copy(interpretation = ip.copy(suspensions = it)))
+                        }
+                        SwitchSetting("Septième diminuée nommée d'après la sensible", Help.DIMINISHED_BY_KEY, ip.diminishedByKey) {
+                            onChange(settings.copy(interpretation = ip.copy(diminishedByKey = it)))
+                        }
+                        SwitchSetting("Une ou deux notes de l'accord ne le remplacent pas", Help.KEEP_ON_SUBSET, ip.keepChordOnSubset) {
+                            onChange(settings.copy(interpretation = ip.copy(keepChordOnSubset = it)))
+                        }
+                        SwitchSetting("Tierce seule lue comme accord (A–C♯ = A)", Help.COMPLETE_DYADS, ip.completeDyads) {
+                            onChange(settings.copy(interpretation = ip.copy(completeDyads = it)))
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Gammes")
+                        SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
+                            onChange(settings.copy(scaleOnKeyboard = it))
+                        }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionTitle("Tonalité")
+                        SwitchSetting(
+                            "Changement immédiat sur un accord hors tonalité",
+                            Help.FAST_KEY_CHANGE,
+                            settings.fastKeyChange,
+                        ) { onChange(settings.copy(fastKeyChange = it)) }
+                        SwitchSetting("Changement immédiat sur une cadence parfaite", Help.CADENCE_KEY_CHANGE, settings.cadenceKeyChange) {
+                            onChange(settings.copy(cadenceKeyChange = it))
+                        }
+                        SliderSetting(
+                            "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
+                            settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,
+                        ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
+                        SliderSetting(
+                            "Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
+                            settings.keyMemorySeconds.toFloat(), 2f..60f, 1f,
+                        ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
+                        SliderSetting(
+                            "Inertie de la tonalité : ${settings.keyInertiaPercent}", Help.KEY_INERTIA,
+                            settings.keyInertiaPercent.toFloat(), 0f..10f, 1f,
+                        ) { onChange(settings.copy(keyInertiaPercent = it.roundToInt())) }
                         Spacer(Modifier.height(4.dp))
                         SectionTitle("Suites probables")
                         val pr = settings.prediction
@@ -646,41 +719,6 @@ private fun SettingsDialog(
                                     enabled = pr.level2 > 0,
                                 )
                             }
-                        }
-                    }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        SectionTitle("Accords arpégés")
-                        SwitchSetting("Reconnaître les accords arpégés", Help.ARPEGGIO, settings.arpeggioDetection) {
-                            onChange(settings.copy(arpeggioDetection = it))
-                        }
-                        SliderSetting(
-                            "Remonter jusqu'à ${settings.arpeggioMaxNotes} notes en arrière", Help.ARPEGGIO_WINDOW,
-                            settings.arpeggioMaxNotes.toFloat(), 3f..12f, 1f, enabled = settings.arpeggioDetection,
-                        ) { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) }
-                        SliderSetting(
-                            "… et au plus ${"%.2f".format(settings.arpeggioWindowMs / 1000.0).trimEnd('0').trimEnd(',', '.')} s en arrière",
-                            Help.ARPEGGIO_WINDOW,
-                            settings.arpeggioWindowMs.toFloat(), 500f..5000f, 250f, enabled = settings.arpeggioDetection,
-                        ) { onChange(settings.copy(arpeggioWindowMs = it.roundToInt())) }
-                        Spacer(Modifier.height(4.dp))
-                        SectionTitle("Tonalité")
-                        SwitchSetting(
-                            "Changement immédiat sur un accord hors tonalité",
-                            Help.FAST_KEY_CHANGE,
-                            settings.fastKeyChange,
-                        ) { onChange(settings.copy(fastKeyChange = it)) }
-                        SliderSetting(
-                            "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
-                            settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,
-                        ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
-                        SliderSetting(
-                            "Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
-                            settings.keyMemorySeconds.toFloat(), 4f..60f, 2f,
-                        ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
-                        Spacer(Modifier.height(4.dp))
-                        SectionTitle("Gammes")
-                        SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
-                            onChange(settings.copy(scaleOnKeyboard = it))
                         }
                     }
                 }

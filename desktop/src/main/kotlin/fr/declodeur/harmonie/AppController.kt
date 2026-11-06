@@ -3,6 +3,7 @@ package fr.declodeur.harmonie
 import fr.declodeur.harmonie.engine.AnalysisMode
 import fr.declodeur.harmonie.engine.AnalysisSettings
 import fr.declodeur.harmonie.engine.BassReadingOptions
+import fr.declodeur.harmonie.engine.InterpretationSettings
 import fr.declodeur.harmonie.engine.EngineSnapshot
 import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
@@ -176,7 +177,17 @@ class AppController(scope: CoroutineScope) {
                 keepFullReadingWhenUpperIncomplete =
                     prefs.getBoolean(KEY_KEEP_FULL, d.bassOptions.keepFullReadingWhenUpperIncomplete),
             ),
-            keyMemorySeconds = prefs.getInt(KEY_KEY_MEMORY, d.keyMemorySeconds).coerceIn(4, 60),
+            keyMemorySeconds = prefs.getInt(KEY_KEY_MEMORY, d.keyMemorySeconds).coerceIn(2, 60),
+            keyInertiaPercent = prefs.getInt(KEY_KEY_INERTIA, d.keyInertiaPercent).coerceIn(0, 10),
+            cadenceKeyChange = prefs.getBoolean(KEY_CADENCE, d.cadenceKeyChange),
+            interpretation = InterpretationSettings(
+                sixthAsSeventh = prefs.getBoolean(KEY_I_SIXTH, d.interpretation.sixthAsSeventh),
+                diminishedByKey = prefs.getBoolean(KEY_I_DIM, d.interpretation.diminishedByKey),
+                suspensions = prefs.getBoolean(KEY_I_SUS, d.interpretation.suspensions),
+                keepChordOnSubset = prefs.getBoolean(KEY_I_SUBSET, d.interpretation.keepChordOnSubset),
+                completeDyads = prefs.getBoolean(KEY_I_DYADS, d.interpretation.completeDyads),
+                harmonicWindowMs = prefs.getInt(KEY_I_WINDOW, d.interpretation.harmonicWindowMs).coerceIn(0, 1500),
+            ),
             melodyWeightPercent = prefs.getInt(KEY_MELODY_WEIGHT, d.melodyWeightPercent).coerceIn(0, 100),
             fastKeyChange = prefs.getBoolean(KEY_FAST_KEY, d.fastKeyChange),
             arpeggioDetection = prefs.getBoolean(KEY_ARPEGGIO, d.arpeggioDetection),
@@ -203,6 +214,14 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_KEEP_ROOT, s.bassOptions.keepRootPositionReading)
         prefs.putBoolean(KEY_KEEP_FULL, s.bassOptions.keepFullReadingWhenUpperIncomplete)
         prefs.putInt(KEY_KEY_MEMORY, s.keyMemorySeconds)
+        prefs.putInt(KEY_KEY_INERTIA, s.keyInertiaPercent)
+        prefs.putBoolean(KEY_CADENCE, s.cadenceKeyChange)
+        prefs.putBoolean(KEY_I_SIXTH, s.interpretation.sixthAsSeventh)
+        prefs.putBoolean(KEY_I_DIM, s.interpretation.diminishedByKey)
+        prefs.putBoolean(KEY_I_SUS, s.interpretation.suspensions)
+        prefs.putBoolean(KEY_I_SUBSET, s.interpretation.keepChordOnSubset)
+        prefs.putBoolean(KEY_I_DYADS, s.interpretation.completeDyads)
+        prefs.putInt(KEY_I_WINDOW, s.interpretation.harmonicWindowMs)
         prefs.putInt(KEY_MELODY_WEIGHT, s.melodyWeightPercent)
         prefs.putBoolean(KEY_FAST_KEY, s.fastKeyChange)
         prefs.putBoolean(KEY_ARPEGGIO, s.arpeggioDetection)
@@ -232,7 +251,16 @@ class AppController(scope: CoroutineScope) {
         const val KEY_SLASH_GAP = "slashMinGap"
         const val KEY_KEEP_ROOT = "keepRootPositionReading"
         const val KEY_KEEP_FULL = "keepFullReadingWhenUpperIncomplete"
-        const val KEY_KEY_MEMORY = "keyMemorySeconds"
+        // Nouvelle clé en v0.9 : la valeur par défaut est passée de 12 à 4 s d'après le banc d'essai
+        const val KEY_KEY_MEMORY = "keyMemorySeconds2"
+        const val KEY_KEY_INERTIA = "keyInertiaPercent"
+        const val KEY_CADENCE = "cadenceKeyChange"
+        const val KEY_I_SIXTH = "interpSixthAsSeventh"
+        const val KEY_I_DIM = "interpDiminishedByKey"
+        const val KEY_I_SUS = "interpSuspensions"
+        const val KEY_I_SUBSET = "interpKeepChordOnSubset"
+        const val KEY_I_DYADS = "interpCompleteDyads"
+        const val KEY_I_WINDOW = "interpHarmonicWindowMs"
         const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
         const val KEY_ARPEGGIO = "arpeggioDetection"
         const val KEY_SCALE_KEYBOARD = "scaleOnKeyboard"
