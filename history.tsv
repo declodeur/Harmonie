@@ -1,2 +1,7 @@
 date	commit	corpus	accords	accord	exact	tonalite	chiffrage
 2026-11-06 06:50	7dc8bf5	bach-chorales	20566	84.46	82.43	52.68	44.81
+2026-11-06 07:23	fb7c66a	bach-chorales	20619	84.46	82.42	52.75	44.86
+2026-11-06 07:23	fb7c66a	mozart-sonatas	14966	44.92	37.06	72.11	33.10
+2026-11-06 07:23	fb7c66a	textbooks	1430	90.77	87.76	47.41	43.92
+2026-11-06 07:23	fb7c66a	bach-wtc1	2154	38.81	30.59	56.64	22.38
+2026-11-06 07:23	fb7c66a	schubert-winterreise	2618	62.83	58.10	56.42	34.99
