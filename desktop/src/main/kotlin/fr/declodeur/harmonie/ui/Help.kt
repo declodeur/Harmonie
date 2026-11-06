@@ -289,7 +289,9 @@ object Help {
     const val KEY_PER_STYLE =
         "La tonalité ne se pense pas de la même façon selon le style : un choral de Bach module souvent, " +
             "une chanson pop revient sans cesse à la même tonique. Le modèle de tonalité a donc ses propres " +
-            "réglages pour chaque style ; ceux affichés ici sont ceux du style choisi en haut de l'écran. " +
+            "réglages pour chaque style. Choisissez le style à régler avec les boutons (le point marque le style " +
+            "joué, choisi en haut de l'écran) ; c'est le seul groupe de réglages propre à chaque style. La " +
+            "mémoire en secondes, elle, est commune à tous les styles. " +
             "« Valeurs du banc d'essai » remet les valeurs mesurées comme les meilleures (Classique : chorals, " +
             "Mozart, manuels, préludes, lieder ; Pop/rock : RS 200 et Isophonics ; Jazz et Blues : pas encore " +
             "de corpus, réglages de la pop)."

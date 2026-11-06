@@ -119,6 +119,10 @@ val AnalysisSettings.currentKeyParams: KeyParams get() = keyParams[style] ?: Key
 fun AnalysisSettings.withKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
     copy(keyParams = keyParams + (style to f(currentKeyParams)))
 
+/** Modifie les réglages de tonalité d'un style donné (pas forcément le style choisi). */
+fun AnalysisSettings.withKeyParamsFor(style: MusicStyle, f: (KeyParams) -> KeyParams): AnalysisSettings =
+    copy(keyParams = keyParams + (style to f(keyParams[style] ?: KeyParams.POP)))
+
 /** Modifie les réglages de tonalité de tous les styles (expériences du banc d'essai). */
 fun AnalysisSettings.withAllKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
     copy(keyParams = MusicStyle.entries.associateWith { f(keyParams[it] ?: KeyParams.POP) })

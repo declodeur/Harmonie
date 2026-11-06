@@ -80,6 +80,7 @@ import fr.declodeur.harmonie.engine.PredictionSource
 import fr.declodeur.harmonie.engine.ProgressionModel
 import fr.declodeur.harmonie.engine.currentKeyParams
 import fr.declodeur.harmonie.engine.withKeyParams
+import fr.declodeur.harmonie.engine.withKeyParamsFor
 import kotlin.math.roundToInt
 
 
@@ -111,11 +112,7 @@ internal fun SettingsDialog(
             modifier = Modifier.width(1000.dp),
         ) {
             Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text("Réglages", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.width(10.dp))
-                    Text("style ${settings.style.label}", fontSize = 13.sp, color = Palette.muted, modifier = Modifier.padding(bottom = 3.dp))
-                }
+                Text("Réglages", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
                 TabBar(tab) { tab = it }
                 Spacer(Modifier.height(16.dp))
@@ -275,20 +272,24 @@ private fun RowScope.KeyTab(settings: AnalysisSettings, onChange: (AnalysisSetti
         ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
     }
     SettingsColumn {
-        val kp = settings.currentKeyParams
+        // Style réglé : celui de la barre du haut par défaut, mais on peut régler les autres d'ici
+        var tuned by remember { mutableStateOf(settings.style) }
+        val kp = settings.keyParams[tuned] ?: KeyParams.POP
+        fun edit(f: (KeyParams) -> KeyParams) = onChange(settings.withKeyParamsFor(tuned, f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SectionTitle("Modèle du style ${settings.style.label}")
+            SectionTitle("Modèle de tonalité par style")
             Spacer(Modifier.width(6.dp))
             HelpBubble(Help.KEY_PER_STYLE)
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = {
-                onChange(settings.withKeyParams { KeyParams.DEFAULTS[settings.style] ?: KeyParams.POP })
-            }) { Text("Valeurs du banc d'essai", fontSize = 12.sp) }
+            TextButton(onClick = { edit { KeyParams.DEFAULTS[tuned] ?: KeyParams.POP } }) {
+                Text("Valeurs du banc d'essai", fontSize = 12.sp)
+            }
         }
+        StyleChips(tuned, current = settings.style) { tuned = it }
         SliderSetting(
             if (kp.memoryChords == 0) "Mémoire : en secondes (voir ci-dessous)" else "Mémoire : ${kp.memoryChords} accords",
             Help.KEY_MEMORY_CHORDS, kp.memoryChords.toFloat(), 0f..24f, 1f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(memoryChords = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(memoryChords = v.roundToInt()) } }
         SliderSetting(
             "Mémoire en secondes : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
             settings.keyMemorySeconds.toFloat(), 2f..60f, 1f, enabled = kp.memoryChords == 0,
@@ -296,23 +297,49 @@ private fun RowScope.KeyTab(settings: AnalysisSettings, onChange: (AnalysisSetti
         SliderSetting(
             "Poids de l'accord de tonique : ${kp.tonicPercent} (dont dominante ${kp.dominantPercent} %)",
             Help.KEY_TONIC_WEIGHT, kp.tonicPercent.toFloat(), 0f..100f, 5f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(tonicPercent = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(tonicPercent = v.roundToInt()) } }
         SliderSetting(
             "Poids des arrivées (V → I, ♭VII → i, IV → I) : ${kp.arrivalPercent}",
             Help.KEY_ARRIVAL, kp.arrivalPercent.toFloat(), 0f..100f, 5f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(arrivalPercent = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(arrivalPercent = v.roundToInt()) } }
         SliderSetting(
             "Poids du premier accord : ${kp.primacyPercent}", Help.KEY_ARRIVAL,
             kp.primacyPercent.toFloat(), 0f..100f, 5f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(primacyPercent = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(primacyPercent = v.roundToInt()) } }
         SliderSetting(
             if (kp.holdPercent == 0) "Maintien dans la gamme : désactivé" else "Maintien dans la gamme : ${kp.holdPercent}",
             Help.KEY_HOLD, kp.holdPercent.toFloat(), 0f..60f, 5f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(holdPercent = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(holdPercent = v.roundToInt()) } }
         SliderSetting(
             "Inertie de la tonalité : ${kp.inertiaPercent}", Help.KEY_INERTIA,
             kp.inertiaPercent.toFloat(), 0f..10f, 1f,
-        ) { v -> onChange(settings.withKeyParams { it.copy(inertiaPercent = v.roundToInt()) }) }
+        ) { v -> edit { it.copy(inertiaPercent = v.roundToInt()) } }
+    }
+}
+
+/** Choix du style dont on règle le modèle de tonalité ; le style joué est repéré par un point. */
+@Composable
+private fun StyleChips(selected: MusicStyle, current: MusicStyle, onSelect: (MusicStyle) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        for (st in MusicStyle.entries) {
+            val on = st == selected
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = if (on) Palette.accent.copy(alpha = 0.18f) else Color.Transparent,
+                border = BorderStroke(1.dp, if (on) Palette.accent else Palette.border),
+                modifier = Modifier.clickable { onSelect(st) },
+            ) {
+                Text(
+                    st.label + if (st == current) " •" else "",
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    color = if (on) Palette.accent else Palette.text,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                )
+            }
+        }
+        Spacer(Modifier.width(4.dp))
+        Text("• style joué", fontSize = 11.sp, color = Palette.muted)
     }
 }
 
