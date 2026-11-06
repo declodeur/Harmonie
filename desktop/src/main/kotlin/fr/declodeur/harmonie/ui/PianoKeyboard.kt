@@ -49,7 +49,8 @@ object KeyboardLayout {
             val i = whiteIndex[note]
             Rect(i * ww, 0f, (i + 1) * ww, height)
         } else {
-            val bw = ww * 0.62f
+            // Touche noire : environ 58 % de la largeur d'une blanche sur un vrai piano (13,7 mm pour 23,5 mm)
+            val bw = ww * 0.58f
             val x = (whiteIndex[note - 1] + 1) * ww - bw / 2
             Rect(x, 0f, x + bw, height * 0.62f)
         }

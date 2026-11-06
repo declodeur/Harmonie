@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,7 +121,20 @@ fun Panel(
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Label(title, help)
+                // Titre de cadre : plus grand et en demi-gras, en couleur de texte (les libellés de
+                // réglages restent petits et discrets)
+                Text(
+                    title,
+                    fontSize = 15.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp,
+                    color = Palette.text,
+                )
+                if (help != null) {
+                    Spacer(Modifier.width(8.dp))
+                    HelpBubble(help)
+                }
                 Spacer(Modifier.weight(1f))
                 action?.invoke()
             }

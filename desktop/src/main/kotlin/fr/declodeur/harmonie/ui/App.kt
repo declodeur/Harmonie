@@ -546,7 +546,7 @@ private fun MainArea(
         val treeR = 1f - chordR - circleR
         val keyboardH = layout.keyboardHeightDp.dp.coerceIn(70.dp, maxOf(70.dp, total * 0.4f))
         // Rangée du haut : réglable ; par défaut, elle prend tout sauf la hauteur naturelle de l'historique
-        val historyNatural = 172.dp
+        val historyNatural = 178.dp
         val topMax = maxOf(160.dp, total - keyboardH - 24.dp - 110.dp)
         val topAuto = total - keyboardH - 24.dp - historyNatural
         val topH = (if (layout.topHeightDp < 0) topAuto else layout.topHeightDp.dp).coerceIn(160.dp, topMax)
