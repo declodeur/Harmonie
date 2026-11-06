@@ -65,6 +65,7 @@ import fr.declodeur.harmonie.engine.HarmonicAnalysis
 import fr.declodeur.harmonie.engine.HarmonicFunction
 import fr.declodeur.harmonie.engine.HistoryEntry
 import fr.declodeur.harmonie.engine.Key
+import fr.declodeur.harmonie.engine.DegreeNotation
 import fr.declodeur.harmonie.engine.KeyEstimate
 import fr.declodeur.harmonie.engine.Spelling
 import fr.declodeur.harmonie.engine.MusicStyle
@@ -257,9 +258,19 @@ private fun ChordDetails(
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             NumeralBadge(analysis.numeral)
-            analysis.function?.let { FunctionBadge(it) }
+            analysis.degreeName?.let { name ->
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(30.dp)) {
+                    Text(name.replaceFirstChar { it.uppercase() }, fontSize = 14.sp)
+                    Spacer(Modifier.width(6.dp))
+                    HelpBubble(Help.DEGREE_NAME)
+                }
+            }
+            analysis.function?.let { FunctionBadge(it, analysis.substitute) }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(30.dp)) {
-                Text(analysis.category.label, fontSize = 14.sp, color = Palette.muted)
+                Text(
+                    analysis.category.label + if (analysis.contextPredicted) " · fonction provisoire" else "",
+                    fontSize = 14.sp, color = Palette.muted,
+                )
                 Spacer(Modifier.width(6.dp))
                 HelpBubble(Help.FUNCTION)
             }
@@ -701,6 +712,15 @@ private fun SettingsDialog(
                             if (win == 0) "Fenêtre harmonique : désactivée" else "Fenêtre harmonique : $win ms",
                             Help.HARMONIC_WINDOW, win.toFloat(), 0f..1500f, 100f, enabled = settings.arpeggioDetection,
                         ) { onChange(settings.copy(interpretation = settings.interpretation.copy(harmonicWindowMs = it.roundToInt()))) }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Chiffrage")
+                        SwitchSetting(
+                            "Degrés en notation jazz (♭III, ♭VI, ♭VII en mineur)", Help.DEGREE_NOTATION,
+                            settings.degreeNotation == DegreeNotation.JAZZ,
+                        ) { onChange(settings.copy(degreeNotation = if (it) DegreeNotation.JAZZ else DegreeNotation.CLASSICAL)) }
+                        SwitchSetting(
+                            "Fonction de VI et VII selon l'accord suivant", Help.CONTEXT_FUNCTIONS, settings.contextualFunctions,
+                        ) { onChange(settings.copy(contextualFunctions = it)) }
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         SectionTitle("Interprétation des accords")
@@ -887,7 +907,7 @@ fun functionColor(f: HarmonicFunction): Color = when (f) {
 }
 
 @Composable
-private fun FunctionBadge(f: HarmonicFunction) {
+private fun FunctionBadge(f: HarmonicFunction, substitute: Boolean = false) {
     val c = functionColor(f)
     Surface(
         shape = RoundedCornerShape(6.dp),
@@ -895,7 +915,7 @@ private fun FunctionBadge(f: HarmonicFunction) {
         border = BorderStroke(1.dp, c),
     ) {
         Text(
-            "${f.label} (${f.short})",
+            if (substitute) "${f.label} substitutive (${f.short})" else "${f.label} (${f.short})",
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
             fontSize = 14.sp,
             color = c,

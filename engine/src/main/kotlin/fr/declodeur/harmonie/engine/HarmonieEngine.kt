@@ -61,6 +61,10 @@ data class AnalysisSettings(
     val scaleOnKeyboard: Boolean = true,
     /** Affichage : voicing et conduite des voix. */
     val voicing: VoicingSettings = VoicingSettings(),
+    /** Chiffrage : degrés en notation classique (VI, VII en mineur) ou jazz (♭VI, ♭VII). */
+    val degreeNotation: DegreeNotation = DegreeNotation.CLASSICAL,
+    /** Fonction de VI et VII d'après l'accord suivant (sinon : table fixe des degrés). */
+    val contextualFunctions: Boolean = true,
 )
 
 /**
@@ -451,6 +455,7 @@ class HarmonieEngine(
                     ),
                 )
                 while (history.size > historyLimit) history.removeFirst()
+                refreshContext(history.size - 2)
             }
         }
         recomputePredictions()
@@ -488,7 +493,7 @@ class HarmonieEngine(
         val degrees = history.mapNotNull { it.chord.best?.let { b -> Predictor.degreeOf(b, key) } }
         // Notes de départ pour la conduite des voix : l'accord joué, sans une basse détachée
         val notes = cur.notes.let { n -> if (n.size >= 4 && n[1] - n[0] >= 7) n.drop(1) else n }
-        predictions = Predictor.tree(degrees, key, settings.style, settings.prediction, notes)
+        predictions = Predictor.tree(degrees, key, settings.style, settings.prediction, notes, settings.degreeNotation)
     }
 
     /**
@@ -569,20 +574,54 @@ class HarmonieEngine(
             val e = history[j]
             val chord = e.chord.best ?: continue
             history[j] = e.copy(
-                analysis = HarmonicAnalyzer.analyze(chord, new, settings.style),
+                analysis = HarmonicAnalyzer.analyze(chord, new, settings.style, settings.degreeNotation),
                 reanalyzed = true,
                 pivotFrom = if (j == first) e.analysis else null,
             )
         }
+        for (j in (first - 1).coerceAtLeast(0) until history.size - 1) refreshContext(j)
     }
 
     private fun analyze(chord: ChordCandidate): HarmonicAnalysis? =
-        keyEstimate?.current?.let { HarmonicAnalyzer.analyze(chord, it, settings.style) }
+        keyEstimate?.current?.let { HarmonicAnalyzer.analyze(chord, it, settings.style, settings.degreeNotation) }
+
+    /** Fonction selon le contexte (VI, VII), si l'option est activée. */
+    private fun withContext(
+        a: HarmonicAnalysis?,
+        chord: ChordCandidate,
+        previous: ChordCandidate?,
+        next: ChordCandidate?,
+        predicted: Boolean,
+    ): HarmonicAnalysis? {
+        if (a == null || !settings.contextualFunctions) return a
+        return HarmonicAnalyzer.inContext(a, chord, previous, next, predicted)
+    }
+
+    /** Recalcule la fonction de l'entrée [i] de l'historique d'après ses voisins (accord suivant joué). */
+    private fun refreshContext(i: Int) {
+        val e = history.getOrNull(i) ?: return
+        val chord = e.chord.best ?: return
+        val a = e.analysis ?: return
+        val base = HarmonicAnalyzer.analyze(chord, a.key, settings.style, settings.degreeNotation)
+        history[i] = e.copy(
+            analysis = withContext(base, chord, history.getOrNull(i - 1)?.chord?.best, history.getOrNull(i + 1)?.chord?.best, false),
+        )
+    }
 
     @Synchronized
     fun snapshot(): EngineSnapshot {
         val best = current?.best
-        val currentAnalysis = best?.let { analyze(it) }
+        // Accord suivant pas encore joué : la fonction de VI / VII vient de la suite la plus probable
+        val predictedNext = predictions.firstOrNull()?.chord
+        val lastIsCurrent = best != null && history.lastOrNull()?.chord?.best?.symbol == best.symbol
+        val previousChord = (if (lastIsCurrent) history.getOrNull(history.size - 2) else history.lastOrNull())?.chord?.best
+        val currentAnalysis = best?.let { withContext(analyze(it), it, previousChord, predictedNext, true) }
+        val shownHistory = history.takeLast(MAX_HISTORY).let { h ->
+            val last = h.lastOrNull()
+            val lastChord = last?.chord?.best
+            if (last == null || lastChord == null || !lastIsCurrent) h
+            else h.dropLast(1) + last.copy(analysis = withContext(last.analysis, lastChord, previousChord, predictedNext, true))
+        }
         val scale = best?.let { ChordScales.suggest(it, currentAnalysis, keyEstimate?.current, settings.style) }
         val notes = tracker.sounding().map { n ->
             val melody = !isChordChannel(n.channel)
@@ -599,7 +638,7 @@ class HarmonieEngine(
             )
         }
         return EngineSnapshot(
-            version, notes, current, currentAnalysis, keyEstimate, history.takeLast(MAX_HISTORY), predictions, scale,
+            version, notes, current, currentAnalysis, keyEstimate, shownHistory, predictions, scale,
             voicing = if (settings.voicing.showVoicing) best?.let { Voicings.describe(committedNotes.toList(), it, keyEstimate?.current) } else null,
             voiceLeading = if (settings.voicing.showVoiceLeading) voiceLeading?.let { vl ->
                 val v = settings.voicing

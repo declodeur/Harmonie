@@ -69,6 +69,8 @@ object Help {
             "déjà à la nouvelle tonalité y sont rechiffrés (au plus 4, réglable). Le premier est l'accord " +
             "pivot, noté comme en analyse classique « vi = ii » : son chiffrage dans l'ancienne tonalité, puis " +
             "dans la nouvelle. L'affichage en direct, lui, ne change pas.\n\n" +
+            "Fonction de VI et VII : celle du dernier accord est provisoire (d'après la suite la plus probable) ; " +
+            "elle est corrigée dès que l'accord suivant est joué.\n\n" +
             "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
             "la tonalité court sous ses accords. Le dernier accord reste visible ; Maj + molette ou pavé tactile " +
             "pour revoir les accords plus anciens. « Effacer » vide " +
@@ -130,9 +132,13 @@ object Help {
 
     const val FUNCTION =
         "Fonction harmonique, le rôle de l'accord dans la phrase :\n" +
-            "Tonique (T) : repos, point d'arrivée (I, VI, III).\n" +
-            "Sous-dominante (SD) : éloignement, préparation (IV, II).\n" +
-            "Dominante (D) : tension qui appelle la tonique (V, VII).\n\n" +
+            "Tonique (T) : repos, point d'arrivée (I ; III et VI comme toniques substitutives).\n" +
+            "Sous-dominante (SD) : éloignement, préparation de la dominante (IV, II).\n" +
+            "Dominante (D) : tension qui appelle la tonique (V, VII).\n" +
+            "« Substitutive » : l'accord joue le rôle de la tonique ou de la dominante sans en être le degré.\n\n" +
+            "VI et VII changent de rôle selon l'accord qui suit (voir Réglages, « Fonction de VI et VII selon " +
+            "l'accord suivant »). Tant que cet accord n'est pas joué, la fonction est provisoire : elle " +
+            "vient de la suite la plus probable, et l'historique la corrige dès qu'on joue l'accord suivant.\n\n" +
             "Diatonique : toutes les notes appartiennent à la tonalité. Emprunt modal : accord pris au mode " +
             "homonyme (C mineur en C majeur), comme IVm ou ♭VII7. Chromatique : hors tonalité, peut annoncer " +
             "une modulation."
@@ -372,4 +378,34 @@ object Help {
     const val PARALLELS_ALL_STYLES =
         "Désactivé : les quintes et octaves parallèles ne sont signalées qu'en style Classique. Activé : dans " +
             "tous les styles."
+
+    const val DEGREE_NAME =
+        "Nom du degré sur lequel est bâti l'accord :\n" +
+            "I tonique, II sus-tonique, III médiante, IV sous-dominante, V dominante, VI sus-dominante, " +
+            "VII sensible (un demi-ton sous la tonique : B en C) ou sous-tonique (un ton sous la tonique : " +
+            "B♭ en C mineur).\n\n" +
+            "À ne pas confondre avec la fonction (badge coloré) : la sus-dominante (degré VI) peut avoir une " +
+            "fonction de tonique ou de sous-dominante selon ce qui suit."
+
+    const val DEGREE_NOTATION =
+        "Comment numéroter les degrés en mineur.\n" +
+            "Désactivé (classique, comme les analyses d'experts du banc d'essai) : les degrés sont comptés dans " +
+            "la gamme de la tonalité. En C mineur : Cm = Im, E♭ = III, A♭ = VI, B♭ = VII.\n" +
+            "Activé (jazz, variété) : les degrés sont comptés dans la gamme majeure de la tonique, et l'on " +
+            "note ce qui est abaissé. En C mineur : E♭ = ♭III, A♭ = ♭VI, B♭ = ♭VII.\n" +
+            "En majeur, les deux notations sont identiques (un emprunt reste ♭VI, ♭VII)."
+
+    const val CONTEXT_FUNCTIONS =
+        "Certains accords changent de rôle selon ce qui vient après. Exemple en C mineur :\n" +
+            "• A♭ (VI) suivi de E♭ ou de Cm : il prolonge la tonique → tonique substitutive (T).\n" +
+            "• A♭ (VI) suivi de G, de Fm ou de B♭ : il prépare la dominante → sous-dominante (SD).\n" +
+            "• A♭ juste après G : la dominante annonçait Cm, A♭ prend sa place (cadence rompue) → T.\n" +
+            "• B♭ (VII) suivi de Cm : il ramène à la tonique comme le ferait G → dominante substitutive (D) " +
+            "(cadence éolienne ; en majeur, B♭ → C : cadence mixolydienne, typique du rock).\n" +
+            "• B♭ (VII) suivi de E♭ : c'est la dominante du relatif majeur → D.\n\n" +
+            "En jouant, on ne connaît pas encore l'accord suivant : la fonction affichée est provisoire, " +
+            "tirée de la suite la plus probable (cadre « Suites probables »), puis corrigée dans l'historique " +
+            "dès que l'accord suivant est joué.\n\n" +
+            "Désactivé : chaque degré a toujours la même fonction (convention jazz : VI et VII sous-dominante " +
+            "en mineur)."
 }

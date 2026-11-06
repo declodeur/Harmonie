@@ -100,8 +100,15 @@ class HarmonyTest {
         assertEquals("V7", e7.numeral)
         assertEquals(HarmonicCategory.DIATONIC, e7.category)
         assertEquals(HarmonicFunction.DOMINANT, e7.function)
-        assertEquals("♭VII", analyze(aMinor, 55, 59, 62).numeral)
-        assertEquals("♭IIIM7", analyze(aMinor, 48, 52, 55, 59).numeral)
+        // Notation classique (par défaut) : degrés de la gamme mineure
+        assertEquals("VII", analyze(aMinor, 55, 59, 62).numeral)
+        assertEquals("IIIM7", analyze(aMinor, 48, 52, 55, 59).numeral)
+        assertEquals("VII", analyze(aMinor, 56, 59, 62).numeral.take(3)) // G♯° : sensible
+        // Notation jazz : degrés comptés dans la gamme majeure de la tonique
+        assertEquals("♭VII", HarmonicAnalyzer.analyze(chord(55, 59, 62), aMinor, notation = DegreeNotation.JAZZ).numeral)
+        assertEquals("♭IIIM7", HarmonicAnalyzer.analyze(chord(48, 52, 55, 59), aMinor, notation = DegreeNotation.JAZZ).numeral)
+        assertEquals("V7/VI", analyze(aMinor, 48, 52, 55, 58).numeral) // C7 vers F
+        assertEquals("V7/♭VI", HarmonicAnalyzer.analyze(chord(48, 52, 55, 58), aMinor, notation = DegreeNotation.JAZZ).numeral)
         assertEquals("V7/V", analyze(aMinor, 47, 51, 54, 57).numeral)
         assertEquals("IIm7♭5", analyze(aMinor, 47, 50, 53, 57).numeral)
     }
@@ -278,5 +285,57 @@ class HarmonyTest {
         assertEquals(cMajor, e.snapshot().key?.current)
         e.clearHistory()
         assertNull(e.snapshot().key)
+    }
+}
+
+class ContextFunctionTest {
+    private fun chord(vararg n: Int) = ChordRecognizer.recognize(n.toList()).best!!
+    private val cMinor = Key(0, true)
+    private val cm = chord(48, 55, 60, 63)
+    private val ab = chord(44, 56, 60, 63)
+    private val eb = chord(51, 55, 58, 63)
+    private val bb = chord(46, 58, 62, 65)
+    private val g = chord(43, 55, 59, 62)
+
+    private fun f(c: ChordCandidate, prev: ChordCandidate?, next: ChordCandidate?) =
+        HarmonicAnalyzer.inContext(HarmonicAnalyzer.analyze(c, cMinor), c, prev, next).function
+
+    @Test
+    fun degreeNames() {
+        assertEquals("sus-dominante", HarmonicAnalyzer.analyze(ab, cMinor).degreeName)
+        assertEquals("médiante", HarmonicAnalyzer.analyze(eb, cMinor).degreeName)
+        assertEquals("sous-tonique", HarmonicAnalyzer.analyze(bb, cMinor).degreeName)
+        assertEquals("sensible", HarmonicAnalyzer.analyze(chord(47, 50, 53, 56), cMinor).degreeName)
+    }
+
+    @Test
+    fun sixthAndSeventhDegreesDependOnWhatFollows() {
+        assertEquals(HarmonicFunction.TONIC, f(ab, cm, eb)) // VI → III : tonique substitutive
+        assertEquals(HarmonicFunction.SUBDOMINANT, f(ab, cm, g)) // VI → V : prépare la dominante
+        assertEquals(HarmonicFunction.TONIC, f(ab, g, null)) // V → VI : cadence rompue
+        assertEquals(HarmonicFunction.DOMINANT, f(bb, eb, cm)) // VII → I : cadence éolienne
+        assertEquals(HarmonicFunction.DOMINANT, f(bb, cm, eb)) // VII → III : dominante du relatif
+        assertEquals(HarmonicFunction.SUBDOMINANT, f(bb, cm, null)) // suite inconnue : table
+    }
+
+    @Test
+    fun aeolianLoopInTheEngine() {
+        val e = HarmonieEngine(AnalysisSettings(style = MusicStyle.POP_ROCK))
+        var t = 0L
+        repeat(3) {
+            for (c in listOf(listOf(48, 60, 63, 67), listOf(44, 60, 63, 68), listOf(51, 58, 63, 67), listOf(46, 58, 62, 65))) {
+                c.forEach { e.noteOn(0, it, 90, t) }
+                val end = t + 1500
+                while (t < end) { t += 10; e.tick(t) }
+                c.forEach { e.noteOff(0, it, t) }
+                t += 30; e.tick(t)
+            }
+        }
+        val h = e.snapshot().history
+        assertEquals(listOf("Im", "VI", "III", "VII"), h.take(4).map { it.analysis?.numeral })
+        val T = HarmonicFunction.TONIC; val D = HarmonicFunction.DOMINANT
+        assertEquals(listOf(T, T, T, D, T, T, T, D), h.take(8).map { it.analysis?.function })
+        // Option désactivée : table fixe (VI et VII sous-dominante)
+        assertEquals(HarmonicFunction.SUBDOMINANT, HarmonicAnalyzer.analyze(bb, cMinor).function)
     }
 }

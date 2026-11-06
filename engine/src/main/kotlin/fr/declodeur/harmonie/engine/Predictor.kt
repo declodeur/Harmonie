@@ -302,6 +302,7 @@ object Predictor {
         style: MusicStyle,
         settings: PredictionSettings,
         currentNotes: List<Int>,
+        notation: DegreeNotation = DegreeNotation.CLASSICAL,
     ): List<PredictionNode> {
         val widths = listOf(settings.level1, settings.level2, settings.level3)
         val model = if (settings.source == PredictionSource.CORPUS) ProgressionModel.bundled else null
@@ -317,7 +318,7 @@ object Predictor {
                     extraNotes = emptySet(),
                     score = 0,
                 )
-                val analysis = HarmonicAnalyzer.analyze(chord, key, style)
+                val analysis = HarmonicAnalyzer.analyze(chord, key, style, notation)
                 PredictionNode(
                     chord = chord,
                     numeral = analysis.numeral,

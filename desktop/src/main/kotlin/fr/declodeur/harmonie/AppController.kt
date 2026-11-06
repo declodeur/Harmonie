@@ -11,6 +11,7 @@ import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.PredictionSettings
 import fr.declodeur.harmonie.engine.VoicingSettings
+import fr.declodeur.harmonie.engine.DegreeNotation
 import fr.declodeur.harmonie.midi.MidiInputInfo
 import fr.declodeur.harmonie.midi.MidiInputManager
 import kotlinx.coroutines.CoroutineScope
@@ -204,6 +205,9 @@ class AppController(scope: CoroutineScope) {
                 harmonicWindowMs = prefs.getInt(KEY_I_WINDOW, d.interpretation.harmonicWindowMs).coerceIn(0, 1500),
                 passingTones = prefs.getBoolean(KEY_I_PASSING, d.interpretation.passingTones),
             ),
+            degreeNotation = prefs.get(KEY_NOTATION, d.degreeNotation.name)
+                .let { n -> DegreeNotation.entries.firstOrNull { it.name == n } ?: d.degreeNotation },
+            contextualFunctions = prefs.getBoolean(KEY_CONTEXT_FUNCTIONS, d.contextualFunctions),
             voicing = VoicingSettings(
                 showVoicing = prefs.getBoolean(KEY_V_SHOW, d.voicing.showVoicing),
                 showVoiceLeading = prefs.getBoolean(KEY_V_LEADING, d.voicing.showVoiceLeading),
@@ -261,6 +265,8 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_I_DYADS, s.interpretation.completeDyads)
         prefs.putInt(KEY_I_WINDOW, s.interpretation.harmonicWindowMs)
         prefs.putBoolean(KEY_I_PASSING, s.interpretation.passingTones)
+        prefs.put(KEY_NOTATION, s.degreeNotation.name)
+        prefs.putBoolean(KEY_CONTEXT_FUNCTIONS, s.contextualFunctions)
         prefs.putBoolean(KEY_V_SHOW, s.voicing.showVoicing)
         prefs.putBoolean(KEY_V_LEADING, s.voicing.showVoiceLeading)
         prefs.putBoolean(KEY_V_PARALLELS, s.voicing.flagParallels)
@@ -307,6 +313,8 @@ class AppController(scope: CoroutineScope) {
         const val KEY_I_DYADS = "interpCompleteDyads"
         const val KEY_I_WINDOW = "interpHarmonicWindowMs"
         const val KEY_I_PASSING = "interpPassingTones"
+        const val KEY_NOTATION = "degreeNotation"
+        const val KEY_CONTEXT_FUNCTIONS = "contextualFunctions"
         const val KEY_V_SHOW = "voicingShow"
         const val KEY_V_LEADING = "voicingLeading"
         const val KEY_V_PARALLELS = "voicingParallels"

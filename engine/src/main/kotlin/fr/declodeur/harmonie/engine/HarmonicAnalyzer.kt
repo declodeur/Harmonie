@@ -7,6 +7,15 @@ enum class HarmonicFunction(val label: String, val short: String) {
     DOMINANT("Dominante", "D"),
 }
 
+/** Notation des degrés en mineur. */
+enum class DegreeNotation(val label: String) {
+    /** Degrés comptés dans la gamme de la tonalité : III, VI, VII en mineur (analyse classique). */
+    CLASSICAL("Classique"),
+
+    /** Degrés comptés dans la gamme majeure de la tonique : ♭III, ♭VI, ♭VII en mineur (jazz, variété). */
+    JAZZ("Jazz / variété"),
+}
+
 /** Nature de l'accord par rapport à la tonalité. */
 enum class HarmonicCategory(val label: String) {
     DIATONIC("Diatonique"),
@@ -28,6 +37,17 @@ data class HarmonicAnalysis(
     val category: HarmonicCategory,
     /** Explication en français. */
     val description: String,
+    /** Nom du degré (« tonique », « médiante », « sus-dominante », « sous-tonique »…), pour les accords de la gamme. */
+    val degreeName: String? = null,
+    /**
+     * Fonction choisie d'après l'accord suivant (VI, VII) : explication courte, ou null si la fonction
+     * vient de la table des degrés.
+     */
+    val context: String? = null,
+    /** L'accord suivant n'est pas encore joué : la fonction vient de la suite la plus probable. */
+    val contextPredicted: Boolean = false,
+    /** Accord qui tient le rôle de la tonique ou de la dominante sans en être le degré (III, VI ; VII sous-tonique). */
+    val substitute: Boolean = false,
 )
 
 /**
@@ -42,6 +62,20 @@ data class HarmonicAnalysis(
  */
 object HarmonicAnalyzer {
     private val ROMAN = arrayOf("I", "♭II", "II", "♭III", "III", "IV", "♯IV", "V", "♭VI", "VI", "♭VII", "VII")
+
+    /** Notation classique en mineur : degrés de la gamme mineure (B♭ et B sont tous deux VII en C mineur). */
+    private val ROMAN_MINOR = arrayOf("I", "♭II", "II", "III", "♯III", "IV", "♯IV", "V", "VI", "♯VI", "VII", "VII")
+
+    private fun roman(iv: Int, key: Key, notation: DegreeNotation): String =
+        if (key.minor && notation == DegreeNotation.CLASSICAL) ROMAN_MINOR[Notes.pc(iv)] else ROMAN[Notes.pc(iv)]
+
+    private val DEGREE_NAMES_MAJOR = mapOf(
+        0 to "tonique", 2 to "sus-tonique", 3 to "médiante", 4 to "médiante", 5 to "sous-dominante", 7 to "dominante",
+        8 to "sus-dominante", 9 to "sus-dominante", 10 to "sous-tonique", 11 to "sensible",
+    )
+
+    /** Nom du degré de la fondamentale (7e degré : sous-tonique un ton sous la tonique, sensible un demi-ton). */
+    fun degreeName(interval: Int): String? = DEGREE_NAMES_MAJOR[Notes.pc(interval)]
 
     /** Les diminués se nomment d'après la note qu'ils font monter : ♯Idim7 vers IIm. */
     private val ROMAN_SHARP = mapOf(1 to "♯I", 3 to "♯II", 6 to "♯IV", 8 to "♯V", 10 to "♯VI")
@@ -72,16 +106,27 @@ object HarmonicAnalyzer {
         9 to HarmonicFunction.SUBDOMINANT, 10 to HarmonicFunction.SUBDOMINANT, 11 to HarmonicFunction.DOMINANT,
     )
 
-    fun analyze(chord: ChordCandidate, key: Key, style: MusicStyle = MusicStyle.POP_ROCK): HarmonicAnalysis {
+    fun analyze(
+        chord: ChordCandidate,
+        key: Key,
+        style: MusicStyle = MusicStyle.POP_ROCK,
+        notation: DegreeNotation = DegreeNotation.CLASSICAL,
+    ): HarmonicAnalysis {
         val sp = key.spelling
         val iv = Notes.pc(chord.root - key.tonic)
         val rel = chord.chordPitchClasses.map { Notes.pc(it - key.tonic) }.toSet()
         val type = chord.type
-        val numeral = numeral(iv, type)
+        val numeral = numeral(iv, type, key, notation)
         val functions = if (key.minor) MINOR_FUNCTIONS else MAJOR_FUNCTIONS
         val keyName = key.name
+        fun rn(d: Int) = roman(d, key, notation)
+        fun tn(degree: Int) = targetNumeral(key, degree, notation)
 
-        fun result(n: String, f: HarmonicFunction?, c: HarmonicCategory, d: String) = HarmonicAnalysis(key, n, f, c, d)
+        fun result(n: String, f: HarmonicFunction?, c: HarmonicCategory, d: String) = HarmonicAnalysis(
+            key, n, f, c, d,
+            degreeName = if (c == HarmonicCategory.DIATONIC || c == HarmonicCategory.BORROWED || c == HarmonicCategory.ALTERED_DOMINANT) degreeName(iv) else null,
+            substitute = f == HarmonicFunction.TONIC && iv != 0 && (c == HarmonicCategory.DIATONIC || c == HarmonicCategory.BORROWED),
+        )
 
         // 1. Diatonique
         if (isDiatonic(rel, key.minor)) {
@@ -94,7 +139,7 @@ object HarmonicAnalyzer {
         if (style == MusicStyle.BLUES && type.isDominant && iv in setOf(0, 5, 7)) {
             val f = MAJOR_FUNCTIONS[iv]
             return result(numeral, f, HarmonicCategory.BLUES,
-                "Septième de blues sur le degré ${ROMAN[iv]} : couleur typique du blues, pas une dominante à résoudre.")
+                "Septième de blues sur le degré ${rn(iv)} : couleur typique du blues, pas une dominante à résoudre.")
         }
 
         if (type.isDominant || (type.isMajorTriadBased && type.intervals.size == 3)) {
@@ -107,9 +152,9 @@ object HarmonicAnalyzer {
             val target = Notes.pc(iv - 7)
             if (target != 0 && isTarget(target, key.minor)) {
                 val targetName = targetChordName(key, target)
-                return result("V${type.suffix}/${ROMAN[target]}", HarmonicFunction.DOMINANT,
+                return result("V${type.suffix}/${rn(target)}", HarmonicFunction.DOMINANT,
                     HarmonicCategory.SECONDARY_DOMINANT,
-                    "Dominante secondaire : dominante de $targetName (${targetNumeral(key, target)}). Elle tend à résoudre vers $targetName.")
+                    "Dominante secondaire : dominante de $targetName (${tn(target)}). Elle tend à résoudre vers $targetName.")
             }
         }
 
@@ -129,7 +174,7 @@ object HarmonicAnalyzer {
             if (target == 0 || isTarget(target, key.minor)) {
                 val targetName = if (target == 0) key.tonicName + (if (key.minor) "m" else "") else targetChordName(key, target)
                 val replaced = Notes.name(key.tonic + target + 7, sp) + "7"
-                val n = if (target == 0) "SubV${type.suffix}" else "SubV${type.suffix}/${ROMAN[target]}"
+                val n = if (target == 0) "SubV${type.suffix}" else "SubV${type.suffix}/${rn(target)}"
                 return result(n, HarmonicFunction.DOMINANT, HarmonicCategory.SUBSTITUTE_DOMINANT,
                     "Substitution tritonique : remplace $replaced (à un triton) et résout un demi-ton plus bas vers $targetName.")
             }
@@ -169,11 +214,14 @@ object HarmonicAnalyzer {
         notesOutsideKey(chord, key) >= 2 && analyze(chord, key, style).category == HarmonicCategory.CHROMATIC
 
     /** Chiffre romain du degré + suffixe Yamaha. */
-    fun numeral(interval: Int, type: ChordType): String {
+    fun numeral(interval: Int, type: ChordType, key: Key? = null, notation: DegreeNotation = DegreeNotation.JAZZ): String {
         val iv = Notes.pc(interval)
+        val classicalMinor = key != null && key.minor && notation == DegreeNotation.CLASSICAL
         val base = when {
+            type.isDiminished && classicalMinor -> if (iv == 1 || iv == 6) ROMAN_SHARP.getValue(iv) else ROMAN_MINOR[iv]
             type.isDiminished -> ROMAN_SHARP[iv] ?: ROMAN[iv]
             iv == 6 -> "♭V"
+            classicalMinor -> ROMAN_MINOR[iv]
             else -> ROMAN[iv]
         }
         return when (type) {
@@ -196,8 +244,57 @@ object HarmonicAnalyzer {
         return Notes.name(key.tonic + degree, key.spelling) + if (q == Quality.MINOR) "m" else ""
     }
 
-    private fun targetNumeral(key: Key, degree: Int): String {
+    private fun targetNumeral(key: Key, degree: Int, notation: DegreeNotation): String {
         val q = (if (key.minor) MINOR_TRIADS else MAJOR_TRIADS)[degree]
-        return ROMAN[degree] + if (q == Quality.MINOR) "m" else ""
+        return roman(degree, key, notation) + if (q == Quality.MINOR) "m" else ""
+    }
+
+    /**
+     * Fonction selon le contexte : VI et VII (sous-tonique) changent de rôle selon l'accord suivant.
+     * - VI (mineur) : suivi de I ou de III, il prolonge la tonique (tonique substitutive) ; suivi de II, IV,
+     *   V ou VII, il prépare la dominante (sous-dominante) ; juste après la dominante, sans suite connue,
+     *   il remplace la tonique (cadence rompue).
+     * - VII sous-tonique (un ton sous la tonique, en mineur ou emprunté en majeur) : suivi de I (cadence
+     *   éolienne, ou mixolydienne en majeur) ou, en mineur, de III, il joue le rôle de dominante
+     *   (dominante substitutive) ; sinon sous-dominante.
+     * Les autres accords gardent la fonction de la table des degrés.
+     */
+    fun inContext(
+        a: HarmonicAnalysis,
+        chord: ChordCandidate,
+        previous: ChordCandidate?,
+        next: ChordCandidate?,
+        nextPredicted: Boolean = false,
+    ): HarmonicAnalysis {
+        if (a.category != HarmonicCategory.DIATONIC && a.category != HarmonicCategory.BORROWED) return a
+        val key = a.key
+        val iv = Notes.pc(chord.root - key.tonic)
+        val majorBased = chord.type.isMajorTriadBased || chord.type.isDominant
+        if (!majorBased) return a
+        val nextIv = next?.let { Notes.pc(it.root - key.tonic) }
+        val nextName = next?.symbolIn(key.spelling)
+        val after = if (nextPredicted) "s'il est suivi de $nextName (suite la plus probable)" else "suivi de $nextName"
+        val (f, why) = when {
+            key.minor && iv == 8 -> when {
+                nextIv == 0 || nextIv == 3 -> HarmonicFunction.TONIC to "tonique substitutive : $after, il prolonge la tonique"
+                nextIv != null -> HarmonicFunction.SUBDOMINANT to "sous-dominante : $after, il prépare la dominante"
+                previous != null && Notes.pc(previous.root - key.tonic) == 7 && (previous.type.isDominant || previous.type.isMajorTriadBased) ->
+                    HarmonicFunction.TONIC to "tonique substitutive : après la dominante, il remplace la tonique (cadence rompue)"
+                else -> return a
+            }
+            iv == 10 -> when {
+                nextIv == 0 -> HarmonicFunction.DOMINANT to "dominante substitutive : $after, la sous-tonique ramène à la tonique " +
+                    if (key.minor) "(cadence éolienne)" else "(cadence mixolydienne, typique du rock)"
+                key.minor && nextIv == 3 -> HarmonicFunction.DOMINANT to "dominante substitutive : $after, c'est la dominante du relatif majeur"
+                nextIv != null -> HarmonicFunction.SUBDOMINANT to "sous-dominante : $after"
+                else -> return a
+            }
+            else -> return a
+        }
+        val base = a.description.substringBefore(", fonction de").removeSuffix(".")
+        return a.copy(
+            function = f, description = "$base, fonction de $why.", context = why, contextPredicted = nextPredicted,
+            substitute = f != HarmonicFunction.SUBDOMINANT,
+        )
     }
 }
