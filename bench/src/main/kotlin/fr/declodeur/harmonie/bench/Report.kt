@@ -148,6 +148,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
         Metric.CHORD to "bonne fondamentale et bon type (majeur, mineur, diminué…)",
         Metric.EXACT to "même chose, septième comprise",
         Metric.KEY to "même tonalité que l'expert à cet instant",
+        Metric.KEY_LATE_OK to "en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)",
         Metric.NUMERAL to "accord et tonalité justes, donc même chiffrage romain",
     )
 
@@ -159,7 +160,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
             Metric.CHORD -> pct(a.count { it.first }, a.size)
             Metric.KEY -> pct(a.count { it.second }, a.size)
             Metric.NUMERAL -> pct(a.count { it.first && it.second }, a.size)
-            Metric.EXACT -> null
+            Metric.EXACT, Metric.KEY_LATE_OK -> null
         }
     }
 
@@ -354,7 +355,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
     }
 
     private fun examplesTable(sb: StringBuilder, list: List<Verdict>) {
-        sb.append("<table>\n<tr><th>Morceau</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>\n")
+        sb.append("<table>\n<tr><th>Morceau</th><th>Moment</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>\n")
         for (v in list) {
             val e = v.expert
             val key = Key(e.tonic, e.minor)
@@ -370,7 +371,9 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
                 app.analysis?.let { append(" · ").append(it.numeral) }
                 append(" · ").append(app.key?.name ?: "pas de tonalité")
             }
-            sb.append("<tr><td>${esc(v.piece.id)}</td><td class=\"num\">m${e.measure} t${esc(e.beat)}</td>")
+            val where = if (e.measure < 0) "${esc(e.beat)} s" else "m${e.measure} t${esc(e.beat)}"
+            val who = if (v.piece.id.startsWith("isophonics_")) v.piece.title else v.piece.id
+            sb.append("<tr><td>${esc(who)}</td><td class=\"num\">$where</td>")
             sb.append("<td class=\"mono\">${esc(sounding)}</td>")
             sb.append("<td class=\"exp\"><span class=\"mono\">${esc(e.figure)}</span> en ${esc(key.name)} = <b>${esc(expertSymbol(e, sp))}</b></td>")
             sb.append("<td class=\"app\">${esc(appText)}</td></tr>\n")

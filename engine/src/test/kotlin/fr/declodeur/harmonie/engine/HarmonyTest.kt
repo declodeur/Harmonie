@@ -197,7 +197,8 @@ class HarmonyTest {
         val key = assertNotNull(e.snapshot().key)
         val expected = setOf(Key(6, false), Key(1, false), Key(11, false), Key(3, true), Key(10, true), Key(8, true))
         assertEquals(expected, key.compatible)
-        assertTrue(key.ranking.first().probability < 0.65, "trop sûr de lui : ${key.ranking.first()}")
+        // 0,65 avant le terme tonique (v0.10) : D♯m, joué deux fois dont en dernier, est logiquement favorisé
+        assertTrue(key.ranking.first().probability < 0.75, "trop sûr de lui : ${key.ranking.first()}")
         assertTrue(key.ranking.take(3).any { it.key == Key(3, true) }, "D♯ mineur attendu parmi les 3 premières")
     }
 

@@ -16,6 +16,10 @@ data class Corpus(
     val minAlignment: Double,
     /** Qui est l'expert B (second avis), s'il y en a un. */
     val secondExpert: String? = null,
+    /** L'expert ne note que la tonique de la tonalité (pas le mode). */
+    val tonicOnly: Boolean = false,
+    /** Notes générées à partir des accords des experts (pas de partition). */
+    val synthetic: Boolean = false,
 )
 
 val CORPORA = listOf(
@@ -41,6 +45,21 @@ val CORPORA = listOf(
         "bach-wtc1", "Clavier bien tempéré I, préludes",
         "Les 24 préludes du premier livre, analysés par Mark Gotham et al. Écriture en figurations (arpèges, notes de passage).",
         MusicStyle.CLASSICAL, 80, 0.65,
+    ),
+    Corpus(
+        "rock-corpus", "Rock et pop : corpus RS 200",
+        "195 chansons du classement « 500 Greatest Songs » de Rolling Stone, analysées par David Temperley (A) et " +
+            "Trevor de Clercq (B). Pas de partition : l'accompagnement est généré à partir des accords de A " +
+            "(teste la tonalité et le chiffrage, pas la reconnaissance). Seule la tonique est comparée.",
+        MusicStyle.POP_ROCK, 60, 0.0,
+        secondExpert = "Trevor de Clercq", tonicOnly = true, synthetic = true,
+    ),
+    Corpus(
+        "isophonics", "Pop : Beatles, Queen, Carole King…",
+        "224 chansons (Beatles, Queen, Carole King, Michael Jackson, Zweieck) analysées par le Centre for Digital " +
+            "Music (Isophonics). Accompagnement généré à partir des accords, comme pour RS 200.",
+        MusicStyle.POP_ROCK, 60, 0.0,
+        synthetic = true,
     ),
     Corpus(
         "schubert-winterreise", "Schubert, Winterreise",
@@ -88,7 +107,7 @@ fun runCorpus(lc: LoadedCorpus, settings: AnalysisSettings): CorpusResult {
     val perPiece = lc.pieces.parallelStream().map { p ->
         val msPerQuarter = 60_000.0 / (if (p.tempo > 0) p.tempo else corpus.defaultTempo)
         val timeline = Player.play(p, s, msPerQuarter)
-        p to Compare.compare(p, timeline, p.chords.getValue("A"), msPerQuarter)
+        p to Compare.compare(p, timeline, p.chords.getValue("A"), msPerQuarter, corpus.tonicOnly)
     }.toList()
     val verdicts = perPiece.flatMap { it.second }
     fun reference(analyst: String, label: String?): Reference? {
@@ -96,7 +115,7 @@ fun runCorpus(lc: LoadedCorpus, settings: AnalysisSettings): CorpusResult {
         val app = ArrayList<Verdict>()
         for ((p, v) in perPiece) {
             val other = p.chords[analyst] ?: continue
-            agreement += Compare.experts(p, p.chords.getValue("A"), other)
+            agreement += Compare.experts(p, p.chords.getValue("A"), other, corpus.tonicOnly)
             app += v
         }
         return if (agreement.isEmpty() || label == null) null else Reference(label, agreement, app)
@@ -133,10 +152,14 @@ fun main(args: Array<String>) {
     val base = AnalysisSettings()
     val results = loaded.map { runCorpus(it, base) }
     results.forEach { println(summary(it)) }
+    println("Moyenne des corpus : tonalité %.1f %%".format(results.map { pct(it.verdicts.count { v -> v.keyOk }, it.verdicts.size) }.average()))
     val experiments = Experiments.select(wanted).map { e ->
         val variant = loaded.map { runCorpus(it, e.apply(base)) }
         println("Expérience « ${e.name} » :")
         variant.forEach { println("  " + summary(it)) }
+        println("  Moyenne des corpus : tonalité %.1f %%, accord %.1f %%".format(
+            variant.map { pct(it.verdicts.count { v -> v.keyOk }, it.verdicts.size) }.average(),
+            variant.map { pct(it.verdicts.count { v -> v.chordOk }, it.verdicts.size) }.average()))
         ExperimentResult(e, results, variant)
     }
     val history = History.update(historyFile, results, commit)

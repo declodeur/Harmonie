@@ -36,8 +36,8 @@ data class AnalysisSettings(
     val keyMemorySeconds: Int = 4,
     /** Une cadence parfaite (V7 → I) vers une tonalité plausible la fait retenir tout de suite. */
     val cadenceKeyChange: Boolean = false,
-    /** Inertie de la tonalité retenue, en centièmes de score (0 = suit toujours la plus probable). */
-    val keyInertiaPercent: Int = 1,
+    /** Modèle de tonalité, réglé séparément pour chaque style (la notion de tonalité n'est pas la même). */
+    val keyParams: Map<MusicStyle, KeyParams> = KeyParams.DEFAULTS,
     /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
     val melodyWeightPercent: Int = 70,
     /** Changement de tonalité immédiat quand un accord sort franchement de la tonalité. */
@@ -55,6 +55,47 @@ data class AnalysisSettings(
     /** Affichage : repérer la gamme de l'accord courant sur le grand clavier. */
     val scaleOnKeyboard: Boolean = true,
 )
+
+/**
+ * Réglages du modèle de tonalité pour un style (valeurs mises au point sur le banc d'essai).
+ * [memoryChords] : demi-vie en nombre de changements d'accord (0 = en secondes, [AnalysisSettings.keyMemorySeconds]) ;
+ * [tonicPercent] : poids du temps passé sur l'accord de tonique ; [dominantPercent] : part de ce poids
+ * accordée à la dominante de la tonalité ; [inertiaPercent] : hystérésis de la tonalité retenue.
+ */
+data class KeyParams(
+    val memoryChords: Int,
+    val tonicPercent: Int,
+    val dominantPercent: Int,
+    val inertiaPercent: Int,
+) {
+    companion object {
+        /** Classique : modulations fréquentes, mémoire courte. Pop : tonique stable, mémoire longue. */
+        val CLASSICAL = KeyParams(memoryChords = 4, tonicPercent = 30, dominantPercent = 30, inertiaPercent = 1)
+        val POP = KeyParams(memoryChords = 12, tonicPercent = 60, dominantPercent = 0, inertiaPercent = 1)
+
+        /** Jazz et blues : pas encore de corpus dans le banc d'essai, réglages de la pop. */
+        val DEFAULTS: Map<MusicStyle, KeyParams> = mapOf(
+            MusicStyle.CLASSICAL to CLASSICAL,
+            MusicStyle.POP_ROCK to POP,
+            MusicStyle.JAZZ to POP,
+            MusicStyle.BLUES to POP,
+        )
+
+        /** Modèle d'avant le banc d'essai (mémoire en secondes, sans terme tonique). */
+        val LEGACY = KeyParams(memoryChords = 0, tonicPercent = 0, dominantPercent = 0, inertiaPercent = 3)
+    }
+}
+
+/** Réglages de tonalité du style choisi. */
+val AnalysisSettings.currentKeyParams: KeyParams get() = keyParams[style] ?: KeyParams.POP
+
+/** Modifie les réglages de tonalité du style choisi. */
+fun AnalysisSettings.withKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
+    copy(keyParams = keyParams + (style to f(currentKeyParams)))
+
+/** Modifie les réglages de tonalité de tous les styles (expériences du banc d'essai). */
+fun AnalysisSettings.withAllKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
+    copy(keyParams = MusicStyle.entries.associateWith { f(keyParams[it] ?: KeyParams.POP) })
 
 /** Une note qui sonne, telle que l'interface doit l'afficher. */
 data class SoundingNote(
@@ -153,7 +194,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     private var version = 0L
     private val keyDetector = KeyDetector(settings.keyMemorySeconds * 1000L).apply {
         style = settings.style
-        switchMargin = settings.keyInertiaPercent / 100.0
+        applyParams(settings.currentKeyParams)
         melodyWeight = settings.melodyWeightPercent / 100.0
     }
 
@@ -211,7 +252,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         keyDetector.halfLifeMs = newSettings.keyMemorySeconds * 1000L
         keyDetector.style = newSettings.style
         keyDetector.melodyWeight = newSettings.melodyWeightPercent / 100.0
-        keyDetector.switchMargin = newSettings.keyInertiaPercent / 100.0
+        keyDetector.applyParams(newSettings.currentKeyParams)
         attackSinceCommit = true
         peakSet = emptySet()
         analysisSet = emptySet()
@@ -321,6 +362,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                 keyDetector.forget()
             }
             keyDetector.addChord(best, previous)
+            keyDetector.chordSounding(best)
             if (settings.cadenceKeyChange && previous != null && previous.type.isDominant &&
                 Notes.pc(previous.root - best.root) == 7 && (best.type.isMajorTriadBased || best.type.isMinorTriadBased) &&
                 !best.type.isDominant

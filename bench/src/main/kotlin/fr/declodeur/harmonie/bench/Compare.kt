@@ -129,7 +129,14 @@ object Compare {
         return best
     }
 
-    fun compare(piece: Piece, timeline: Timeline, chords: List<ExpertChord>, msPerQuarter: Double): List<Verdict> {
+    /** [tonicOnly] : l'expert ne note que la tonique (rock corpus) ; le mode n'est pas comparé. */
+    fun compare(
+        piece: Piece,
+        timeline: Timeline,
+        chords: List<ExpertChord>,
+        msPerQuarter: Double,
+        tonicOnly: Boolean = false,
+    ): List<Verdict> {
         val verdicts = ArrayList<Verdict>()
         // Longueur de chaque passage dans une même tonalité (pour repérer les tonicisations brèves)
         val runLength = DoubleArray(chords.size)
@@ -157,7 +164,7 @@ object Compare {
             val app = shown.chord?.let { Reading.of(it) }
             val chordOk = chordMatches(expert, e.special, app)
             val exactOk = exactMatches(expert, e.special, app)
-            val keyOk = shown.key == expertKey
+            val keyOk = if (tonicOnly) shown.key?.tonic == expertKey.tonic else shown.key == expertKey
             val chordError = if (chordOk) null else chordError(e, prev, app)
             val keyError = if (keyOk) null else when {
                 shown.key == null -> KeyError.NO_KEY
@@ -187,12 +194,12 @@ object Compare {
     }
 
     /** Accord entre deux experts : on compare l'expert B à l'expert A, accord par accord de A. */
-    fun experts(piece: Piece, a: List<ExpertChord>, b: List<ExpertChord>): List<Pair<Boolean, Boolean>> =
+    fun experts(piece: Piece, a: List<ExpertChord>, b: List<ExpertChord>, tonicOnly: Boolean = false): List<Pair<Boolean, Boolean>> =
         a.mapNotNull { ea ->
             val mid = ea.start + minOf(0.25, (ea.end - ea.start) / 2)
             val eb = b.firstOrNull { it.start <= mid && mid < it.end } ?: return@mapNotNull null
             val chordOk = chordMatches(Reading.of(ea), ea.special, Reading.of(eb))
-            val keyOk = ea.tonic == eb.tonic && ea.minor == eb.minor
+            val keyOk = ea.tonic == eb.tonic && (tonicOnly || ea.minor == eb.minor)
             chordOk to keyOk
         }
 }

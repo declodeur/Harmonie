@@ -86,6 +86,29 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
             field = value.coerceIn(0.0, 1.0)
         }
 
+    /**
+     * Poids du terme « tonique » : part du temps passé sur un accord de tonique (fondamentale et
+     * mode de la tonalité). En pop, la tonique est l'accord sur lequel on revient, pas seulement
+     * la gamme qui contient les notes (I – ♭VII : F et E♭ tiennent dans B♭ majeur, mais la
+     * tonique est F). 0 = modèle d'origine.
+     */
+    var tonicWeight: Double = 0.0
+
+    /**
+     * Mémoire comptée en changements d'accord (demi-vie en nombre d'accords) au lieu de secondes :
+     * elle s'adapte au rythme harmonique (un accord par temps dans un choral, un par mesure en pop).
+     * 0 = mémoire en secondes ([halfLifeMs]).
+     */
+    var halfLifeChords: Double = 0.0
+
+    /** Part du terme tonique reportée sur la tonalité dont l'accord est la dominante (V → I). */
+    var dominantShare: Double = 0.0
+
+    /** Temps passé sur chaque accord, rangé par tonalité dont il serait la tonique. */
+    private val rootTime = DoubleArray(24)
+    private val dominantTime = DoubleArray(24)
+    private var soundingChord: Int = -1
+
     private val harmony = DoubleArray(12)
     private val melody = DoubleArray(12)
     private val bonus = DoubleArray(24)
@@ -98,6 +121,9 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         harmony.fill(0.0)
         melody.fill(0.0)
         bonus.fill(0.0)
+        rootTime.fill(0.0)
+        dominantTime.fill(0.0)
+        soundingChord = -1
         lastMs = -1L
         current = null
     }
@@ -116,13 +142,26 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         if (dt <= 0) return
         lastMs = nowMs
         if (harmonicNotes.isEmpty() && melodicNotes.isEmpty()) return
-        val factor = 0.5.pow(dt.toDouble() / halfLifeMs)
+        val factor = if (halfLifeChords > 0) 1.0 else 0.5.pow(dt.toDouble() / halfLifeMs)
         for (i in 0 until 12) {
             harmony[i] *= factor
             melody[i] *= factor
         }
         for (i in bonus.indices) bonus[i] *= factor
+        for (i in rootTime.indices) {
+            rootTime[i] *= factor
+            dominantTime[i] *= factor
+        }
         val add = dt / 1000.0
+        if (soundingChord >= 0 && harmonicNotes.isNotEmpty()) {
+            rootTime[soundingChord] += add
+            // Un accord majeur soutient aussi la tonalité dont il est la dominante (majeure ou mineure)
+            if (soundingChord < 12) {
+                val target = Notes.pc(soundingChord - 7)
+                dominantTime[target] += add
+                dominantTime[target + 12] += add
+            }
+        }
         for (pc in harmonicNotes.map(Notes::pc).toSet()) harmony[pc] += add
         for (pc in melodicNotes.map(Notes::pc).toSet()) melody[pc] += add
     }
@@ -142,7 +181,40 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
             melody[i] *= keep
         }
         for (i in bonus.indices) bonus[i] *= keep
+        for (i in rootTime.indices) {
+            rootTime[i] *= keep
+            dominantTime[i] *= keep
+        }
         current = null
+    }
+
+    private fun decay(f: Double) {
+        for (i in 0 until 12) {
+            harmony[i] *= f
+            melody[i] *= f
+        }
+        for (i in bonus.indices) bonus[i] *= f
+        for (i in rootTime.indices) {
+            rootTime[i] *= f
+            dominantTime[i] *= f
+        }
+    }
+
+    fun applyParams(p: KeyParams) {
+        switchMargin = p.inertiaPercent / 100.0
+        tonicWeight = p.tonicPercent / 100.0
+        halfLifeChords = p.memoryChords.toDouble()
+        dominantShare = p.dominantPercent / 100.0
+    }
+
+    /** L'accord qui sonne désormais (pour le terme tonique). */
+    fun chordSounding(chord: ChordCandidate?) {
+        soundingChord = when {
+            chord == null -> -1
+            chord.type.isMinorTriadBased -> Key(chord.root, true).index
+            chord.type.isMajorTriadBased || chord.type.isDominant -> Key(chord.root, false).index
+            else -> -1
+        }
     }
 
     /**
@@ -162,6 +234,9 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
 
     /** Un accord vient d'être reconnu ; [previous] est l'accord précédent. */
     fun addChord(chord: ChordCandidate, previous: ChordCandidate?) {
+        if (halfLifeChords > 0 && (previous == null || previous.root != chord.root || previous.type != chord.type)) {
+            decay(0.5.pow(1.0 / halfLifeChords))
+        }
         for (pc in chord.chordPitchClasses) harmony[pc] += CHORD_WEIGHT
         harmony[chord.root] += CHORD_WEIGHT
         if (previous != null && previous.type.isDominant && Notes.pc(previous.root - chord.root) == 7) {
@@ -215,7 +290,16 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
     private fun score(key: Key, w: DoubleArray): Double {
         val profile = profileFor(key.minor)
         val rotated = DoubleArray(12) { pc -> profile[Notes.pc(pc - key.tonic)] }
-        return FIT_WEIGHT * fit(key, w) + PROFILE_WEIGHT * correlation(w, rotated) + bonus[key.index]
+        var s = FIT_WEIGHT * fit(key, w) + PROFILE_WEIGHT * correlation(w, rotated) + bonus[key.index]
+        if (tonicWeight > 0) {
+            val total = rootTime.sum()
+            if (total > 0) {
+                val t = rootTime[key.index] / total
+                val d = dominantTime[key.index] / total
+                s += tonicWeight * ((1 - dominantShare) * t + dominantShare * d)
+            }
+        }
+        return s
     }
 
     private fun profileFor(minor: Boolean): DoubleArray = when (style) {
