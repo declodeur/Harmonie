@@ -84,7 +84,10 @@ class PredictorTest {
 
     @Test
     fun treeFollowsItsSettings() {
-        val t = Predictor.tree(listOf(I), c, MusicStyle.POP_ROCK, PredictionSettings(level1 = 4, level2 = 2, level3 = 1), listOf(60, 64, 67))
+        val t = Predictor.tree(
+            listOf(I), c, MusicStyle.POP_ROCK,
+            PredictionSettings(level1 = 4, level2 = 2, level3 = 1, expandThresholdPercent = 0), listOf(60, 64, 67),
+        )
         assertEquals(4, t.size)
         assertTrue(t.all { it.children.size == 2 })
         assertTrue(t.all { n -> n.children.all { it.children.size == 1 } })
@@ -92,6 +95,16 @@ class PredictorTest {
         val t2 = Predictor.tree(listOf(I), c, MusicStyle.POP_ROCK, PredictionSettings(level1 = 3, level2 = 0, level3 = 2), listOf(60, 64, 67))
         assertEquals(3, t2.size)
         assertTrue(t2.all { it.children.isEmpty() })
+    }
+
+    @Test
+    fun weakBranchesAreNotExpanded() {
+        val t = Predictor.tree(listOf(I), c, MusicStyle.POP_ROCK, PredictionSettings(expandThresholdPercent = 20), emptyList())
+        assertTrue(t.any { it.probability < 0.2 }, "il faut une branche faible pour ce test")
+        for (n in t) {
+            assertEquals(n.pathProbability >= 0.2, n.children.isNotEmpty(), "branche ${n.numeral} à ${n.pathProbability}")
+            for (ch in n.children) assertEquals(ch.pathProbability >= 0.2, ch.children.isNotEmpty())
+        }
     }
 
     @Test

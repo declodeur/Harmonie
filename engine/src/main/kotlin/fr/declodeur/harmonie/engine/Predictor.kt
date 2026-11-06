@@ -32,6 +32,11 @@ data class PredictionSettings(
     val level3: Int = 1,
     /** Afficher un mini clavier sous les propositions du premier niveau (masqué par défaut). */
     val showMiniKeyboards: Boolean = false,
+    /**
+     * Une branche n'est prolongée au niveau suivant que si sa probabilité (celle du chemin depuis
+     * l'accord joué) atteint ce seuil, en pour cent. 0 = toujours prolongée.
+     */
+    val expandThresholdPercent: Int = 10,
 )
 
 /**
@@ -299,7 +304,11 @@ object Predictor {
                     probability = p,
                     pathProbability = parentP * p,
                     voicing = if (depth == 1) Voicing.lead(currentNotes, chord) else emptyList(),
-                    children = expand(ctx + deg, depth + 1, parentP * p),
+                    children = if (parentP * p * 100 >= settings.expandThresholdPercent) {
+                        expand(ctx + deg, depth + 1, parentP * p)
+                    } else {
+                        emptyList()
+                    },
                 )
             }
         }

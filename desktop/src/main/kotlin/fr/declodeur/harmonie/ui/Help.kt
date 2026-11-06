@@ -304,4 +304,10 @@ object Help {
             "des notes nouvelles (ou une rupture) pour en changer. C'est ce qu'entend un musicien : Cm – A♭ – E♭ " +
             "– B♭ reste en C mineur d'un bout à l'autre, au lieu d'hésiter à chaque accord avec E♭ majeur. " +
             "0 = désactivé.\n\nBanc d'essai : divise par deux à trois les changements de tonalité inutiles."
+
+    const val PREDICTION_THRESHOLD =
+        "Une branche de l'arbre n'est prolongée au niveau suivant que si sa probabilité atteint ce seuil " +
+            "(probabilité du chemin depuis l'accord joué). Avec une proposition à 90 % et deux à 5 %, seules " +
+            "les suites de la première sont calculées : l'arbre montre ce qui compte et se lit mieux. " +
+            "0 = toutes les branches sont prolongées."
 }

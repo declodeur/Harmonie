@@ -679,6 +679,11 @@ private fun SettingsDialog(
                             "Contexte : ${pr.contextSize} accord(s) précédent(s)", Help.PREDICTION_CONTEXT,
                             pr.contextSize.toFloat(), 1f..4f, 1f,
                         ) { onChange(settings.copy(prediction = pr.copy(contextSize = it.roundToInt()))) }
+                        SliderSetting(
+                            if (pr.expandThresholdPercent == 0) "Prolonger toutes les branches"
+                            else "Prolonger une branche à partir de ${pr.expandThresholdPercent} %",
+                            Help.PREDICTION_THRESHOLD, pr.expandThresholdPercent.toFloat(), 0f..50f, 5f,
+                        ) { onChange(settings.copy(prediction = pr.copy(expandThresholdPercent = it.roundToInt()))) }
                         Label("Forme de l'arbre : ${pr.level1}-${pr.level2}-${pr.level3}", Help.PREDICTION_SHAPE)
                         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             Column(Modifier.weight(1f)) {

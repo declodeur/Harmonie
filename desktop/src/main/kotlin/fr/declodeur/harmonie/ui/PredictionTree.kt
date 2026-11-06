@@ -35,6 +35,7 @@ import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.PredictionNode
 import fr.declodeur.harmonie.engine.Spelling
 import fr.declodeur.harmonie.engine.ToneRole
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 private val COL1_W = 100.dp
@@ -44,6 +45,9 @@ private val LEFT_MARGIN = 18.dp
 private val GAP_12 = 26.dp
 private val GAP_23 = 20.dp
 private val CHIP1_H = 46.dp
+
+/** Espace entre deux branches du premier niveau (lisibilité de l'arbre). */
+private val BRANCH_GAP = 10.dp
 private val KEYBOARD_H = 24.dp
 
 /** Position calculée d'un nœud de l'arbre. */
@@ -82,7 +86,6 @@ private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling, showMiniKe
     run {
         BoxWithConstraints(Modifier.fillMaxSize().padding(top = 4.dp).clipToBounds()) {
             val placed = layoutTree(nodes, maxHeight, maxWidth, showMiniKeyboards)
-            val top1 = nodes.maxOf { it.pathProbability }.coerceAtLeast(1e-9)
 
             // Liens entre les cases
             Canvas(Modifier.fillMaxSize()) {
@@ -112,7 +115,9 @@ private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling, showMiniKe
             }
 
             for (p in placed) {
-                val alpha = (0.06f + 0.6f * (p.node.pathProbability / top1).toFloat()).coerceIn(0.04f, 0.7f)
+                // Intensité selon la probabilité du chemin : 0 % = fond sombre de la fenêtre (plus foncé
+                // que le cadre), 100 % = bleu plein comme avant ; courbe douce pour garder les rangs lisibles
+                val alpha = (0.7f * p.node.pathProbability.toFloat().coerceIn(0f, 1f).pow(0.75f))
                 Box(Modifier.offset(p.x, p.y)) {
                     if (p.level == 1) {
                         Column {
@@ -139,9 +144,10 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
     // Hauteur d'une ligne de petites cases, et place pour le mini clavier si possible
     var rowH = (height / totalRows).coerceIn(24.dp, 36.dp)
     var blockMin = if (showKeyboards) withKeyboard else CHIP1_H + 4.dp
-    fun total() = rowsPerBranch.fold(0.dp) { acc, r -> acc + maxOf(rowH * r, blockMin) }
+    val gaps = BRANCH_GAP * (nodes.size - 1).coerceAtLeast(0)
+    fun total() = rowsPerBranch.fold(0.dp) { acc, r -> acc + maxOf(rowH * r, blockMin) } + gaps
     if (total() > height) blockMin = CHIP1_H + 4.dp
-    if (total() > height) rowH = (height / totalRows).coerceAtLeast(20.dp)
+    if (total() > height) rowH = ((height - gaps) / totalRows).coerceAtLeast(20.dp)
 
     // Colonnes élargies quand la place le permet (jusqu'à +60 %)
     val natural = LEFT_MARGIN + COL1_W + GAP_12 + COL2_W + GAP_23 + COL3_W
@@ -166,7 +172,7 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
             val i2 = result.lastIndex
             c.children.firstOrNull()?.let { g -> result += Placed(g, 3, x3, cy, w3, childH, parent = i2) }
         }
-        y += bandH
+        y += bandH + BRANCH_GAP
     }
     return result
 }
@@ -175,7 +181,8 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
 private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spelling, modifier: Modifier) {
     val shape = RoundedCornerShape(6.dp)
     Row(
-        modifier.background(Palette.accent.copy(alpha = alpha), shape).border(1.dp, Palette.border, shape)
+        modifier.background(Palette.background, shape).background(Palette.accent.copy(alpha = alpha), shape)
+            .border(1.dp, Palette.border, shape)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -197,7 +204,8 @@ private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spellin
 private fun SmallChip(node: PredictionNode, alpha: Float, spelling: Spelling, modifier: Modifier) {
     val shape = RoundedCornerShape(5.dp)
     Box(
-        modifier.background(Palette.accent.copy(alpha = alpha), shape).border(1.dp, Palette.border, shape),
+        modifier.background(Palette.background, shape).background(Palette.accent.copy(alpha = alpha), shape)
+            .border(1.dp, Palette.border, shape),
         contentAlignment = Alignment.Center,
     ) {
         Text(
