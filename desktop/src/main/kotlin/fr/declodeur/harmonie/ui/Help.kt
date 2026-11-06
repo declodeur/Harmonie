@@ -92,8 +92,11 @@ object Help {
             "Contour orange : tonalité compatible, sa gamme contient (presque) toutes les notes jouées. " +
             "Remplissage bleu : probabilité, qui dépend de la compatibilité, du centre de gravité des notes " +
             "(comparé aux profils de référence de chaque tonalité) et des cadences (dominante qui résout une " +
-            "quinte plus bas). Trait blanc : tonalité retenue ; elle ne change que si une autre devient " +
-            "nettement plus probable, pour éviter les changements intempestifs.\n\n" +
+            "quinte plus bas), ainsi que de la tonique : premier accord du morceau, accords sur lesquels on " +
+            "arrive (V → I, ♭VII → i, IV → I) et temps passé dessus. Trait blanc : tonalité retenue ; tant que " +
+            "tout ce qu'on joue reste dans sa gamme, elle ne change pas (il faut des notes nouvelles ou une " +
+            "rupture), pour éviter les changements intempestifs. Quand une autre tonalité reste presque aussi " +
+            "probable, la ligne sous le nom l'indique (« Hésite avec… »).\n\n" +
             "Quand plusieurs tonalités contiennent toutes les notes (par exemple C majeur et A mineur), " +
             "leurs probabilités restent proches : seuls la tonique, les cadences et les notes caractéristiques " +
             "(G♯ en la mineur) les départagent, notamment dans la mélodie. Le style compte aussi : en " +
@@ -282,4 +285,23 @@ object Help {
             "en partie, sur sa dominante). En rock, F et E♭ tiennent tous les deux dans la gamme de B♭ majeur, " +
             "mais la tonique, l'accord sur lequel on revient, est F. 0 = seulement les notes.\n\nBanc d'essai : " +
             "+10 points environ en pop, +1 à +2 en classique."
+
+    const val DEFAULT_SETTINGS =
+        "Remet tous les réglages de cette fenêtre à leur valeur par défaut (celles mesurées sur le banc " +
+            "d'essai), pour tous les styles. Le style, le mode d'analyse et le canal des accords, choisis dans " +
+            "la barre du haut, sont conservés ; la disposition de l'écran a son propre bouton. Une confirmation " +
+            "est demandée."
+
+    const val KEY_ARRIVAL =
+        "Indices de tonique tirés des enchaînements. Arrivées : un accord atteint par sa dominante (V → I), " +
+            "par le ♭VII (B♭ → Cm, la cadence typique du rock) ou par sa sous-dominante (IV → I) est sans doute " +
+            "la tonique. Premier accord : un morceau commence le plus souvent sur sa tonique ; l'indice est " +
+            "gardé jusqu'à une rupture ou un nouveau morceau (« Effacer »). 0 = désactivé.\n\nBanc d'essai : " +
+            "+5 points en pop ; défavorable en classique, où les modulations sont fréquentes."
+
+    const val KEY_HOLD =
+        "Tant que tout ce qu'on joue reste dans la gamme de la tonalité retenue, elle garde la main : il faut " +
+            "des notes nouvelles (ou une rupture) pour en changer. C'est ce qu'entend un musicien : Cm – A♭ – E♭ " +
+            "– B♭ reste en C mineur d'un bout à l'autre, au lieu d'hésiter à chaque accord avec E♭ majeur. " +
+            "0 = désactivé.\n\nBanc d'essai : divise par deux à trois les changements de tonalité inutiles."
 }

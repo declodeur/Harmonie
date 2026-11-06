@@ -197,8 +197,9 @@ class HarmonyTest {
         val key = assertNotNull(e.snapshot().key)
         val expected = setOf(Key(6, false), Key(1, false), Key(11, false), Key(3, true), Key(10, true), Key(8, true))
         assertEquals(expected, key.compatible)
-        // 0,65 avant le terme tonique (v0.10) : D♯m, joué deux fois dont en dernier, est logiquement favorisé
-        assertTrue(key.ranking.first().probability < 0.75, "trop sûr de lui : ${key.ranking.first()}")
+        // 0,65 avant le terme tonique (v0.10), 0,75 ensuite ; v0.11 : le premier accord (F♯) compte pour la
+        // tonique, comme le veut l'usage (un morceau commence le plus souvent sur sa tonique)
+        assertTrue(key.ranking.first().probability < 0.9, "trop sûr de lui : ${key.ranking.first()}")
         assertTrue(key.ranking.take(3).any { it.key == Key(3, true) }, "D♯ mineur attendu parmi les 3 premières")
     }
 
@@ -208,7 +209,11 @@ class HarmonyTest {
         val with = playWithMelody(popLoop, melody, AnalysisSettings()).snapshot().key!!
         val without = playWithMelody(popLoop, melody, AnalysisSettings(melodyWeightPercent = 0)).snapshot().key!!
         assertEquals(Key(9, true), with.ranking.first().key)
-        assertTrue(with.probabilityOf(Key(9, true)) > without.probabilityOf(Key(9, true)) + 0.3)
+        // v0.11 : le premier accord (Am) compte déjà pour A mineur ; la mélodie renforce encore
+        assertTrue(
+            with.probabilityOf(Key(9, true)) > without.probabilityOf(Key(9, true)) + 0.05,
+            "avec mélodie ${with.probabilityOf(Key(9, true))}, sans ${without.probabilityOf(Key(9, true))}",
+        )
     }
 
     @Test

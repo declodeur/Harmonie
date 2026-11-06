@@ -85,7 +85,36 @@ class CorpusResult(
     val verdicts: List<Verdict>,
     val expert: Reference?,
     val software: Reference?,
-)
+    /** Changements de la tonalité retenue par l'application, sur tous les morceaux. */
+    val appKeyChanges: Int = 0,
+    /** Changements de tonalité notés par l'expert A, sur tous les morceaux. */
+    val expertKeyChanges: Int = 0,
+    /** Durée jouée, en minutes. */
+    val minutes: Double = 0.0,
+) {
+    /** Changements de tonalité par minute : application et expert. */
+    val appChangesPerMinute: Double get() = if (minutes > 0) appKeyChanges / minutes else 0.0
+    val expertChangesPerMinute: Double get() = if (minutes > 0) expertKeyChanges / minutes else 0.0
+
+    /** Combien de fois plus de changements de tonalité que l'expert (1 = autant). */
+    val changeRatio: Double get() = appKeyChanges.toDouble() / maxOf(1, expertKeyChanges)
+}
+
+/** Changements de la tonalité retenue dans une lecture (une tonalité qui en remplace une autre). */
+fun appKeyChanges(t: Timeline, tonicOnly: Boolean): Int {
+    var n = 0
+    var last: fr.declodeur.harmonie.engine.Key? = null
+    for (d in t.samples) {
+        val k = d.key ?: continue
+        if (last != null && (if (tonicOnly) k.tonic != last.tonic else k != last)) n++
+        last = k
+    }
+    return n
+}
+
+/** Changements de tonalité notés par l'expert. */
+fun expertKeyChanges(chords: List<ExpertChord>, tonicOnly: Boolean): Int =
+    chords.zipWithNext().count { (a, b) -> a.tonic != b.tonic || (!tonicOnly && a.minor != b.minor) }
 
 fun pct(n: Int, d: Int): Double = if (d == 0) 0.0 else 100.0 * n / d
 
@@ -107,13 +136,15 @@ fun runCorpus(lc: LoadedCorpus, settings: AnalysisSettings): CorpusResult {
     val perPiece = lc.pieces.parallelStream().map { p ->
         val msPerQuarter = 60_000.0 / (if (p.tempo > 0) p.tempo else corpus.defaultTempo)
         val timeline = Player.play(p, s, msPerQuarter)
-        p to Compare.compare(p, timeline, p.chords.getValue("A"), msPerQuarter, corpus.tonicOnly)
+        val v = Compare.compare(p, timeline, p.chords.getValue("A"), msPerQuarter, corpus.tonicOnly)
+        Triple(p, v, Triple(appKeyChanges(timeline, corpus.tonicOnly), expertKeyChanges(p.chords.getValue("A"), corpus.tonicOnly),
+            timeline.samples.size * timeline.stepMs / 60_000.0))
     }.toList()
     val verdicts = perPiece.flatMap { it.second }
     fun reference(analyst: String, label: String?): Reference? {
         val agreement = ArrayList<Pair<Boolean, Boolean>>()
         val app = ArrayList<Verdict>()
-        for ((p, v) in perPiece) {
+        for ((p, v, _) in perPiece) {
             val other = p.chords[analyst] ?: continue
             agreement += Compare.experts(p, p.chords.getValue("A"), other, corpus.tonicOnly)
             app += v
@@ -124,6 +155,9 @@ fun runCorpus(lc: LoadedCorpus, settings: AnalysisSettings): CorpusResult {
         corpus, lc.pieces, lc.excluded, verdicts,
         expert = reference("B", corpus.secondExpert),
         software = reference("M", "AugmentedNet"),
+        appKeyChanges = perPiece.sumOf { it.third.first },
+        expertKeyChanges = perPiece.sumOf { it.third.second },
+        minutes = perPiece.sumOf { it.third.third },
     )
 }
 
@@ -133,7 +167,7 @@ fun summary(r: CorpusResult): String {
         r.corpus.name, r.pieces.size, v.size,
         pct(v.count { it.chordOk }, v.size), pct(v.count { it.exactOk }, v.size),
         pct(v.count { it.keyOk }, v.size), pct(v.count { it.numeralOk }, v.size),
-    )
+    ) + " — changements de tonalité ×%.1f (expert %.1f/min)".format(r.changeRatio, r.expertChangesPerMinute)
 }
 
 /**

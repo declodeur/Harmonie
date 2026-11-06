@@ -67,11 +67,22 @@ data class KeyParams(
     val tonicPercent: Int,
     val dominantPercent: Int,
     val inertiaPercent: Int,
+    /** Bonus de la tonalité retenue tant que tout ce qu'on joue reste dans sa gamme (0 = désactivé). */
+    val holdPercent: Int = 0,
+    /** Poids des arrivées sur un accord (V → I, ♭VII → I, IV → I) comme indice de tonique (0 = désactivé). */
+    val arrivalPercent: Int = 0,
+    /** Poids du premier accord du morceau comme indice de tonique (0 = désactivé). */
+    val primacyPercent: Int = 0,
 ) {
     companion object {
         /** Classique : modulations fréquentes, mémoire courte. Pop : tonique stable, mémoire longue. */
-        val CLASSICAL = KeyParams(memoryChords = 4, tonicPercent = 30, dominantPercent = 30, inertiaPercent = 1)
-        val POP = KeyParams(memoryChords = 12, tonicPercent = 60, dominantPercent = 0, inertiaPercent = 1)
+        val CLASSICAL = KeyParams(
+            memoryChords = 4, tonicPercent = 30, dominantPercent = 30, inertiaPercent = 3, holdPercent = 15,
+        )
+        val POP = KeyParams(
+            memoryChords = 12, tonicPercent = 60, dominantPercent = 0, inertiaPercent = 3, holdPercent = 15,
+            arrivalPercent = 20, primacyPercent = 20,
+        )
 
         /** Jazz et blues : pas encore de corpus dans le banc d'essai, réglages de la pop. */
         val DEFAULTS: Map<MusicStyle, KeyParams> = mapOf(

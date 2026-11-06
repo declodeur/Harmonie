@@ -44,3 +44,33 @@ class KeyModelTest {
         assertEquals(KeyParams.CLASSICAL, s.copy(style = MusicStyle.CLASSICAL).currentKeyParams)
     }
 }
+
+class KeyStabilityTest {
+    /** Cm – A♭ – E♭ – B♭, trois fois (i – VI – III – VII en C mineur, la boucle de « Zombie »). */
+    @Test
+    fun aeolianLoopStaysInCMinor() {
+        val loop = listOf(listOf(48, 60, 63, 67), listOf(44, 60, 63, 68), listOf(51, 58, 63, 67), listOf(46, 58, 62, 65))
+        val e = HarmonieEngine(AnalysisSettings(style = MusicStyle.POP_ROCK))
+        var t = 0L
+        val keys = mutableListOf<Key?>()
+        repeat(3) {
+            for (c in loop) {
+                c.forEach { e.noteOn(0, it, 90, t) }
+                val end = t + 1500
+                while (t < end) { t += 10; e.tick(t) }
+                keys += e.snapshot().key?.current
+                c.forEach { e.noteOff(0, it, t) }
+                t += 30; e.tick(t)
+            }
+        }
+        val cMinor = Key(0, true)
+        assertEquals(List(keys.size) { cMinor }, keys, "la tonalité doit rester C mineur d'un bout à l'autre")
+        val estimate = e.snapshot().key!!
+        assertEquals(cMinor, estimate.ranking.first().key)
+        // Probabilité honnête : C mineur nettement devant, sans prétendre à la certitude
+        val p = estimate.probabilityOf(cMinor)
+        kotlin.test.assertTrue(p in 0.6..0.95, "probabilité de C mineur : $p")
+        // Aucun changement de tonalité dans l'historique
+        kotlin.test.assertTrue(e.snapshot().history.all { it.analysis?.key == cMinor })
+    }
+}

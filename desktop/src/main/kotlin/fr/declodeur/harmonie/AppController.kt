@@ -187,6 +187,9 @@ class AppController(scope: CoroutineScope) {
                     tonicPercent = prefs.getInt(p + "tonic", dp.tonicPercent).coerceIn(0, 100),
                     dominantPercent = prefs.getInt(p + "dominant", dp.dominantPercent).coerceIn(0, 100),
                     inertiaPercent = prefs.getInt(p + "inertia", dp.inertiaPercent).coerceIn(0, 10),
+                    holdPercent = prefs.getInt(p + "hold", dp.holdPercent).coerceIn(0, 60),
+                    arrivalPercent = prefs.getInt(p + "arrival", dp.arrivalPercent).coerceIn(0, 100),
+                    primacyPercent = prefs.getInt(p + "primacy", dp.primacyPercent).coerceIn(0, 100),
                 )
             },
             cadenceKeyChange = prefs.getBoolean(KEY_CADENCE, d.cadenceKeyChange),
@@ -230,6 +233,9 @@ class AppController(scope: CoroutineScope) {
             prefs.putInt(p + "tonic", kp.tonicPercent)
             prefs.putInt(p + "dominant", kp.dominantPercent)
             prefs.putInt(p + "inertia", kp.inertiaPercent)
+            prefs.putInt(p + "hold", kp.holdPercent)
+            prefs.putInt(p + "arrival", kp.arrivalPercent)
+            prefs.putInt(p + "primacy", kp.primacyPercent)
         }
         prefs.putBoolean(KEY_CADENCE, s.cadenceKeyChange)
         prefs.putBoolean(KEY_I_SIXTH, s.interpretation.sixthAsSeventh)

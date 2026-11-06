@@ -101,8 +101,24 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
      */
     var halfLifeChords: Double = 0.0
 
+    /**
+     * Bonus de la tonalité retenue tant que sa gamme contient tout ce qu'on joue (compatibilité
+     * ≥ [COMPATIBLE_FIT]) : elle ne change alors que sur des notes nouvelles. 0 = désactivé.
+     */
+    var holdBonus: Double = 0.0
+
     /** Part du terme tonique reportée sur la tonalité dont l'accord est la dominante (V → I). */
     var dominantShare: Double = 0.0
+
+    /**
+     * Indices de tonique tirés des enchaînements : arrivée sur un accord par V → I, ♭VII → I (ou i)
+     * ou IV → I ([arrivalWeight]) ; premier accord du morceau ([primacyWeight], gardé jusqu'à une
+     * rupture ou un nouveau morceau). 0 = désactivés.
+     */
+    var arrivalWeight: Double = 0.0
+    var primacyWeight: Double = 0.0
+    private val arrival = DoubleArray(24)
+    private val primacy = DoubleArray(24)
 
     /** Temps passé sur chaque accord, rangé par tonalité dont il serait la tonique. */
     private val rootTime = DoubleArray(24)
@@ -123,7 +139,10 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         bonus.fill(0.0)
         rootTime.fill(0.0)
         dominantTime.fill(0.0)
+        arrival.fill(0.0)
+        primacy.fill(0.0)
         soundingChord = -1
+        primacyPending = true
         lastMs = -1L
         current = null
     }
@@ -184,7 +203,10 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         for (i in rootTime.indices) {
             rootTime[i] *= keep
             dominantTime[i] *= keep
+            arrival[i] *= keep
+            primacy[i] = 0.0
         }
+        primacyPending = true
         current = null
     }
 
@@ -197,7 +219,17 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         for (i in rootTime.indices) {
             rootTime[i] *= f
             dominantTime[i] *= f
+            arrival[i] *= f
         }
+    }
+
+    private var primacyPending = true
+
+    /** Tonalité dont l'accord serait la tonique (accords majeurs ou mineurs), ou -1. */
+    private fun tonicIndex(c: ChordCandidate): Int = when {
+        c.type.isMinorTriadBased -> Key(c.root, true).index
+        c.type.isMajorTriadBased && !c.type.isDominant -> Key(c.root, false).index
+        else -> -1
     }
 
     fun applyParams(p: KeyParams) {
@@ -205,6 +237,9 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         tonicWeight = p.tonicPercent / 100.0
         halfLifeChords = p.memoryChords.toDouble()
         dominantShare = p.dominantPercent / 100.0
+        holdBonus = p.holdPercent / 100.0
+        arrivalWeight = p.arrivalPercent / 100.0
+        primacyWeight = p.primacyPercent / 100.0
     }
 
     /** L'accord qui sonne désormais (pour le terme tonique). */
@@ -237,6 +272,17 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         if (halfLifeChords > 0 && (previous == null || previous.root != chord.root || previous.type != chord.type)) {
             decay(0.5.pow(1.0 / halfLifeChords))
         }
+        val k = tonicIndex(chord)
+        if (primacyPending && k >= 0) {
+            primacy[k] = 1.0
+            primacyPending = false
+        }
+        if (previous != null && k >= 0 && (previous.root != chord.root || previous.type != chord.type)) {
+            val fall = Notes.pc(previous.root - chord.root)
+            val prevMajor = previous.type.isMajorTriadBased || previous.type.isDominant
+            val arrives = prevMajor && (fall == 7 || fall == 10 || (fall == 5 && !previous.type.isDominant))
+            if (arrives) arrival[k] += 1.0
+        }
         for (pc in chord.chordPitchClasses) harmony[pc] += CHORD_WEIGHT
         harmony[chord.root] += CHORD_WEIGHT
         if (previous != null && previous.type.isDominant && Notes.pc(previous.root - chord.root) == 7) {
@@ -252,12 +298,18 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         val total = harmony.sum() + melody.sum()
         if (total < MIN_TOTAL_WEIGHT) return KeyEstimate(current, emptyList())
         val combined = combined()
+        // Tonalité retenue dont la gamme contient encore tout ce qu'on joue : elle garde la main
+        // (un musicien ne change pas de tonalité sans note nouvelle ni cadence)
+        val held = current?.takeIf { holdBonus > 0 && fit(it, combined) >= COMPATIBLE_FIT }
         val scored = Key.ALL.map { key -> Triple(key, score(key, combined), fit(key, combined)) }
-        val (bestKey, bestScore) = scored.maxBy { it.second }.let { it.first to it.second }
-        val currentScore = current?.let { score(it, combined) }
-        if (current == null || currentScore == null || bestScore > currentScore + switchMargin) {
+        // Décision : le bonus de maintien compte ; probabilités affichées : seulement les indices
+        val decided = scored.map { (k, sc, _) -> k to sc + (if (k == held) holdBonus else 0.0) }
+        val (bestKey, bestDecided) = decided.maxBy { it.second }
+        val currentDecided = current?.let { c -> decided.first { it.first == c }.second }
+        if (current == null || currentDecided == null || bestDecided > currentDecided + switchMargin) {
             current = bestKey
         }
+        val bestScore = scored.maxOf { it.second }
         // Peu d'indices = probabilités plus étalées (un seul accord ne suffit pas à conclure)
         val evidence = (total / FULL_EVIDENCE_WEIGHT).coerceIn(MIN_EVIDENCE, 1.0)
         val beta = SOFTMAX_BETA * evidence
@@ -299,6 +351,11 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
                 s += tonicWeight * ((1 - dominantShare) * t + dominantShare * d)
             }
         }
+        if (arrivalWeight > 0) {
+            val total = arrival.sum()
+            if (total > 0) s += arrivalWeight * arrival[key.index] / total
+        }
+        if (primacyWeight > 0) s += primacyWeight * primacy[key.index]
         return s
     }
 
@@ -348,7 +405,7 @@ class KeyDetector(halfLifeMs: Long = 12_000) {
         const val SWITCH_MARGIN = 0.03
         const val CADENCE_TOP = 3
         const val CADENCE_KEEP = 0.5
-        const val SOFTMAX_BETA = 30.0
+        const val SOFTMAX_BETA = 12.0
         const val MIN_TOTAL_WEIGHT = 1.0
         const val COMPATIBLE_FIT = 0.97
         const val FORGET_KEEP = 0.0

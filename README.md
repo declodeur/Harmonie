@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.10 (étapes 1 à 5a, banc d'essai)
+## Version 0.11 (étapes 1 à 5a, banc d'essai)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -30,7 +30,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Historique annoté : flèche pleine (dominante qui résout une quinte plus bas), flèche pointillée (substitution tritonique), crochet sous les II-V, bordure pointillée des accords arpégés.
 - Arbre des suites probables à droite de l'historique (forme réglable, 4-2-1 par défaut) : modèle théorique par style et mode, règles de contexte (II-V, dominantes, substitutions), mémoire des boucles du morceau sur 1 à 4 accords, mini clavier optionnel (masqué par défaut) avec conduite des voix minimale.
 - Gamme de l'accord (étape 5a) : gamme conseillée selon le type, la fonction et la résolution (dorien sur IIm7, phrygien sur IIIm7, mixolydien ♭9 ♭13 sur une dominante vers un accord mineur, lydien ♭7 sur une substitution tritonique, altérée sur 7(♯9)…), notes à éviter, tensions disponibles, variantes (pentatoniques en pop / rock) ; repères de la gamme sur le clavier (option) ; notes de mélodie classées (note de l'accord, tension, à éviter, chromatique).
-- Règles d'interprétation issues du banc d'essai (chacune désactivable) : en style Classique, sixte ajoutée lue comme septième renversée (C6 = Am7/C) et retards (Gsus4 lu G, retard 4-3) ; septième diminuée nommée d'après la sensible ; une ou deux notes de l'accord en cours ne le remplacent pas ; tierce seule lue comme accord. Nouveau modèle de tonalité (v0.10) : mémoire comptée en accords (elle suit le rythme harmonique), poids du temps passé sur l'accord de tonique (en pop, la tonique est l'accord sur lequel on revient), réglages propres à chaque style (le classique module souvent, la pop revient à sa tonique). Fenêtre harmonique et changement de tonalité sur cadence disponibles en option.
+- Règles d'interprétation issues du banc d'essai (chacune désactivable) : en style Classique, sixte ajoutée lue comme septième renversée (C6 = Am7/C) et retards (Gsus4 lu G, retard 4-3) ; septième diminuée nommée d'après la sensible ; une ou deux notes de l'accord en cours ne le remplacent pas ; tierce seule lue comme accord. Nouveau modèle de tonalité (v0.10) : mémoire comptée en accords (elle suit le rythme harmonique), poids du temps passé sur l'accord de tonique (en pop, la tonique est l'accord sur lequel on revient), réglages propres à chaque style (le classique module souvent, la pop revient à sa tonique). Tonalité stable (v0.11) : tant que tout reste dans sa gamme, la tonalité retenue ne change pas ; en pop, le premier accord et les arrivées (V → I, ♭VII → i, IV → I) désignent la tonique ; probabilités moins tranchées et « Hésite avec… » quand deux tonalités restent proches. Bouton « Réglages par défaut ». Fenêtre harmonique et changement de tonalité sur cadence disponibles en option.
 - Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
 ## Banc d'essai
@@ -41,7 +41,7 @@ de manuels d'harmonie, préludes du Clavier bien tempéré, Winterreise de Schub
 (de Clercq et Temperley) et Isophonics (Beatles, Queen…), via [ChoCo](https://github.com/smashub/choco), avec un
 accompagnement généré à partir des accords (environ 1 070 morceaux, 79 000 accords).
 Chaque morceau est rejoué dans le moteur comme en direct, puis l'accord, la tonalité et le chiffrage affichés sont
-comparés à ceux de l'expert, et, quand il existe, à un second expert et à un logiciel d'analyse (AugmentedNet).
+comparés à ceux de l'expert, ainsi que le nombre de changements de tonalité (stabilité), et, quand il existe, à un second expert et à un logiciel d'analyse (AugmentedNet).
 
 Expériences : chaque hypothèse d'amélioration est un réglage du moteur ; le banc joue la version actuelle et la
 variante, et montre les accords gagnés et perdus (`bench/src/.../Experiments.kt`, lancement à la demande avec
@@ -68,4 +68,4 @@ l'identifiant de l'expérience).
 4. ~~Arbre des accords suivants (modèle théorique par style)~~ ; statistiques réelles avec le futur corpus
 5. Analyses avancées : ~~5a gammes d'accord, notes à éviter, mélodie classée~~ ; 5b voicings, conduite des voix, séparation harmonie / mélodie ; 5c parcours sur le cercle, courbe de tension, rythme harmonique, grille exportable
 
-Backlog : outil de création de corpus (à partir de fichiers MIDI) pour les statistiques d'enchaînements ; choix dièses / bémols pour les tonalités et accords enharmoniques (F♯ / G♭…) ; mise au point de la forme par défaut de l'arbre des suites ; réanalyse a posteriori, lors d'un changement de tonalité, des accords précédents compatibles avec la nouvelle tonalité.
+Backlog : réglages différents selon le style choisi (aujourd'hui seule la tonalité a ses réglages par style ; étendre aux autres réglages : reconnaissance, interprétation, arpèges, suites probables…) ; outil de création de corpus (à partir de fichiers MIDI) pour les statistiques d'enchaînements ; choix dièses / bémols pour les tonalités et accords enharmoniques (F♯ / G♭…) ; mise au point de la forme par défaut de l'arbre des suites ; réanalyse a posteriori, lors d'un changement de tonalité, des accords précédents compatibles avec la nouvelle tonalité.

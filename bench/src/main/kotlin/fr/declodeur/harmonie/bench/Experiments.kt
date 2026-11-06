@@ -74,8 +74,28 @@ object Experiments {
         Experiment(
             "tonalite-0.9", "Modèle de tonalité de la version 0.9",
             "Contrôle : mémoire de 4 s, inertie 1, sans terme tonique ni mémoire en accords (modèle de la version 0.9).",
-            active = true,
+            active = false,
         ) { it.withAllKeyParams { KeyParams(0, 0, 0, 1) }.copy(keyMemorySeconds = 4) },
+        Experiment(
+            "tonalite-0.10", "Modèle de tonalité de la version 0.10",
+            "Contrôle : inertie 1, sans maintien dans la gamme, sans arrivées ni premier accord (modèle de la version 0.10).",
+            active = true,
+        ) { it.withAllKeyParams { p -> p.copy(inertiaPercent = 1, holdPercent = 0, arrivalPercent = 0, primacyPercent = 0) } },
+        Experiment(
+            "sans-maintien", "Sans le maintien dans la gamme",
+            "Retire la règle : la tonalité retenue garde la main tant que tout ce qu'on joue reste dans sa gamme.",
+            active = false,
+        ) { it.withAllKeyParams { p -> p.copy(holdPercent = 0) } },
+        Experiment(
+            "sans-arrivees", "Sans les arrivées ni le premier accord",
+            "Retire les indices de tonique tirés des enchaînements (V → I, ♭VII → i, IV → I) et du premier accord (pop).",
+            active = false,
+        ) { it.withAllKeyParams { p -> p.copy(arrivalPercent = 0, primacyPercent = 0) } },
+        Experiment(
+            "arrivees-classique", "Arrivées et premier accord aussi en classique",
+            "Contrôle : les indices de la pop appliqués au classique (essai du 6 novembre : −2,6 points).",
+            active = false,
+        ) { it.withAllKeyParams { p -> p.copy(arrivalPercent = 20, primacyPercent = 20) } },
         Experiment(
             "sans-terme-tonique", "Sans le terme tonique",
             "Retire le poids du temps passé sur l'accord de tonique (mémoire en accords conservée).",
@@ -137,6 +157,9 @@ object Experiments {
             values["m"]?.let { r = r.copy(keyMemorySeconds = it) }
             values["n"]?.let { v -> r = r.withAllKeyParams { it.copy(memoryChords = v) } }
             values["i"]?.let { v -> r = r.withAllKeyParams { it.copy(inertiaPercent = v) } }
+            values["h"]?.let { v -> r = r.withAllKeyParams { it.copy(holdPercent = v) } }
+            values["a"]?.let { v -> r = r.withAllKeyParams { it.copy(arrivalPercent = v) } }
+            values["p"]?.let { v -> r = r.withAllKeyParams { it.copy(primacyPercent = v) } }
             values["c"]?.let { r = r.copy(cadenceKeyChange = it == 1) }
             values["f"]?.let { r = r.copy(fastKeyChange = it == 1) }
             r

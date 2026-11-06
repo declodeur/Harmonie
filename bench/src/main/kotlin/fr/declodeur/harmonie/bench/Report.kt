@@ -167,6 +167,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
     private fun overview(sb: StringBuilder, results: List<CorpusResult>) {
         sb.append("<section>\n<h2>Vue d'ensemble</h2>\n<div class=\"card\">\n<div class=\"scroll\"><table>\n<tr><th>Corpus</th><th class=\"n\">Morceaux</th><th class=\"n\">Accords</th>")
         Metric.entries.forEach { sb.append("<th class=\"n\">${esc(it.label)}</th>") }
+        sb.append("<th class=\"n\">Changements de tonalité</th>")
         sb.append("</tr>\n")
         for (r in results) {
             sb.append("<tr><td><a href=\"#${r.corpus.id}\">${esc(r.corpus.name)}</a></td><td class=\"n\">${r.pieces.size}</td><td class=\"n\">${fmtInt(r.verdicts.size)}</td>")
@@ -176,9 +177,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
                 refScore(r.software, m)?.let { sb.append("<span class=\"ref\" style=\"color:var(--soft)\">logiciel ${p1(it)}</span>") }
                 sb.append("</td>")
             }
+            sb.append("<td class=\"n\">${ratio(r.changeRatio)}<span class=\"ref\">${fmtInt(r.appKeyChanges)} contre ${fmtInt(r.expertKeyChanges)}</span></td>")
             sb.append("</tr>\n")
         }
         sb.append("</table></div>\n")
+        sb.append(
+            "<p class=\"muted\">Changements de tonalité : combien de fois la tonalité retenue par l'application change, " +
+                "rapporté aux changements notés par l'expert (×1 = autant ; ×3 = trois fois trop). Une tonalité qui " +
+                "hésite d'un accord à l'autre se voit ici même quand son score reste correct.</p>\n",
+        )
         sb.append(
             "<p class=\"muted\">Sous chaque score : l'accord entre deux experts (quand le corpus a un second avis) et l'accord " +
                 "entre l'expert et AugmentedNet, logiciel d'analyse qui lit la partition entière hors ligne (il a été entraîné " +
@@ -195,6 +202,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
             sb.append("<div class=\"card\">\n<header style=\"display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline\"><h3>${esc(e.name)}</h3><span class=\"pill\">${esc(e.id)}</span></header>\n")
             sb.append("<p>${esc(e.hypothesis)}</p>\n<div class=\"scroll\"><table>\n<tr><th>Corpus</th>")
             Metric.entries.forEach { sb.append("<th class=\"n\">${esc(it.label)}</th>") }
+            sb.append("<th class=\"n\">Changements de tonalité</th>")
             sb.append("</tr>\n")
             fun deltaCell(d: Double) = when {
                 d >= 0.05 -> "<td class=\"delta up\">+${p1n(d)}</td>"
@@ -204,11 +212,15 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
             for (p in x.pairings) {
                 sb.append("<tr><td>${esc(p.base.corpus.name)}</td>")
                 Metric.entries.forEach { sb.append(deltaCell(p.delta(it))) }
+                val better = p.variant.changeRatio < p.base.changeRatio - 0.05
+                val worse = p.variant.changeRatio > p.base.changeRatio + 0.05
+                val cls = if (better) "up" else if (worse) "down" else "muted"
+                sb.append("<td class=\"delta $cls\">${ratio(p.base.changeRatio)} → ${ratio(p.variant.changeRatio)}</td>")
                 sb.append("</tr>\n")
             }
             sb.append("<tr><td><b>Ensemble</b></td>")
             Metric.entries.forEach { sb.append(deltaCell(x.overallDelta(it)).replace("<td class=\"delta", "<td style=\"font-weight:600\" class=\"delta")) }
-            sb.append("</tr>\n</table></div>\n<p class=\"muted\">Écarts en points de pourcentage.</p>\n")
+            sb.append("<td></td></tr>\n</table></div>\n<p class=\"muted\">Écarts en points de pourcentage ; changements de tonalité : version actuelle → variante, rapportés à l'expert (moins = plus stable).</p>\n")
             for (m in listOf(Metric.CHORD, Metric.KEY)) {
                 val gained = x.pairings.flatMap { p -> p.gained(m).map { p.variant.verdicts[it] } }
                 val lost = x.pairings.flatMap { p -> p.lost(m).map { p.variant.verdicts[it] } }
@@ -463,6 +475,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
     private fun esc(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
     private fun p1(x: Double) = "%.1f".format(Locale.FRENCH, x).replace(' ', ' ') + " %"
     private fun p1n(x: Double) = "%.1f".format(Locale.FRENCH, x)
+    private fun ratio(x: Double) = "×" + "%.1f".format(Locale.FRENCH, x)
     private fun css(x: Double) = "%.2f".format(Locale.ROOT, x.coerceIn(0.0, 100.0))
     private fun fmtInt(n: Int) = "%,d".format(Locale.FRENCH, n).replace(' ', ' ')
 }

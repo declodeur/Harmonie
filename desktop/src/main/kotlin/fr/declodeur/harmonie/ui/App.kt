@@ -738,6 +738,18 @@ private fun SettingsDialog(
                             Help.KEY_TONIC_WEIGHT, kp.tonicPercent.toFloat(), 0f..100f, 5f,
                         ) { v -> onChange(settings.withKeyParams { it.copy(tonicPercent = v.roundToInt()) }) }
                         SliderSetting(
+                            "Poids des arrivées (V → I, ♭VII → i, IV → I) : ${kp.arrivalPercent}",
+                            Help.KEY_ARRIVAL, kp.arrivalPercent.toFloat(), 0f..100f, 5f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(arrivalPercent = v.roundToInt()) }) }
+                        SliderSetting(
+                            "Poids du premier accord : ${kp.primacyPercent}", Help.KEY_ARRIVAL,
+                            kp.primacyPercent.toFloat(), 0f..100f, 5f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(primacyPercent = v.roundToInt()) }) }
+                        SliderSetting(
+                            if (kp.holdPercent == 0) "Maintien dans la gamme : désactivé" else "Maintien dans la gamme : ${kp.holdPercent}",
+                            Help.KEY_HOLD, kp.holdPercent.toFloat(), 0f..60f, 5f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(holdPercent = v.roundToInt()) }) }
+                        SliderSetting(
                             "Inertie de la tonalité : ${kp.inertiaPercent}", Help.KEY_INERTIA,
                             kp.inertiaPercent.toFloat(), 0f..10f, 1f,
                         ) { v -> onChange(settings.withKeyParams { it.copy(inertiaPercent = v.roundToInt()) }) }
@@ -745,6 +757,28 @@ private fun SettingsDialog(
                 }
                 Spacer(Modifier.height(20.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Remise à zéro en deux temps : un clic de trop ne doit pas effacer des réglages choisis
+                    var confirmDefaults by remember { mutableStateOf(false) }
+                    if (!confirmDefaults) {
+                        TextButton(onClick = { confirmDefaults = true }) { Text("Réglages par défaut") }
+                        HelpBubble(Help.DEFAULT_SETTINGS)
+                    } else {
+                        Text("Remettre tous les réglages à leur valeur par défaut ?", fontSize = 14.sp, color = Palette.warning)
+                        Spacer(Modifier.width(8.dp))
+                        TextButton(onClick = {
+                            // Le style, le mode d'analyse et le canal (barre du haut) sont conservés
+                            onChange(
+                                AnalysisSettings(
+                                    style = settings.style,
+                                    mode = settings.mode,
+                                    chordChannel = settings.chordChannel,
+                                ),
+                            )
+                            confirmDefaults = false
+                        }) { Text("Oui, tout remettre") }
+                        TextButton(onClick = { confirmDefaults = false }) { Text("Annuler") }
+                    }
+                    Spacer(Modifier.width(16.dp))
                     TextButton(onClick = onResetLayout) { Text("Réinitialiser la disposition de l'écran") }
                     HelpBubble(Help.LAYOUT)
                     Spacer(Modifier.weight(1f))
@@ -796,11 +830,23 @@ private fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
                     modifier = Modifier.padding(bottom = 2.dp),
                 )
             }
-            Text(
-                "Relative : ${current.relative.name} · ${estimate.compatible.size} compatible(s)",
-                fontSize = 12.sp,
-                color = Palette.muted,
-            )
+            // Une autre tonalité presque aussi probable : on le dit plutôt que de trancher en silence
+            val rival = estimate.ranking.firstOrNull { it.key != current && it.probability >= 0.25 }
+            if (rival != null) {
+                Text(
+                    "Hésite avec ${rival.key.name} (${(rival.probability * 100).roundToInt()} %)" +
+                        (if (rival.key == current.relative) ", sa relative" else "") +
+                        " · ${estimate.compatible.size} compatible(s)",
+                    fontSize = 12.sp,
+                    color = Palette.compatible,
+                )
+            } else {
+                Text(
+                    "Relative : ${current.relative.name} · ${estimate.compatible.size} compatible(s)",
+                    fontSize = 12.sp,
+                    color = Palette.muted,
+                )
+            }
             Box(Modifier.fillMaxWidth().weight(1f).padding(vertical = 4.dp)) {
                 CircleOfFifths(estimate, Modifier.fillMaxSize())
             }
