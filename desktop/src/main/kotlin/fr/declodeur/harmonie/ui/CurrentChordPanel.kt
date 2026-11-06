@@ -63,6 +63,7 @@ import fr.declodeur.harmonie.engine.ChordScales
 import fr.declodeur.harmonie.engine.MelodyRole
 import fr.declodeur.harmonie.engine.HarmonicAnalysis
 import fr.declodeur.harmonie.engine.HarmonicFunction
+import fr.declodeur.harmonie.engine.HarmonicCategory
 import fr.declodeur.harmonie.engine.HistoryEntry
 import fr.declodeur.harmonie.engine.Key
 import fr.declodeur.harmonie.engine.DegreeNotation
@@ -80,6 +81,10 @@ import fr.declodeur.harmonie.engine.withKeyParams
 import kotlin.math.roundToInt
 
 
+/** Lignes du cadre « Accord courant » : resserrées pour tout voir sans défiler (on joue les mains prises). */
+private val LINE_SP = 14.sp
+private val LINE_H = 18.sp
+
 @Composable
 internal fun CurrentChordPanel(
     result: ChordResult?,
@@ -87,8 +92,10 @@ internal fun CurrentChordPanel(
     snap: EngineSnapshot,
     spelling: Spelling,
     modifier: Modifier,
+    showScale: Boolean = true,
+    chips: (@Composable () -> Unit)? = null,
 ) {
-    Panel("Accord courant", modifier, help = Help.CURRENT_CHORD) {
+    Panel("Accord courant", modifier, help = Help.CURRENT_CHORD, chips = chips) {
       // Défilement à la molette si le cadre est trop bas pour tout afficher
       Column(Modifier.verticalScroll(rememberScrollState())) {
         val best = result?.best
@@ -112,7 +119,7 @@ internal fun CurrentChordPanel(
                 }
             }
         } else {
-            ChordDetails(best, result, analysis, snap, spelling)
+            ChordDetails(best, result, analysis, snap, spelling, showScale)
         }
       }
     }
@@ -126,6 +133,7 @@ internal fun ChordDetails(
     analysis: HarmonicAnalysis?,
     snap: EngineSnapshot,
     spelling: Spelling,
+    showScale: Boolean = true,
 ) {
     Text(
         buildAnnotatedString {
@@ -133,7 +141,7 @@ internal fun ChordDetails(
             withStyle(SpanStyle(fontSize = 40.sp, fontWeight = FontWeight.SemiBold)) { append(best.type.suffix) }
             best.slashIn(spelling)?.let { withStyle(SpanStyle(fontSize = 46.sp, color = Palette.muted)) { append("/$it") } }
         },
-        lineHeight = 70.sp,
+        lineHeight = 68.sp,
         maxLines = 1,
     )
     if (analysis != null) {
@@ -152,8 +160,12 @@ internal fun ChordDetails(
                 HelpBubble(Help.FUNCTION)
             }
         }
-        Spacer(Modifier.height(6.dp))
-        Text(analysis.description, fontSize = 14.sp, lineHeight = 19.sp)
+        // La phrase n'est affichée que si elle dit plus que les badges (accord diatonique : rien de plus)
+        val informative = analysis.category != HarmonicCategory.DIATONIC || analysis.context != null || analysis.function == null
+        if (informative) {
+            Spacer(Modifier.height(2.dp))
+            Text(analysis.description, fontSize = 14.sp, lineHeight = 18.sp)
+        }
     } else {
         Text(best.type.frenchName.replaceFirstChar { it.uppercase() }, fontSize = 15.sp, color = Palette.muted)
     }
@@ -171,17 +183,15 @@ internal fun ChordDetails(
             HelpBubble(Help.ARPEGGIO)
         }
     }
-    Spacer(Modifier.height(8.dp))
+    Spacer(Modifier.height(4.dp))
     val inversion = if (best.bass != best.root && !best.bassDetached) "${best.inversionIn(spelling)}, serré (basse non notée)"
     else best.inversionIn(spelling)
-    InfoLine("Type", best.type.frenchName)
-    analysis?.let { a ->
-        a.degreeName?.let { InfoLine("Degré", "${a.numeral.takeWhile { c -> c in "IV♭♯" }}, $it", Help.DEGREE_NAME) }
-    }
-    InfoLine("Renversement", inversion, Help.INVERSION)
+    // Type, renversement et degré sur une seule ligne
+    val degree = analysis?.let { a -> a.degreeName?.let { " · degré ${a.numeral.takeWhile { c -> c in "IV♭♯" }} ($it)" } } ?: ""
+    WrappedInfoLine("Type", "${best.type.frenchName}, $inversion$degree", Help.INVERSION + "\n\n" + Help.DEGREE_NAME)
     NotesLine(result, best, snap, spelling)
     VoiceLines(snap)
-    snap.currentScale?.let { ScaleLines(it, spelling) }
+    if (showScale) snap.currentScale?.let { ScaleLines(it, spelling) }
     if (best.omittedFifth) {
         Text("Accord reconnu sans sa quinte (voicing courant).", fontSize = 13.sp, color = Palette.warning)
     }
@@ -219,10 +229,10 @@ internal fun VoiceLines(snap: EngineSnapshot) {
         }
         WrappedInfoLine("Depuis ${vl.from}", parts.joinToString(", "), Help.VOICE_LEADING)
         if (vl.guideTones.isNotEmpty()) {
-            Text("Notes guides : " + vl.guideTones.joinToString("   "), fontSize = 13.sp, color = Palette.accent)
+            Text("Notes guides : " + vl.guideTones.joinToString("   "), fontSize = 13.sp, lineHeight = 17.sp, color = Palette.accent)
         }
         if (vl.guideTones.isNotEmpty() || vl.parallels.isNotEmpty() || snap.voicing?.warning != null) {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(vertical = 2.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 LegendItem(Palette.accent, "Notes guides (3ce, 7e)")
                 LegendItem(Palette.warning, "Faute d'écriture classique")
             }
@@ -243,9 +253,9 @@ internal fun VoiceLines(snap: EngineSnapshot) {
 /** Comme [InfoLine], mais la valeur peut passer à la ligne. */
 @Composable
 internal fun WrappedInfoLine(label: String, value: String, help: String) {
-    Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("$label : ", fontSize = 15.sp, color = Palette.muted)
-        Text(value, fontSize = 15.sp, lineHeight = 19.sp, modifier = Modifier.weight(1f, fill = false))
+    Row(Modifier.padding(vertical = 1.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("$label : ", fontSize = LINE_SP, lineHeight = LINE_H, color = Palette.muted)
+        Text(value, fontSize = LINE_SP, lineHeight = LINE_H, modifier = Modifier.weight(1f, fill = false))
         Spacer(Modifier.width(6.dp))
         HelpBubble(help)
     }
@@ -276,9 +286,9 @@ internal fun NotesLine(result: ChordResult, best: ChordCandidate?, snap: EngineS
             withStyle(SpanStyle(color = Palette.muted, fontSize = 12.sp)) { append("   (pâle = pédale)") }
         }
     }
-    Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("Notes : ", fontSize = 15.sp, color = Palette.muted)
-        Text(text, fontSize = 15.sp)
+    Row(Modifier.padding(vertical = 1.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("Notes : ", fontSize = LINE_SP, lineHeight = LINE_H, color = Palette.muted)
+        Text(text, fontSize = LINE_SP, lineHeight = LINE_H, modifier = Modifier.weight(1f, fill = false))
         Spacer(Modifier.width(6.dp))
         HelpBubble(Help.NOTES)
     }
@@ -301,9 +311,9 @@ internal fun NotesLine(result: ChordResult, best: ChordCandidate?, snap: EngineS
                 if (label != null) withStyle(SpanStyle(color = Palette.muted, fontSize = 12.sp)) { append(" $label") }
             }
         }
-        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Mélodie : ", fontSize = 15.sp, color = Palette.muted)
-            Text(melodyText, fontSize = 15.sp)
+        Row(Modifier.padding(vertical = 1.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Mélodie : ", fontSize = LINE_SP, lineHeight = LINE_H, color = Palette.muted)
+            Text(melodyText, fontSize = LINE_SP, lineHeight = LINE_H, modifier = Modifier.weight(1f, fill = false))
             Spacer(Modifier.width(6.dp))
             HelpBubble(Help.MELODY_ROLES)
         }
@@ -346,13 +356,13 @@ internal fun ScaleLines(scale: ChordScaleResult, chordSpelling: Spelling) {
         }
     }
     FlowRow(
-        Modifier.padding(vertical = 3.dp),
+        Modifier.padding(vertical = 1.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("Gamme : ", fontSize = 15.sp, color = Palette.muted, modifier = Modifier.align(Alignment.CenterVertically))
-        Text(primary.name(spelling), fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.align(Alignment.CenterVertically))
-        Text(notes, fontSize = 15.sp, modifier = Modifier.align(Alignment.CenterVertically))
+        Text("Gamme : ", fontSize = LINE_SP, lineHeight = LINE_H, color = Palette.muted, modifier = Modifier.align(Alignment.CenterVertically))
+        Text(primary.name(spelling), fontSize = LINE_SP, lineHeight = LINE_H, fontWeight = FontWeight.Medium, modifier = Modifier.align(Alignment.CenterVertically))
+        Text(notes, fontSize = LINE_SP, lineHeight = LINE_H, modifier = Modifier.align(Alignment.CenterVertically))
         Box(Modifier.align(Alignment.CenterVertically)) { HelpBubble(primary.reason + "\n\n" + Help.SCALE) }
     }
     val detail = buildAnnotatedString {
@@ -375,14 +385,18 @@ internal fun ScaleLines(scale: ChordScaleResult, chordSpelling: Spelling) {
             withStyle(SpanStyle(color = Palette.chordTone)) { append(additions.joinToString(" ")) }
         }
     }
-    Text(detail, fontSize = 14.sp, modifier = Modifier.padding(vertical = 2.dp))
-    if (scale.alternatives.isNotEmpty()) {
-        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Aussi : " + scale.alternatives.joinToString(", ") { it.name(chordSpelling) },
-                fontSize = 13.sp,
-                color = Palette.muted,
-            )
+    // À éviter, tensions, ajouts et variantes sur une seule ligne (elle passe à la ligne si besoin)
+    val full = buildAnnotatedString {
+        append(detail)
+        if (scale.alternatives.isNotEmpty()) {
+            withStyle(SpanStyle(color = Palette.muted)) {
+                append("   ·   Aussi : " + scale.alternatives.joinToString(", ") { it.name(chordSpelling) })
+            }
+        }
+    }
+    Row(Modifier.padding(vertical = 1.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(full, fontSize = 13.sp, lineHeight = 17.sp, modifier = Modifier.weight(1f, fill = false))
+        if (scale.alternatives.isNotEmpty()) {
             Spacer(Modifier.width(6.dp))
             HelpBubble(scale.alternatives.joinToString("\n") { "• " + it.name(chordSpelling) + " : " + it.reason })
         }
@@ -406,9 +420,9 @@ internal fun NumeralBadge(numeral: String) {
 
 @Composable
 internal fun InfoLine(label: String, value: String, help: String? = null) {
-    Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("$label : ", fontSize = 15.sp, color = Palette.muted)
-        Text(value, fontSize = 15.sp)
+    Row(Modifier.padding(vertical = 1.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("$label : ", fontSize = LINE_SP, lineHeight = LINE_H, color = Palette.muted)
+        Text(value, fontSize = LINE_SP, lineHeight = LINE_H)
         if (help != null) {
             Spacer(Modifier.width(6.dp))
             HelpBubble(help)

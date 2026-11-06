@@ -82,8 +82,13 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier, path: List<ChordCandidate> = emptyList()) {
-    Panel("Tonalité probable", modifier, help = Help.KEY) {
+internal fun KeyPanel(
+    estimate: KeyEstimate?,
+    modifier: Modifier,
+    path: List<ChordCandidate> = emptyList(),
+    chips: (@Composable () -> Unit)? = null,
+) {
+    Panel("Tonalité probable", modifier, help = Help.KEY, chips = chips) {
         val current = estimate?.current
         if (estimate == null || current == null) {
             Text("Jouez quelques accords…", fontSize = 18.sp, color = Palette.muted)

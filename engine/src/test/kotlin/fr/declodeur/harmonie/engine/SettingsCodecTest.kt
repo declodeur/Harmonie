@@ -20,6 +20,7 @@ class SettingsCodecTest {
         voicing = VoicingSettings(false, false, false, true),
         degreeNotation = DegreeNotation.JAZZ, contextualFunctions = false,
         showTension = false, showDurations = false, circlePathLength = 3,
+        showCirclePath = false, showScaleLines = false, tensionModel = TensionModel.SIMPLE,
     )
 
     @Test

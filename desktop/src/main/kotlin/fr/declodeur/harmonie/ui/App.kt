@@ -99,35 +99,35 @@ fun App(controller: AppController) {
                     settings = settings,
                     devices = devices.map { it.name },
                     connected = connected,
+                    error = error,
                     onSettings = controller::updateSettings,
-                    onDevice = { name -> devices.firstOrNull { it.name == name }?.let(controller::connect) },
+                    onDevice = { name ->
+                        if (name == null) controller.disconnect()
+                        else devices.firstOrNull { it.name == name }?.let(controller::connect)
+                    },
                     onRefresh = { controller.refreshDevices() },
                     onOpenSettings = { showSettings = true },
-                    onReleaseAll = controller::releaseAll,
                 )
                 Spacer(Modifier.height(12.dp))
                 val spelling = snap.spelling
                 MainArea(
                     snap = snap,
                     spelling = spelling,
-                    style = settings.style,
-                    showMiniKeyboards = settings.prediction.showMiniKeyboards,
                     predictionSource = if (
                         settings.prediction.source == PredictionSource.CORPUS &&
                         ProgressionModel.bundled?.styles?.contains(settings.style) == true
                     ) "statistiques des corpus" else "modèle théorique",
-                    showScaleOnKeyboard = settings.scaleOnKeyboard,
                     savedLayout = layoutPrefs,
                     onLayoutChanged = controller::saveLayout,
                     onClearHistory = controller::clearHistory,
                     onKeyClick = controller::toggleKey,
-                    historyDisplay = HistoryDisplay(settings.showTension, settings.showDurations, snap.nowMs, snap.rhythm),
-                    circlePathLength = settings.circlePathLength,
+                    settings = settings,
+                    onSettings = controller::updateSettings,
+                    onReleaseAll = controller::releaseAll,
+                    rhythm = snap.rhythm,
                     onGrid = { showGrid = true },
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
-                Spacer(Modifier.height(10.dp))
-                StatusBar(connected, error)
             }
         }
         if (showGrid) {
@@ -144,16 +144,19 @@ fun App(controller: AppController) {
     }
 }
 
+/** Rouge vif : sans entrée MIDI, l'application ne sert presque à rien (demande utilisateur). */
+private val NO_INPUT_RED = Color(0xFFFF0000)
+
 @Composable
 private fun TopBar(
     settings: AnalysisSettings,
     devices: List<String>,
     connected: String?,
+    error: String?,
     onSettings: (AnalysisSettings) -> Unit,
-    onDevice: (String) -> Unit,
+    onDevice: (String?) -> Unit,
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
-    onReleaseAll: () -> Unit,
 ) {
     Row(
         Modifier.fillMaxWidth(),
@@ -169,14 +172,17 @@ private fun TopBar(
             help = Help.STYLE,
         )
         Row(verticalAlignment = Alignment.Bottom) {
-            Selector(
+            // Fond vert : instrument connecté ; « Aucune » (null) ferme l'entrée
+            Selector<String?>(
                 label = "Entrée MIDI",
-                options = devices,
+                options = listOf<String?>(null) + devices,
                 selected = connected,
-                display = { it },
+                display = { it ?: "Aucune (déconnecté)" },
                 onSelect = onDevice,
                 help = Help.INPUT,
-                placeholder = if (devices.isEmpty()) "Aucune entrée MIDI" else "Choisir…",
+                placeholder = "Aucune entrée MIDI",
+                containerColor = if (connected != null) Palette.success.copy(alpha = 0.28f) else Palette.surfaceHigh,
+                placeholderColor = NO_INPUT_RED,
             )
             Spacer(Modifier.width(4.dp))
             TextButton(onClick = onRefresh) { Text("↻ Actualiser", fontSize = 13.sp) }
@@ -198,18 +204,33 @@ private fun TopBar(
             help = Help.CHANNEL,
             enabled = settings.mode == AnalysisMode.CHORDS_AND_MELODY,
         )
-        Spacer(Modifier.weight(1f))
-        OutlinedButton(onClick = onReleaseAll) { Text("Relâcher tout", fontSize = 13.sp) }
+        Box(Modifier.weight(1f).padding(bottom = 10.dp)) {
+            if (error != null) Text(error, fontSize = 13.sp, lineHeight = 17.sp, color = NO_INPUT_RED, maxLines = 2)
+        }
+        Text(
+            "Harmonie ${BuildInfo.VERSION} · build ${BuildInfo.BUILD}",
+            fontSize = 12.sp,
+            color = Palette.muted,
+            modifier = Modifier.padding(bottom = 10.dp),
+        )
         OutlinedButton(onClick = onOpenSettings) { Text("Réglages", fontSize = 13.sp) }
     }
 }
 
 @Composable
-private fun KeyboardPanel(snap: EngineSnapshot, showScale: Boolean, onKeyClick: (Int) -> Unit, modifier: Modifier) {
+private fun KeyboardPanel(
+    snap: EngineSnapshot,
+    showScale: Boolean,
+    onShowScale: (Boolean) -> Unit,
+    onKeyClick: (Int) -> Unit,
+    onReleaseAll: () -> Unit,
+    modifier: Modifier,
+) {
     Panel(
         "Clavier",
         modifier,
         help = Help.KEYBOARD,
+        chips = { ToggleChip("Gamme", showScale, onShowScale) },
         action = {
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
                 LegendItem(Palette.root, "Fondamentale")
@@ -224,6 +245,7 @@ private fun KeyboardPanel(snap: EngineSnapshot, showScale: Boolean, onKeyClick: 
                     ScaleLegend("Gamme (gros : tonique)", tonic = true)
                     ScaleLegend("À éviter", avoid = true)
                 }
+                OutlinedButton(onClick = onReleaseAll) { Text("Relâcher tout", fontSize = 12.sp) }
             }
         },
     ) {
@@ -237,24 +259,6 @@ private fun KeyboardPanel(snap: EngineSnapshot, showScale: Boolean, onKeyClick: 
     }
 }
 
-@Composable
-private fun StatusBar(connected: String?, error: String?) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(9.dp).padding(0.dp),
-        ) {
-            Surface(shape = CircleShape, color = if (connected != null) Palette.success else Palette.muted, modifier = Modifier.size(9.dp)) {}
-        }
-        Spacer(Modifier.width(8.dp))
-        Text(
-            error ?: (connected?.let { "Connecté à $it" } ?: "Aucune entrée MIDI connectée"),
-            fontSize = 13.sp,
-            color = if (error != null) Palette.danger else Palette.muted,
-        )
-        Spacer(Modifier.weight(1f))
-        Text("Harmonie ${BuildInfo.VERSION} · build ${BuildInfo.BUILD}", fontSize = 12.sp, color = Palette.muted)
-    }
-}
 
 /**
  * Zone principale, organisée selon le temps :
@@ -266,19 +270,19 @@ private fun StatusBar(connected: String?, error: String?) {
 private fun MainArea(
     snap: EngineSnapshot,
     spelling: Spelling,
-    style: MusicStyle,
-    showMiniKeyboards: Boolean,
     predictionSource: String,
-    showScaleOnKeyboard: Boolean,
     savedLayout: LayoutPrefs,
     onLayoutChanged: (LayoutPrefs) -> Unit,
     onClearHistory: () -> Unit,
     onKeyClick: (Int) -> Unit,
-    historyDisplay: HistoryDisplay,
-    circlePathLength: Int,
+    settings: AnalysisSettings,
+    onSettings: (AnalysisSettings) -> Unit,
+    onReleaseAll: () -> Unit,
+    rhythm: fr.declodeur.harmonie.engine.RhythmInfo?,
     onGrid: () -> Unit,
     modifier: Modifier,
 ) {
+    val historyDisplay = HistoryDisplay(settings.showTension, settings.showDurations, snap.nowMs, rhythm, settings.tensionModel)
     var layout by remember(savedLayout) { mutableStateOf(savedLayout) }
     val save = { onLayoutChanged(layout) }
     BoxWithConstraints(modifier) {
@@ -299,7 +303,16 @@ private fun MainArea(
 
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxWidth().height(topH)) {
-                CurrentChordPanel(snap.current, snap.currentAnalysis, snap, spelling, Modifier.weight(chordR).fillMaxHeight())
+                CurrentChordPanel(
+                    snap.current, snap.currentAnalysis, snap, spelling, Modifier.weight(chordR).fillMaxHeight(),
+                    showScale = settings.showScaleLines,
+                    chips = {
+                        val vs = settings.voicing
+                        ToggleChip("Gamme", settings.showScaleLines) { onSettings(settings.copy(showScaleLines = it)) }
+                        ToggleChip("Voicing", vs.showVoicing) { onSettings(settings.copy(voicing = vs.copy(showVoicing = it))) }
+                        ToggleChip("Voix", vs.showVoiceLeading) { onSettings(settings.copy(voicing = vs.copy(showVoiceLeading = it))) }
+                    },
+                )
                 VerticalSplitter(
                     onDrag = { dx ->
                         val d = dx.value / usable
@@ -308,7 +321,11 @@ private fun MainArea(
                     },
                     onDragEnd = save,
                 )
-                PredictionPanel(snap.predictions, style, showMiniKeyboards, predictionSource, Modifier.weight(treeR).fillMaxHeight())
+                val pr = settings.prediction
+                PredictionPanel(
+                    snap.predictions, settings.style, pr.showMiniKeyboards, predictionSource, Modifier.weight(treeR).fillMaxHeight(),
+                    chips = { ToggleChip("Mini claviers", pr.showMiniKeyboards) { onSettings(settings.copy(prediction = pr.copy(showMiniKeyboards = it))) } },
+                )
                 VerticalSplitter(
                     onDrag = { dx ->
                         val d = dx.value / usable
@@ -317,9 +334,12 @@ private fun MainArea(
                     },
                     onDragEnd = save,
                 )
-                val path = if (circlePathLength < 2) emptyList()
-                else snap.history.takeLast(circlePathLength).mapNotNull { it.chord.best }
-                KeyPanel(snap.key, Modifier.weight(circleR).fillMaxHeight(), path)
+                val path = if (!settings.showCirclePath) emptyList()
+                else snap.history.takeLast(settings.circlePathLength).mapNotNull { it.chord.best }
+                KeyPanel(
+                    snap.key, Modifier.weight(circleR).fillMaxHeight(), path,
+                    chips = { ToggleChip("Parcours", settings.showCirclePath) { onSettings(settings.copy(showCirclePath = it)) } },
+                )
             }
             HorizontalSplitter(
                 onDrag = { dy -> layout = layout.copy(topHeightDp = (topH + dy).coerceIn(160.dp, topMax).value) },
@@ -328,6 +348,10 @@ private fun MainArea(
             HistoryPanel(
                 snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f),
                 display = historyDisplay, onGrid = onGrid,
+                chips = {
+                    ToggleChip("Tension", settings.showTension) { onSettings(settings.copy(showTension = it)) }
+                    ToggleChip("Durées", settings.showDurations) { onSettings(settings.copy(showDurations = it)) }
+                },
             )
             HorizontalSplitter(
                 onDrag = { dy ->
@@ -335,7 +359,10 @@ private fun MainArea(
                 },
                 onDragEnd = save,
             )
-            KeyboardPanel(snap, showScaleOnKeyboard, onKeyClick = onKeyClick, modifier = Modifier.fillMaxWidth().height(keyboardH))
+            KeyboardPanel(
+                snap, settings.scaleOnKeyboard, onShowScale = { onSettings(settings.copy(scaleOnKeyboard = it)) },
+                onKeyClick = onKeyClick, onReleaseAll = onReleaseAll, modifier = Modifier.fillMaxWidth().height(keyboardH),
+            )
         }
     }
 }

@@ -10,7 +10,10 @@ object Help {
     const val INPUT =
         "L'instrument ou l'interface MIDI à écouter. Si votre instrument n'apparaît pas, branchez-le puis " +
             "cliquez sur Actualiser. S'il n'apparaît toujours pas, relancez Harmonie : Windows ne signale pas " +
-            "toujours un appareil branché après le démarrage de l'application."
+            "toujours un appareil branché après le démarrage de l'application.\n\nFond vert : instrument " +
+            "connecté. « Aucune entrée MIDI » en rouge : rien n'est connecté, Harmonie n'entend rien (le clavier " +
+            "à l'écran reste cliquable pour essayer). « Aucune (déconnecté) » ferme l'entrée ; Harmonie ne se " +
+            "reconnecte alors plus tout seul au lancement suivant."
 
     const val MODE =
         "Complète : toutes les notes, sur tous les canaux, servent à reconnaître l'accord.\n\n" +
@@ -429,15 +432,17 @@ object Help {
 
     const val TENSION =
         "Courbe de tension : un point par accord, de « repos » (en bas) à « max » (en haut, ligne " +
-            "pointillée). La tension combine trois choses :\n" +
-            "• la fonction : la tonique est le repos, la sous-dominante s'éloigne, la dominante appelle la " +
-            "tonique ;\n" +
-            "• la dissonance : septième, septième diminuée, tensions ajoutées (9, 11, 13), altérations (♭9, ♯9, " +
-            "♭5, ♯5), quarte suspendue ;\n" +
-            "• l'éloignement de la tonalité : dominante secondaire, substitution tritonique, emprunt, accord " +
-            "chromatique, renversement.\n" +
+            "pointillée). Calcul d'après l'espace tonal de Lerdahl, comparé à des jugements d'auditeurs :\n" +
+            "• distance à la tonique : pas sur le cercle des quintes, notes nouvelles par rapport à l'accord " +
+            "de tonique, notes hors de la tonalité (I = 0 ; V et IV = 5 ; VI = 7 ; II et III = 8) ; un peu de " +
+            "la distance à l'accord précédent (un saut surprend) ;\n" +
+            "• dissonance réelle des notes qui sonnent : secondes, septièmes, tritons, notes étrangères à " +
+            "l'accord (mélodie comprise) ;\n" +
+            "• instabilité : un accord sans quinte juste (diminué, augmenté, M7aug, m7♭5) ne peut pas servir de " +
+            "repos, il fait nettement monter la tension ; la quarte et sixte de cadence (C/G avant G7) compte " +
+            "comme la dominante qu'elle annonce.\n" +
             "On y lit la phrase musicale : la tension monte vers la cadence et retombe sur la tonique. C'est une " +
-            "estimation : aucun corpus d'experts ne la mesure."
+            "estimation : aucun corpus d'experts ne la mesure. Interrupteur « Tension » dans la barre de titre."
 
     const val RHYTHM =
         "Rythme harmonique : à quelle fréquence l'harmonie change. Sous chaque accord, une barre donne sa durée " +
@@ -448,12 +453,18 @@ object Help {
             "nombre d'accords différents affichés, comparé à celui de l'expert (pop : autant ; Bach : une fois et " +
             "demie plus ; piano en figurations : deux à trois fois plus, à cause des notes de passage)."
 
+    const val TENSION_MODEL =
+        "Activé : courbe de tension de la version 0.15 (fonction de l'accord, dissonance de son type, catégorie). " +
+            "Désactivé (par défaut) : modèle de l'espace tonal de Lerdahl, plus proche de ce qu'on entend, " +
+            "notamment sur les accords diminués et augmentés."
+
     const val CIRCLE_PATH =
         "Parcours des derniers accords sur le cercle des quintes : accords majeurs et de dominante sur l'anneau " +
             "extérieur, mineurs et diminués sur l'anneau intérieur. Les flèches les plus foncées sont les plus " +
             "récentes ; l'accord actuel est entouré. Un enchaînement de quintes (II – V – I) tourne pas à pas " +
-            "dans le sens inverse des aiguilles d'une montre ; un emprunt ou une modulation fait un saut. Le " +
-            "nombre d'accords se règle dans Réglages, onglet « Suites et affichage » (0 = masqué)."
+            "dans le sens inverse des aiguilles d'une montre ; un emprunt ou une modulation fait un saut. " +
+            "Interrupteur « Parcours » dans la barre de titre ; le nombre d'accords se règle dans Réglages, " +
+            "onglet « Suites et affichage »."
 
     const val GRID =
         "Grille du morceau joué depuis le dernier « Effacer » : quatre cases par ligne, une section par " +

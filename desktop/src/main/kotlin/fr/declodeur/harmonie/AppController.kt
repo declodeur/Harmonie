@@ -90,8 +90,9 @@ class AppController(scope: CoroutineScope) {
             emptyList()
         }
         _devices.value = list
-        if (autoConnect && _connected.value == null && list.isNotEmpty()) {
-            val saved = prefs.get(KEY_DEVICE, null)
+        // Reconnexion automatique, sauf si l'utilisateur a choisi « Aucune » la dernière fois
+        val saved = prefs.get(KEY_DEVICE, null)
+        if (autoConnect && _connected.value == null && list.isNotEmpty() && saved != NO_DEVICE) {
             connect(list.firstOrNull { it.name == saved } ?: list.first())
         }
     }
@@ -107,6 +108,16 @@ class AppController(scope: CoroutineScope) {
             _error.value = "Impossible d'ouvrir « ${input.name} » : ${e.message ?: e.javaClass.simpleName}. " +
                 "Est-elle utilisée par un autre logiciel ?"
         }
+        engine.releaseAll(now())
+        publish()
+    }
+
+    /** « Aucune » : ferme l'entrée MIDI ; on ne se reconnecte plus tout seul au lancement suivant. */
+    fun disconnect() {
+        midi.close()
+        _connected.value = null
+        _error.value = null
+        prefs.put(KEY_DEVICE, NO_DEVICE)
         engine.releaseAll(now())
         publish()
     }
@@ -179,6 +190,7 @@ class AppController(scope: CoroutineScope) {
 
     private companion object {
         const val KEY_DEVICE = "device"
+        const val NO_DEVICE = ""
         const val FULL_HISTORY = 2000
         const val KEY_L_CHORD = "layout2ChordRatio"
         const val KEY_L_CIRCLE = "layout2CircleRatio"

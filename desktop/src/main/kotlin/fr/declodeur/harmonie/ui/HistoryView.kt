@@ -44,6 +44,8 @@ import kotlin.math.roundToInt
 import fr.declodeur.harmonie.engine.HarmonicRhythm
 import fr.declodeur.harmonie.engine.HistoryEntry
 import fr.declodeur.harmonie.engine.RhythmInfo
+import fr.declodeur.harmonie.engine.Tension
+import fr.declodeur.harmonie.engine.TensionModel
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.PredictionNode
 import fr.declodeur.harmonie.engine.Key
@@ -74,6 +76,7 @@ data class HistoryDisplay(
     val showDurations: Boolean = true,
     val nowMs: Long = 0L,
     val rhythm: RhythmInfo? = null,
+    val tensionModel: TensionModel = TensionModel.TONAL_SPACE,
 )
 
 @Composable
@@ -83,11 +86,13 @@ fun HistoryPanel(
     modifier: Modifier = Modifier.fillMaxWidth(),
     display: HistoryDisplay = HistoryDisplay(),
     onGrid: () -> Unit = {},
+    chips: (@Composable () -> Unit)? = null,
 ) {
     Panel(
         "Historique",
         modifier,
         help = Help.HISTORY,
+        chips = chips,
         action = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 LegendItem(Palette.tonic, "Tonique")
@@ -165,7 +170,7 @@ private data class DurationInfo(val fraction: Float, val label: String, val curr
 private fun PastChords(history: List<HistoryEntry>, display: HistoryDisplay) {
     val scroll = rememberScrollState()
     val groups = groupByKey(history)
-    val tensions = if (display.showTension) history.map { it.tension } else null
+    val tensions = if (display.showTension) Tension.series(history, display.tensionModel) else null
     fun point(i: Int): TensionPoint? = tensions?.let { t ->
         val v = t[i]
         TensionPoint(t.getOrNull(i - 1)?.let { (it + v) / 2 } ?: v, v, t.getOrNull(i + 1)?.let { (it + v) / 2 } ?: v)

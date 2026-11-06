@@ -76,6 +76,7 @@ import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.ToneRole
 import fr.declodeur.harmonie.engine.KeyParams
+import fr.declodeur.harmonie.engine.TensionModel
 import fr.declodeur.harmonie.engine.PredictionSource
 import fr.declodeur.harmonie.engine.ProgressionModel
 import fr.declodeur.harmonie.engine.currentKeyParams
@@ -381,22 +382,10 @@ private fun RowScope.DisplayTab(settings: AnalysisSettings, onChange: (AnalysisS
                 )
             }
         }
-        SwitchSetting("Afficher les mini claviers", Help.MINI_KEYBOARDS, pr.showMiniKeyboards) {
-            onChange(settings.copy(prediction = pr.copy(showMiniKeyboards = it)))
-        }
     }
     SettingsColumn {
-        SectionTitle("Accord courant et clavier")
-        SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
-            onChange(settings.copy(scaleOnKeyboard = it))
-        }
+        SectionTitle("Conduite des voix")
         val vs = settings.voicing
-        SwitchSetting("Afficher le voicing de l'accord", Help.VOICING, vs.showVoicing) {
-            onChange(settings.copy(voicing = vs.copy(showVoicing = it)))
-        }
-        SwitchSetting("Afficher la conduite des voix", Help.VOICE_LEADING, vs.showVoiceLeading) {
-            onChange(settings.copy(voicing = vs.copy(showVoiceLeading = it)))
-        }
         SwitchSetting("Signaler les quintes et octaves consécutives", Help.PARALLELS, vs.flagParallels) {
             onChange(settings.copy(voicing = vs.copy(flagParallels = it)))
         }
@@ -405,17 +394,20 @@ private fun RowScope.DisplayTab(settings: AnalysisSettings, onChange: (AnalysisS
         }
         Spacer(Modifier.height(4.dp))
         SectionTitle("Historique et cercle des quintes")
-        SwitchSetting("Courbe de tension au-dessus de l'historique", Help.TENSION, settings.showTension) {
-            onChange(settings.copy(showTension = it))
-        }
-        SwitchSetting("Durée des accords et rythme harmonique", Help.RHYTHM, settings.showDurations) {
-            onChange(settings.copy(showDurations = it))
-        }
+        SwitchSetting(
+            "Tension : ancien modèle simple (v0.15)", Help.TENSION_MODEL,
+            settings.tensionModel == TensionModel.SIMPLE,
+        ) { onChange(settings.copy(tensionModel = if (it) TensionModel.SIMPLE else TensionModel.TONAL_SPACE)) }
         SliderSetting(
-            if (settings.circlePathLength < 2) "Parcours sur le cercle : masqué"
-            else "Parcours sur le cercle : ${settings.circlePathLength} derniers accords",
-            Help.CIRCLE_PATH, settings.circlePathLength.toFloat(), 0f..12f, 1f,
-        ) { onChange(settings.copy(circlePathLength = it.roundToInt().let { v -> if (v == 1) 0 else v })) }
+            "Parcours sur le cercle : ${settings.circlePathLength} derniers accords",
+            Help.CIRCLE_PATH, settings.circlePathLength.toFloat(), 2f..12f, 1f,
+        ) { onChange(settings.copy(circlePathLength = it.roundToInt())) }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "Les options d'affichage (gamme, voicing, voix, mini claviers, parcours, tension, durées) sont dans la " +
+                "barre de titre de chaque cadre de l'écran principal.",
+            fontSize = 12.sp, lineHeight = 16.sp, color = Palette.muted,
+        )
     }
 }
 

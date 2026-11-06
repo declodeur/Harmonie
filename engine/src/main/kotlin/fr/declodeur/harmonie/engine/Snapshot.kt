@@ -43,9 +43,6 @@ data class HistoryEntry(
     /** Accord pivot de la modulation : son chiffrage dans l'ancienne tonalité ([pivotFrom]). */
     val pivotFrom: HarmonicAnalysis? = null,
 ) {
-    /** Tension de l'accord (0 = repos, 1 = tension maximale). */
-    val tension: Double get() = Tension.of(chord.best, analysis)
-
     /** Orthographe de l'accord dans sa tonalité. */
     val spelling: Spelling get() = Spelling.forChord(chord.best, analysis, analysis?.key?.spelling ?: Spelling.DEFAULT)
 }

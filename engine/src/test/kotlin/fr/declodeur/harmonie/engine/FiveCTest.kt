@@ -8,19 +8,38 @@ import kotlin.test.assertTrue
 class FiveCTest {
     private fun ch(vararg n: Int) = ChordRecognizer.recognize(n.toList()).best!!
     private val c = Key(0, false)
-    private fun t(vararg n: Int): Double { val x = ch(*n); return Tension.of(x, HarmonicAnalyzer.analyze(x, c)) }
+    private fun t(vararg n: Int): Double = Tension.tonalSpace(ch(*n), c, null, n.toList())
+    private fun simple(vararg n: Int): Double { val x = ch(*n); return Tension.simple(x, HarmonicAnalyzer.analyze(x, c)) }
 
     @Test
-    fun tensionFollowsFunctionDissonanceAndDistance() {
+    fun tonalSpaceDistancesMatchLerdahl() {
         val tonic = t(48, 52, 55)
-        val sub = t(53, 57, 60)
-        val dom = t(55, 59, 62)
-        val dom7 = t(55, 59, 62, 65)
-        val dom7b9 = t(55, 59, 62, 65, 68)
-        assertTrue(tonic < sub && sub < dom && dom < dom7 && dom7 < dom7b9, "$tonic $sub $dom $dom7 $dom7b9")
+        val v = t(43, 47, 50)
+        val iv = t(41, 45, 48)
+        val vi = t(45, 48, 52)
+        val ii = t(50, 53, 57)
         assertEquals(0.0, tonic)
-        assertTrue(t(52, 56, 59, 62) > dom7, "E7 (V7/VI) plus tendu que G7") // éloignement
-        assertTrue(dom7b9 <= 1.0)
+        assertEquals(v, iv) // δ(I → V) = δ(I → IV) = 5
+        assertTrue(v < vi && vi < ii, "$v $vi $ii") // 5 < 7 < 8
+    }
+
+    @Test
+    fun diminishedAndAugmentedChordsRaiseTheTension() {
+        val v7 = t(43, 47, 50, 53)
+        val dim = t(48, 51, 54)
+        val aug = t(48, 52, 56)
+        val m7aug = t(48, 52, 56, 59)
+        for ((name, x) in listOf("Cdim" to dim, "Caug" to aug, "CM7aug" to m7aug)) {
+            assertTrue(x >= 0.55 && x > v7 + 0.1, "$name : $x (G7 : $v7)")
+        }
+        assertTrue(t(43, 47, 50) < v7, "la septième ajoute de la tension")
+        assertTrue(t(55, 60, 64) > t(43, 47, 50), "quarte et sixte de cadence (C/G) plus tendue que V")
+    }
+
+    @Test
+    fun simpleModelIsKept() {
+        assertTrue(simple(48, 52, 55) < simple(55, 59, 62, 65))
+        assertEquals(0.0, simple(48, 52, 55))
     }
 
     /** Joue des accords (notes, durée en ms) et renvoie le moteur. */

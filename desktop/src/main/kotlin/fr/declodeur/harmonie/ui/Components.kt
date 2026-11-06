@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedButton
@@ -111,6 +113,8 @@ fun Panel(
     modifier: Modifier = Modifier,
     help: String? = null,
     action: (@Composable () -> Unit)? = null,
+    /** Interrupteurs d'affichage, juste après le titre (« Tension », « Durées »…). */
+    chips: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
@@ -135,6 +139,10 @@ fun Panel(
                     Spacer(Modifier.width(8.dp))
                     HelpBubble(help)
                 }
+                if (chips != null) {
+                    Spacer(Modifier.width(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
+                }
                 Spacer(Modifier.weight(1f))
                 action?.invoke()
             }
@@ -156,13 +164,22 @@ fun <T> Selector(
     help: String? = null,
     enabled: Boolean = true,
     placeholder: String = "—",
+    /** Fond du bouton (vert : entrée MIDI connectée), et couleur du texte quand rien n'est choisi. */
+    containerColor: Color = Color.Transparent,
+    placeholderColor: Color? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Label(label, help)
         Box {
-            OutlinedButton(onClick = { expanded = true }, enabled = enabled && options.isNotEmpty()) {
-                Text(selected?.let(display) ?: placeholder, fontSize = 14.sp)
+            OutlinedButton(
+                onClick = { expanded = true },
+                enabled = enabled && options.isNotEmpty(),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = containerColor),
+            ) {
+                val text = selected?.let(display)
+                if (text != null) Text(text, fontSize = 14.sp)
+                else Text(placeholder, fontSize = 14.sp, color = placeholderColor ?: Color.Unspecified, fontWeight = if (placeholderColor != null) FontWeight.SemiBold else null)
                 Spacer(Modifier.width(6.dp))
                 Text("▾", fontSize = 12.sp)
             }
@@ -178,6 +195,25 @@ fun <T> Selector(
                 }
             }
         }
+    }
+}
+
+/** Interrupteur d'affichage compact, dans la barre de titre d'un cadre : bleu = affiché, gris = masqué. */
+@Composable
+fun ToggleChip(label: String, on: Boolean, onToggle: (Boolean) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = if (on) Palette.accent.copy(alpha = 0.18f) else Color.Transparent,
+        border = BorderStroke(1.dp, if (on) Palette.accent else Palette.border),
+        modifier = Modifier.clickable { onToggle(!on) },
+    ) {
+        Text(
+            label,
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            color = if (on) Palette.accent else Palette.muted,
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 2.dp),
+        )
     }
 }
 

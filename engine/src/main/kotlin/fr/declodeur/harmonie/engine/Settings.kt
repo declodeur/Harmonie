@@ -73,8 +73,14 @@ data class AnalysisSettings(
     val showTension: Boolean = true,
     /** Affichage : durée de chaque accord sous l'historique, et rythme harmonique. */
     val showDurations: Boolean = true,
-    /** Affichage : nombre d'accords du parcours tracé sur le cercle des quintes (0 = masqué). */
+    /** Affichage : nombre d'accords du parcours tracé sur le cercle des quintes (2 à 12). */
     val circlePathLength: Int = 7,
+    /** Affichage : parcours des derniers accords sur le cercle des quintes. */
+    val showCirclePath: Boolean = true,
+    /** Affichage : lignes de la gamme de l'accord dans le cadre « Accord courant ». */
+    val showScaleLines: Boolean = true,
+    /** Calcul de la courbe de tension. */
+    val tensionModel: TensionModel = TensionModel.TONAL_SPACE,
 )
 
 /**

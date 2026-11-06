@@ -72,11 +72,13 @@ fun PredictionPanel(
     showMiniKeyboards: Boolean,
     source: String,
     modifier: Modifier = Modifier,
+    chips: (@Composable () -> Unit)? = null,
 ) {
     Panel(
         "Suites probables",
         modifier,
         help = Help.PREDICTIONS,
+        chips = chips,
         action = { Text("$source · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
     ) {
         if (nodes.isEmpty()) {
