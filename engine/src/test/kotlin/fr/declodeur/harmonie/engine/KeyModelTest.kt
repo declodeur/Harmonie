@@ -64,7 +64,7 @@ class KeyStabilityTest {
             }
         }
         val cMinor = Key(0, true)
-        assertEquals(List(keys.size) { cMinor }, keys, "la tonalité doit rester C mineur d'un bout à l'autre")
+        assertEquals<List<Key?>>(List(keys.size) { cMinor }, keys, "la tonalité doit rester C mineur d'un bout à l'autre")
         val estimate = e.snapshot().key!!
         assertEquals(cMinor, estimate.ranking.first().key)
         // Probabilité honnête : C mineur nettement devant, sans prétendre à la certitude
