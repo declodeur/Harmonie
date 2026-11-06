@@ -5,6 +5,7 @@ import fr.declodeur.harmonie.engine.AnalysisSettings
 import fr.declodeur.harmonie.engine.BassReadingOptions
 import fr.declodeur.harmonie.engine.InterpretationSettings
 import fr.declodeur.harmonie.engine.KeyParams
+import fr.declodeur.harmonie.engine.PredictionSource
 import fr.declodeur.harmonie.engine.EngineSnapshot
 import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
@@ -214,6 +215,11 @@ class AppController(scope: CoroutineScope) {
                 level3 = prefs.getInt(KEY_P_L3, d.prediction.level3).coerceIn(0, 3),
                 showMiniKeyboards = prefs.getBoolean(KEY_P_KEYBOARDS, d.prediction.showMiniKeyboards),
                 expandThresholdPercent = prefs.getInt(KEY_P_THRESHOLD, d.prediction.expandThresholdPercent).coerceIn(0, 50),
+                source = if (prefs.getBoolean(KEY_P_CORPUS, d.prediction.source == PredictionSource.CORPUS)) {
+                    PredictionSource.CORPUS
+                } else {
+                    PredictionSource.THEORY
+                },
             ),
         )
     }
@@ -257,6 +263,7 @@ class AppController(scope: CoroutineScope) {
         prefs.putInt(KEY_P_L3, s.prediction.level3)
         prefs.putBoolean(KEY_P_KEYBOARDS, s.prediction.showMiniKeyboards)
         prefs.putInt(KEY_P_THRESHOLD, s.prediction.expandThresholdPercent)
+        prefs.putBoolean(KEY_P_CORPUS, s.prediction.source == PredictionSource.CORPUS)
     }
 
     private object ShortCommands {
@@ -294,6 +301,7 @@ class AppController(scope: CoroutineScope) {
         const val KEY_L_TOP2 = "layout2TopHeight"
         const val KEY_P_KEYBOARDS = "predictionMiniKeyboards"
         const val KEY_P_THRESHOLD = "predictionExpandThreshold"
+        const val KEY_P_CORPUS = "predictionCorpus"
         const val KEY_P_CONTEXT = "predictionContext"
         const val KEY_P_L1 = "predictionLevel1"
         const val KEY_P_L2 = "predictionLevel2"

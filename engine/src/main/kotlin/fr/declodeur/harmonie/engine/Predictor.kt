@@ -37,7 +37,17 @@ data class PredictionSettings(
      * l'accord joué) atteint ce seuil, en pour cent. 0 = toujours prolongée.
      */
     val expandThresholdPercent: Int = 10,
+    /** D'où viennent les probabilités : statistiques des corpus d'experts, ou modèle théorique seul. */
+    val source: PredictionSource = PredictionSource.CORPUS,
 )
+
+/** Source des probabilités d'enchaînement. */
+enum class PredictionSource(val label: String) {
+    /** Modèle théorique corrigé par les statistiques des corpus d'experts (classique, pop/rock). */
+    CORPUS("statistiques des corpus"),
+    /** Tables écrites à la main d'après les traités et l'usage. */
+    THEORY("modèle théorique"),
+}
 
 /**
  * Prédiction des accords suivants à partir d'un modèle théorique (en attendant un corpus).
@@ -189,7 +199,13 @@ object Predictor {
      * Probabilités des accords suivants, sachant les accords précédents [history] (degrés dans la
      * tonalité, du plus ancien au plus récent). [contextSize] limite la mémoire (1 à 4 accords).
      */
-    fun next(history: List<Degree>, key: Key, style: MusicStyle, contextSize: Int): List<Pair<Degree, Double>> {
+    fun next(
+        history: List<Degree>,
+        key: Key,
+        style: MusicStyle,
+        contextSize: Int,
+        model: ProgressionModel? = null,
+    ): List<Pair<Degree, Double>> {
         val last = history.lastOrNull() ?: Degree(0, if (key.minor) Quality.MIN else Quality.MAJ)
         val scores = LinkedHashMap<Degree, Double>()
         for ((deg, w) in row(last, key, style)) scores[deg] = (scores[deg] ?: 0.0) + w
@@ -208,7 +224,11 @@ object Predictor {
         }
         // Un accord n'est pas suivi de lui-même (l'historique ne répète pas)
         scores.remove(last)
-        val table = normalize(scores)
+        val theory = normalize(scores)
+        // Statistiques des corpus : la théorie sert d'a priori, les comptes la corrigent
+        val table = model?.distribution(history, key.minor, style, n, theory)
+            ?.filter { it.first != last }?.toMap()?.let { normalize(it) }
+            ?: theory
 
         // Mémoire du morceau : suites déjà jouées dans le même ordre
         val (loop, matchLength) = loopEvidence(history, n)
@@ -284,10 +304,11 @@ object Predictor {
         currentNotes: List<Int>,
     ): List<PredictionNode> {
         val widths = listOf(settings.level1, settings.level2, settings.level3)
+        val model = if (settings.source == PredictionSource.CORPUS) ProgressionModel.bundled else null
         fun expand(ctx: List<Degree>, depth: Int, parentP: Double): List<PredictionNode> {
             val width = widths.getOrNull(depth - 1) ?: 0
             if (width <= 0) return emptyList()
-            return next(ctx, key, style, settings.contextSize).take(width).map { (deg, p) ->
+            return next(ctx, key, style, settings.contextSize, model).take(width).map { (deg, p) ->
                 val chord = ChordCandidate(
                     root = Notes.pc(key.tonic + deg.interval),
                     type = typeFor(deg, style),

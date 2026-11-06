@@ -139,3 +139,31 @@ class PredictorTest {
         assertTrue(p.none { it.chord.symbol == "C" }, "C ne se suit pas lui-même")
     }
 }
+
+class ProgressionModelTest {
+    private val v = Degree(7, Quality.DOM)
+    private val i = Degree(0, Quality.MAJ)
+    private val vi = Degree(9, Quality.MIN)
+
+    @Test
+    fun countsCorrectTheTheoryAndRareContextsStayClose() {
+        // Corpus fictif : après V7, toujours VIm (cadence rompue)
+        val seqs = List(50) { ProgressionModel.Sequence(MusicStyle.CLASSICAL, false, listOf(i, v, vi)) }
+        val m = ProgressionModel.train(seqs)
+        val key = Key(0, false)
+        val theory = Predictor.next(listOf(i, v), key, MusicStyle.CLASSICAL, 2)
+        val learned = Predictor.next(listOf(i, v), key, MusicStyle.CLASSICAL, 2, m)
+        assertEquals(i, theory.first().first)
+        assertEquals(vi, learned.first().first)
+        // Style sans données : le modèle théorique seul
+        assertEquals(Predictor.next(listOf(i, v), key, MusicStyle.JAZZ, 2), Predictor.next(listOf(i, v), key, MusicStyle.JAZZ, 2, m))
+        // Aller-retour texte
+        assertEquals(m.serialize(), ProgressionModel.parse(m.serialize()).serialize())
+    }
+
+    @Test
+    fun bundledModelIsShippedForClassicalAndPop() {
+        val m = kotlin.test.assertNotNull(ProgressionModel.bundled)
+        assertTrue(MusicStyle.CLASSICAL in m.styles && MusicStyle.POP_ROCK in m.styles)
+    }
+}

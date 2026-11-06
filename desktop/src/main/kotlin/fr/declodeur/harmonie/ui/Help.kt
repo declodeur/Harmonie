@@ -171,7 +171,10 @@ object Help {
             "avec leur pourcentage et un mini clavier qui montre comment les jouer ; puis, pour chacune, les " +
             "suites suivantes. L'intensité de chaque case suit la probabilité du chemin ; le chiffrage est " +
             "coloré selon la fonction.\n\n" +
-            "C'est une estimation fondée sur la théorie (en attendant un corpus de morceaux) : une table " +
+            "En classique et en pop/rock, les probabilités viennent des statistiques de corpus analysés par " +
+            "des experts (environ 79 000 accords : Bach, Mozart, manuels d'harmonie, Schubert, RS 200, Beatles…), " +
+            "lissées par le modèle théorique. En jazz et en blues (pas encore de corpus) et si l'option est " +
+            "désactivée, c'est le modèle théorique seul : une table " +
             "d'enchaînements par style et par mode (pop/rock, jazz, blues, classique), des règles de contexte " +
             "(un II-V appelle son I, une dominante secondaire sa cible, une substitution tritonique résout un " +
             "demi-ton plus bas) et la mémoire du morceau : si les derniers accords ont déjà été joués dans le " +
@@ -310,4 +313,13 @@ object Help {
             "(probabilité du chemin depuis l'accord joué). Avec une proposition à 90 % et deux à 5 %, seules " +
             "les suites de la première sont calculées : l'arbre montre ce qui compte et se lit mieux. " +
             "0 = toutes les branches sont prolongées."
+
+    const val PREDICTION_SOURCE =
+        "Activé : les probabilités des suites viennent des enchaînements réellement écrits dans les corpus " +
+            "analysés par des experts (classique : chorals de Bach, sonates de Mozart, manuels, préludes, " +
+            "Winterreise ; pop/rock : RS 200 et Isophonics), le modèle théorique servant de base pour les " +
+            "enchaînements rares. Désactivé : modèle théorique seul. Jazz et blues : modèle théorique (pas " +
+            "encore de corpus).\n\nBanc d'essai, accord suivant parmi les 4 premières propositions : chorals " +
+            "de Bach 68 % → 84 %, Mozart 70 % → 82 %, Winterreise 68 % → 80 % ; en pop, la mémoire du morceau " +
+            "(boucles) faisait déjà l'essentiel (RS 200 96 %)."
 }

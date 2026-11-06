@@ -196,8 +196,16 @@ fun main(args: Array<String>) {
             variant.map { pct(it.verdicts.count { v -> v.chordOk }, it.verdicts.size) }.average()))
         ExperimentResult(e, results, variant)
     }
+    val predictions = PredictionEval.run(loaded)
+    for (p in predictions) {
+        println(
+            "Suites %s : %d enchaînements — théorie %.1f %% / %.1f %%, corpus %.1f %% / %.1f %% (1re / 4 premières)".format(
+                p.corpus.name, p.theory.n, p.theory.p1, p.theory.p4, p.learned.p1, p.learned.p4,
+            ),
+        )
+    }
     val history = History.update(historyFile, results, commit)
-    Report.write(File(outDir, "index.html"), results, experiments, history, commit, System.currentTimeMillis() - started)
+    Report.write(File(outDir, "index.html"), results, experiments, history, commit, System.currentTimeMillis() - started, predictions)
     historyFile?.let { History.save(it, history) }
     println("Rapport : " + File(outDir, "index.html").path)
 }

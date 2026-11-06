@@ -23,9 +23,10 @@ object Report {
         history: List<HistoryRow>,
         commit: String,
         elapsedMs: Long,
+        predictions: List<PredictionEval.Result> = emptyList(),
     ) {
         val head = head()
-        val body = body(results, experiments, history, commit, elapsedMs)
+        val body = body(results, experiments, history, commit, elapsedMs, predictions)
         file.writeText(
             "<!doctype html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n" +
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n" +
@@ -120,6 +121,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
         history: List<HistoryRow>,
         commit: String,
         elapsedMs: Long,
+        predictions: List<PredictionEval.Result>,
     ): String {
         val date = LocalDateTime.now(ZoneId.of("Europe/Paris")).format(DateTimeFormatter.ofPattern("d MMMM yyyy 'à' HH:mm", Locale.FRENCH))
         val sb = StringBuilder()
@@ -135,6 +137,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
         )
         sb.append("</header>\n")
         overview(sb, results)
+        if (predictions.isNotEmpty()) predictionSection(sb, predictions)
         if (experiments.isNotEmpty()) experimentsSection(sb, experiments)
         for (r in results) corpus(sb, r, history)
         method(sb, results)
@@ -192,6 +195,30 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
                 "sur ces corpus, il est donc avantagé). L'application, elle, analyse en direct sans connaître la suite.</p>\n",
         )
         sb.append("</div>\n</section>\n")
+    }
+
+    private fun predictionSection(sb: StringBuilder, predictions: List<PredictionEval.Result>) {
+        sb.append("<section id=\"suites\">\n<h2>Suites probables</h2>\n<div class=\"card\">\n")
+        sb.append(
+            "<p class=\"muted\">À chaque changement d'accord de l'expert, le modèle reçoit les accords précédents " +
+                "(chiffrés par l'expert) et doit deviner le suivant. Score = part des cas où l'accord de l'expert est la " +
+                "première proposition de l'arbre, ou l'une des quatre premières. Les statistiques des corpus sont " +
+                "mesurées en validation croisée : chaque morceau est prédit par un modèle appris sur les autres.</p>\n",
+        )
+        sb.append("<div class=\"scroll\"><table>\n<tr><th>Corpus</th><th class=\"n\">Enchaînements</th>")
+        sb.append("<th class=\"n\">Théorie : 1re</th><th class=\"n\">Théorie : 4 premières</th>")
+        sb.append("<th class=\"n\">Corpus : 1re</th><th class=\"n\">Corpus : 4 premières</th></tr>\n")
+        fun cell(v: Double, ref: Double) = when {
+            v >= ref + 0.05 -> "<td class=\"n up\">${p1(v)}</td>"
+            v <= ref - 0.05 -> "<td class=\"n down\">${p1(v)}</td>"
+            else -> "<td class=\"n\">${p1(v)}</td>"
+        }
+        for (p in predictions) {
+            sb.append("<tr><td>${esc(p.corpus.name)}</td><td class=\"n\">${fmtInt(p.theory.n)}</td>")
+            sb.append("<td class=\"n\">${p1(p.theory.p1)}</td><td class=\"n\">${p1(p.theory.p4)}</td>")
+            sb.append(cell(p.learned.p1, p.theory.p1) + cell(p.learned.p4, p.theory.p4) + "</tr>\n")
+        }
+        sb.append("</table></div>\n</div>\n</section>\n")
     }
 
     private fun experimentsSection(sb: StringBuilder, experiments: List<ExperimentResult>) {

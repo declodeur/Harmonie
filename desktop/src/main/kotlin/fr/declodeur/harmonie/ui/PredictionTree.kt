@@ -65,13 +65,14 @@ fun PredictionPanel(
     style: MusicStyle,
     spelling: Spelling,
     showMiniKeyboards: Boolean,
+    source: String,
     modifier: Modifier = Modifier,
 ) {
     Panel(
         "Suites probables",
         modifier,
         help = Help.PREDICTIONS,
-        action = { Text("estimation · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
+        action = { Text("$source · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
     ) {
         if (nodes.isEmpty()) {
             Text("Jouez quelques accords…", fontSize = 15.sp, color = Palette.muted)

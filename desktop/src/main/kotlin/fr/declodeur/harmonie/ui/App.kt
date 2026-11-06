@@ -71,6 +71,8 @@ import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.ToneRole
 import fr.declodeur.harmonie.engine.KeyParams
+import fr.declodeur.harmonie.engine.PredictionSource
+import fr.declodeur.harmonie.engine.ProgressionModel
 import fr.declodeur.harmonie.engine.currentKeyParams
 import fr.declodeur.harmonie.engine.withKeyParams
 import kotlin.math.roundToInt
@@ -107,6 +109,10 @@ fun App(controller: AppController) {
                     spelling = spelling,
                     style = settings.style,
                     showMiniKeyboards = settings.prediction.showMiniKeyboards,
+                    predictionSource = if (
+                        settings.prediction.source == PredictionSource.CORPUS &&
+                        ProgressionModel.bundled?.styles?.contains(settings.style) == true
+                    ) "statistiques des corpus" else "modèle théorique",
                     showScaleOnKeyboard = settings.scaleOnKeyboard,
                     savedLayout = layoutPrefs,
                     onLayoutChanged = controller::saveLayout,
@@ -521,6 +527,7 @@ private fun MainArea(
     spelling: Spelling,
     style: MusicStyle,
     showMiniKeyboards: Boolean,
+    predictionSource: String,
     showScaleOnKeyboard: Boolean,
     savedLayout: LayoutPrefs,
     onLayoutChanged: (LayoutPrefs) -> Unit,
@@ -555,7 +562,7 @@ private fun MainArea(
                     },
                     onDragEnd = save,
                 )
-                PredictionPanel(snap.predictions, style, spelling, showMiniKeyboards, Modifier.weight(treeR).fillMaxHeight())
+                PredictionPanel(snap.predictions, style, spelling, showMiniKeyboards, predictionSource, Modifier.weight(treeR).fillMaxHeight())
                 VerticalSplitter(
                     onDrag = { dx ->
                         val d = dx.value / usable
@@ -674,6 +681,13 @@ private fun SettingsDialog(
                         val pr = settings.prediction
                         SwitchSetting("Afficher les mini claviers", Help.MINI_KEYBOARDS, pr.showMiniKeyboards) {
                             onChange(settings.copy(prediction = pr.copy(showMiniKeyboards = it)))
+                        }
+                        SwitchSetting(
+                            "Statistiques des corpus d'experts (classique, pop/rock)",
+                            Help.PREDICTION_SOURCE,
+                            pr.source == PredictionSource.CORPUS,
+                        ) {
+                            onChange(settings.copy(prediction = pr.copy(source = if (it) PredictionSource.CORPUS else PredictionSource.THEORY)))
                         }
                         SliderSetting(
                             "Contexte : ${pr.contextSize} accord(s) précédent(s)", Help.PREDICTION_CONTEXT,
