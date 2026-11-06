@@ -70,6 +70,9 @@ import fr.declodeur.harmonie.engine.Spelling
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.ToneRole
+import fr.declodeur.harmonie.engine.KeyParams
+import fr.declodeur.harmonie.engine.currentKeyParams
+import fr.declodeur.harmonie.engine.withKeyParams
 import kotlin.math.roundToInt
 
 @Composable
@@ -666,29 +669,6 @@ private fun SettingsDialog(
                         SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
                             onChange(settings.copy(scaleOnKeyboard = it))
                         }
-                    }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        SectionTitle("Tonalité")
-                        SwitchSetting(
-                            "Changement immédiat sur un accord hors tonalité",
-                            Help.FAST_KEY_CHANGE,
-                            settings.fastKeyChange,
-                        ) { onChange(settings.copy(fastKeyChange = it)) }
-                        SwitchSetting("Changement immédiat sur une cadence parfaite", Help.CADENCE_KEY_CHANGE, settings.cadenceKeyChange) {
-                            onChange(settings.copy(cadenceKeyChange = it))
-                        }
-                        SliderSetting(
-                            "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
-                            settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,
-                        ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
-                        SliderSetting(
-                            "Mémoire de la tonalité : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
-                            settings.keyMemorySeconds.toFloat(), 2f..60f, 1f,
-                        ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
-                        SliderSetting(
-                            "Inertie de la tonalité : ${settings.keyInertiaPercent}", Help.KEY_INERTIA,
-                            settings.keyInertiaPercent.toFloat(), 0f..10f, 1f,
-                        ) { onChange(settings.copy(keyInertiaPercent = it.roundToInt())) }
                         Spacer(Modifier.height(4.dp))
                         SectionTitle("Suites probables")
                         val pr = settings.prediction
@@ -720,6 +700,47 @@ private fun SettingsDialog(
                                 )
                             }
                         }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionTitle("Tonalité")
+                        SwitchSetting(
+                            "Changement immédiat sur un accord hors tonalité",
+                            Help.FAST_KEY_CHANGE,
+                            settings.fastKeyChange,
+                        ) { onChange(settings.copy(fastKeyChange = it)) }
+                        SwitchSetting("Changement immédiat sur une cadence parfaite", Help.CADENCE_KEY_CHANGE, settings.cadenceKeyChange) {
+                            onChange(settings.copy(cadenceKeyChange = it))
+                        }
+                        SliderSetting(
+                            "Poids de la mélodie : ${settings.melodyWeightPercent} %", Help.MELODY_WEIGHT,
+                            settings.melodyWeightPercent.toFloat(), 0f..100f, 10f,
+                        ) { onChange(settings.copy(melodyWeightPercent = it.roundToInt())) }
+                        val kp = settings.currentKeyParams
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Modèle pour le style ${settings.style.label}", fontSize = 13.sp, color = Palette.muted)
+                            Spacer(Modifier.width(6.dp))
+                            HelpBubble(Help.KEY_PER_STYLE)
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = {
+                                onChange(settings.withKeyParams { KeyParams.DEFAULTS[settings.style] ?: KeyParams.POP })
+                            }) { Text("Valeurs du banc d'essai", fontSize = 12.sp) }
+                        }
+                        SliderSetting(
+                            if (kp.memoryChords == 0) "Mémoire : en secondes (voir ci-dessous)" else "Mémoire : ${kp.memoryChords} accords",
+                            Help.KEY_MEMORY_CHORDS, kp.memoryChords.toFloat(), 0f..24f, 1f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(memoryChords = v.roundToInt()) }) }
+                        SliderSetting(
+                            "Mémoire en secondes : ${settings.keyMemorySeconds} s", Help.KEY_MEMORY,
+                            settings.keyMemorySeconds.toFloat(), 2f..60f, 1f, enabled = kp.memoryChords == 0,
+                        ) { onChange(settings.copy(keyMemorySeconds = it.roundToInt())) }
+                        SliderSetting(
+                            "Poids de l'accord de tonique : ${kp.tonicPercent} (dont dominante ${kp.dominantPercent} %)",
+                            Help.KEY_TONIC_WEIGHT, kp.tonicPercent.toFloat(), 0f..100f, 5f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(tonicPercent = v.roundToInt()) }) }
+                        SliderSetting(
+                            "Inertie de la tonalité : ${kp.inertiaPercent}", Help.KEY_INERTIA,
+                            kp.inertiaPercent.toFloat(), 0f..10f, 1f,
+                        ) { v -> onChange(settings.withKeyParams { it.copy(inertiaPercent = v.roundToInt()) }) }
                     }
                 }
                 Spacer(Modifier.height(20.dp))

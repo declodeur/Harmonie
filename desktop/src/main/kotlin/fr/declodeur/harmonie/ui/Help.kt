@@ -105,7 +105,7 @@ object Help {
             "vite les modulations progressives, mais s'égare plus facilement. Longue : plus stable. La mémoire " +
             "ne s'efface que pendant que l'on joue : un silence ne fait pas oublier la tonalité. Les ruptures " +
             "franches sont traitées à part (voir « Changement immédiat »).\n\n" +
-            "Banc d'essai : 4 s suit beaucoup mieux les modulations que 12 s (ancienne valeur), sur tous les corpus."
+            "Utilisée seulement si la mémoire en accords est à 0. Banc d'essai : la mémoire en accords fait mieux, surtout en pop."
 
     const val FAST_KEY_CHANGE =
         "Comme à l'oreille : dès qu'un accord sort franchement de la tonalité, on sait qu'elle a changé. " +
@@ -262,4 +262,24 @@ object Help {
         "La tonalité retenue ne change que si une autre la dépasse nettement. Plus d'inertie : tonalité plus " +
             "stable mais plus lente à suivre une modulation. 0 = toujours la plus probable.\n\nBanc d'essai : " +
             "1 donne les meilleurs résultats (3 auparavant)."
+
+    const val KEY_PER_STYLE =
+        "La tonalité ne se pense pas de la même façon selon le style : un choral de Bach module souvent, " +
+            "une chanson pop revient sans cesse à la même tonique. Le modèle de tonalité a donc ses propres " +
+            "réglages pour chaque style ; ceux affichés ici sont ceux du style choisi en haut de l'écran. " +
+            "« Valeurs du banc d'essai » remet les valeurs mesurées comme les meilleures (Classique : chorals, " +
+            "Mozart, manuels, préludes, lieder ; Pop/rock : RS 200 et Isophonics ; Jazz et Blues : pas encore " +
+            "de corpus, réglages de la pop)."
+
+    const val KEY_MEMORY_CHORDS =
+        "Mémoire comptée en changements d'accord : le poids des notes passées est divisé par deux tous les N " +
+            "accords. Elle suit le rythme harmonique (un accord par temps dans un choral, un par mesure en pop), " +
+            "ce qu'une mémoire en secondes ne fait pas. 0 = mémoire en secondes.\n\nBanc d'essai : 4 accords en " +
+            "classique, 12 en pop."
+
+    const val KEY_TONIC_WEIGHT =
+        "En plus des notes de la gamme, la tonalité tient compte du temps passé sur l'accord de tonique (et, " +
+            "en partie, sur sa dominante). En rock, F et E♭ tiennent tous les deux dans la gamme de B♭ majeur, " +
+            "mais la tonique, l'accord sur lequel on revient, est F. 0 = seulement les notes.\n\nBanc d'essai : " +
+            "+10 points environ en pop, +1 à +2 en classique."
 }
