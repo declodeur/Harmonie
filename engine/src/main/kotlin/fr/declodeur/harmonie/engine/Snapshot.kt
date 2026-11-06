@@ -43,6 +43,9 @@ data class HistoryEntry(
     /** Accord pivot de la modulation : son chiffrage dans l'ancienne tonalité ([pivotFrom]). */
     val pivotFrom: HarmonicAnalysis? = null,
 ) {
+    /** Tension de l'accord (0 = repos, 1 = tension maximale). */
+    val tension: Double get() = Tension.of(chord.best, analysis)
+
     /** Orthographe de l'accord dans sa tonalité. */
     val spelling: Spelling get() = Spelling.forChord(chord.best, analysis, analysis?.key?.spelling ?: Spelling.DEFAULT)
 }
@@ -87,4 +90,8 @@ data class EngineSnapshot(
     val voiceLeading: VoiceLeadingInfo? = null,
     /** Orthographe de l'accord courant (tonalité, notes de l'accord écrites par tierces). */
     val spelling: Spelling = Spelling.DEFAULT,
+    /** Instant du dernier tick (ms, horloge du moteur) : durée de l'accord en cours. */
+    val nowMs: Long = 0L,
+    /** Rythme harmonique des derniers accords (null tant qu'il y en a trop peu). */
+    val rhythm: RhythmInfo? = null,
 )

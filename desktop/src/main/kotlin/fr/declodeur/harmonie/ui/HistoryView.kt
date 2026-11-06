@@ -40,7 +40,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
+import fr.declodeur.harmonie.engine.HarmonicRhythm
 import fr.declodeur.harmonie.engine.HistoryEntry
+import fr.declodeur.harmonie.engine.RhythmInfo
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.PredictionNode
 import fr.declodeur.harmonie.engine.Key
@@ -52,6 +55,11 @@ private val CONNECTOR_WIDTH = 26.dp
 private val BRACKET_HEIGHT = 10.dp
 private val GROUP_FOOTER = 22.dp
 
+/** Bande de la courbe de tension au-dessus des accords, et ligne des durées en dessous. */
+internal val TENSION_H = 40.dp
+internal val DURATION_H = 20.dp
+private val AXIS_WIDTH = 38.dp
+
 /**
  * Historique annoté façon analyse jazz :
  * - flèche pleine entre deux accords quand une dominante résout une quinte plus bas ;
@@ -60,8 +68,22 @@ private val GROUP_FOOTER = 22.dp
  * - bordure pointillée pour un accord arpégé (interprété) ;
  * - regroupement par tonalité, séparateur à chaque changement, espace libre à droite.
  */
+/** Options d'affichage de l'historique (étape 5c). */
+data class HistoryDisplay(
+    val showTension: Boolean = true,
+    val showDurations: Boolean = true,
+    val nowMs: Long = 0L,
+    val rhythm: RhythmInfo? = null,
+)
+
 @Composable
-fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
+fun HistoryPanel(
+    history: List<HistoryEntry>,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    display: HistoryDisplay = HistoryDisplay(),
+    onGrid: () -> Unit = {},
+) {
     Panel(
         "Historique",
         modifier,
@@ -76,8 +98,11 @@ fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Mod
                 LegendGlyph(Glyph.DASHED_ARROW, "Subst. tritonique")
                 LegendGlyph(Glyph.BRACKET, "II-V")
                 LegendGlyph(Glyph.DASHED_BOX, "Arpégé")
+                if (display.showTension) LegendGlyph(Glyph.TENSION, "Tension")
+                if (display.showDurations) LegendGlyph(Glyph.DURATION, "Durée")
                 Text("vi = ii : pivot", fontSize = 12.sp, color = Palette.muted)
                 Text("VI? : fonction provisoire", fontSize = 12.sp, color = Palette.muted)
+                TextButton(onClick = onGrid) { Text("Grille", fontSize = 13.sp) }
                 TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) }
             }
         },
@@ -85,30 +110,89 @@ fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Mod
         if (history.isEmpty()) {
             Text("Les accords reconnus s'afficheront ici, avec leur chiffrage.", fontSize = 14.sp, color = Palette.muted)
         } else {
-            PastChords(history)
+            Row {
+                if (display.showTension) TensionAxis()
+                PastChords(history, display)
+            }
+            if (display.showDurations) display.rhythm?.let { RhythmLine(it) }
         }
     }
 }
 
+/** Échelle de la courbe de tension, fixe à gauche de l'historique qui défile. */
+@Composable
+private fun TensionAxis() {
+    Column(Modifier.width(AXIS_WIDTH)) {
+        Box(Modifier.fillMaxWidth().height(TENSION_H)) {
+            Text("max", fontSize = 11.sp, lineHeight = 12.sp, color = Palette.muted, modifier = Modifier.align(Alignment.TopStart))
+            Text("repos", fontSize = 11.sp, lineHeight = 12.sp, color = Palette.muted, modifier = Modifier.align(Alignment.BottomStart))
+        }
+    }
+}
+
+/** Synthèse du rythme harmonique, sous l'historique. */
+@Composable
+private fun RhythmLine(r: RhythmInfo) {
+    Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        val text = buildAnnotatedString {
+            withStyle(SpanStyle(color = Palette.muted)) { append("Rythme harmonique : ") }
+            append("1 accord toutes les ${seconds((r.meanSeconds * 1000).toLong())} (${r.perMinute.roundToInt()} par minute)")
+            if (r.acceleratesBeforeCadence) {
+                withStyle(SpanStyle(color = Palette.muted)) { append("  ·  ") }
+                append("s'accélère avant la cadence")
+            }
+        }
+        Text(text, fontSize = 12.sp, lineHeight = 16.sp)
+        Spacer(Modifier.width(6.dp))
+        HelpBubble(Help.RHYTHM)
+    }
+}
+
+/** Durée lisible : « 2 s », « 1,5 s », « 12 s ». */
+internal fun seconds(ms: Long): String {
+    val s = ms / 1000.0
+    return if (s >= 10) "${s.roundToInt()} s" else String.format(java.util.Locale.FRANCE, "%.1f", s).removeSuffix(",0") + " s"
+}
+
+/** Tension d'un accord et des points de liaison avec ses voisins (milieux), pour tracer la courbe. */
+private data class TensionPoint(val left: Double, val value: Double, val right: Double)
+
+/** Durée d'un accord : part de la plus longue durée affichée, et libellé. */
+private data class DurationInfo(val fraction: Float, val label: String, val current: Boolean)
+
 /** Les accords joués, regroupés par tonalité, le plus récent toujours visible à droite. */
 @Composable
-private fun PastChords(history: List<HistoryEntry>) {
+private fun PastChords(history: List<HistoryEntry>, display: HistoryDisplay) {
     val scroll = rememberScrollState()
     val groups = groupByKey(history)
+    val tensions = if (display.showTension) history.map { it.tension } else null
+    fun point(i: Int): TensionPoint? = tensions?.let { t ->
+        val v = t[i]
+        TensionPoint(t.getOrNull(i - 1)?.let { (it + v) / 2 } ?: v, v, t.getOrNull(i + 1)?.let { (it + v) / 2 } ?: v)
+    }
+    val durations = if (display.showDurations) HarmonicRhythm.durations(history, display.nowMs) else null
+    val longest = durations?.let { d -> (d.dropLast(1).maxOrNull() ?: d.last()).coerceAtLeast(500) }
+    fun duration(i: Int): DurationInfo? = durations?.let { d ->
+        val current = i == d.lastIndex
+        DurationInfo((d[i].toFloat() / longest!!).coerceIn(0.05f, 1f), if (current) "en cours" else seconds(d[i]), current)
+    }
     Row(
         Modifier.fillMaxWidth().horizontalScroll(scroll, reverseScrolling = true),
         verticalAlignment = Alignment.Top,
     ) {
         groups.forEachIndexed { g, group ->
-            if (g > 0) Connector(group.entries.first().value, keyChange = true)
+            val firstIndex = group.entries.first().index
+            if (g > 0) Connector(group.entries.first().value, keyChange = true, tension = point(firstIndex)?.left, display = display)
             Column(Modifier.width(IntrinsicSize.Max)) {
                 Row {
                     group.entries.forEachIndexed { j, (i, entry) ->
-                        if (j > 0) Connector(entry, keyChange = false)
+                        if (j > 0) Connector(entry, keyChange = false, tension = point(i)?.left, display = display)
                         AnnotatedChip(
                             entry = entry,
                             opensTwoFive = history.getOrNull(i + 1)?.closesTwoFive == true,
                             last = i == history.lastIndex,
+                            tension = point(i),
+                            duration = duration(i),
                         )
                     }
                 }
@@ -128,6 +212,19 @@ private fun PastChords(history: List<HistoryEntry>) {
         }
         Spacer(Modifier.width(16.dp))
     }
+}
+
+/** Ordonnée d'une tension (0 = repos en bas, 1 = maximum en haut) dans la bande de la courbe. */
+private fun DrawScope.tensionY(t: Double): Float {
+    val pad = 5.dp.toPx()
+    return pad + (1f - t.toFloat()) * (size.height - 2 * pad)
+}
+
+/** Repères de la bande : maximum (pointillé) et repos (trait fin). */
+private fun DrawScope.tensionGuides() {
+    val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx()))
+    drawLine(Palette.muted.copy(alpha = 0.6f), Offset(0f, tensionY(1.0)), Offset(size.width, tensionY(1.0)), strokeWidth = 1.dp.toPx(), pathEffect = dash)
+    drawLine(Palette.border, Offset(0f, tensionY(0.0)), Offset(size.width, tensionY(0.0)), strokeWidth = 1.dp.toPx())
 }
 
 private data class KeyGroup(val key: Key?, val entries: List<IndexedValue<HistoryEntry>>)
@@ -152,33 +249,57 @@ private fun groupByKey(history: List<HistoryEntry>): List<KeyGroup> {
  * et, en cas de changement de tonalité, trait vertical de séparation.
  */
 @Composable
-private fun Connector(entry: HistoryEntry, keyChange: Boolean) {
-    val extra = if (keyChange) GROUP_FOOTER + 4.dp else 0.dp
+private fun Connector(entry: HistoryEntry, keyChange: Boolean, tension: Double?, display: HistoryDisplay) {
+    val extra = (if (keyChange) GROUP_FOOTER + 4.dp else 0.dp) + (if (display.showDurations) DURATION_H else 0.dp)
     val height = CHIP_HEIGHT + BRACKET_HEIGHT + extra
-    Canvas(Modifier.width(CONNECTOR_WIDTH).height(height)) {
-        val w = size.width
-        if (keyChange) {
-            drawLine(Palette.border, Offset(w / 2, 0f), Offset(w / 2, size.height), strokeWidth = 1.dp.toPx())
+    Column {
+        if (display.showTension) {
+            Canvas(Modifier.width(CONNECTOR_WIDTH).height(TENSION_H)) {
+                tensionGuides()
+                if (tension != null) {
+                    val y = tensionY(tension)
+                    drawLine(Palette.tension, Offset(0f, y), Offset(size.width, y), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
+                }
+            }
         }
-        entry.resolution?.let { r ->
-            drawArrow(
-                from = Offset(3.dp.toPx(), CHIP_HEIGHT.toPx() / 2),
-                to = Offset(w - 3.dp.toPx(), CHIP_HEIGHT.toPx() / 2),
-                color = Palette.dominant,
-                dashed = r == Resolution.HALF_STEP,
-            )
-        }
-        if (entry.closesTwoFive) {
-            val y = CHIP_HEIGHT.toPx() + BRACKET_HEIGHT.toPx() - 2.dp.toPx()
-            drawLine(Palette.muted, Offset(0f, y), Offset(w, y), strokeWidth = 1.5.dp.toPx())
+        Canvas(Modifier.width(CONNECTOR_WIDTH).height(height)) {
+            val w = size.width
+            if (keyChange) {
+                drawLine(Palette.border, Offset(w / 2, 0f), Offset(w / 2, size.height), strokeWidth = 1.dp.toPx())
+            }
+            entry.resolution?.let { r ->
+                drawArrow(
+                    from = Offset(3.dp.toPx(), CHIP_HEIGHT.toPx() / 2),
+                    to = Offset(w - 3.dp.toPx(), CHIP_HEIGHT.toPx() / 2),
+                    color = Palette.dominant,
+                    dashed = r == Resolution.HALF_STEP,
+                )
+            }
+            if (entry.closesTwoFive) {
+                val y = CHIP_HEIGHT.toPx() + BRACKET_HEIGHT.toPx() - 2.dp.toPx()
+                drawLine(Palette.muted, Offset(0f, y), Offset(w, y), strokeWidth = 1.5.dp.toPx())
+            }
         }
     }
 }
 
 /** Accord de l'historique, avec sa part de crochet II-V en dessous. */
 @Composable
-private fun AnnotatedChip(entry: HistoryEntry, opensTwoFive: Boolean, last: Boolean) {
+private fun AnnotatedChip(entry: HistoryEntry, opensTwoFive: Boolean, last: Boolean, tension: TensionPoint?, duration: DurationInfo?) {
     Column(Modifier.width(IntrinsicSize.Max)) {
+        if (tension != null) {
+            Canvas(Modifier.fillMaxWidth().height(TENSION_H)) {
+                tensionGuides()
+                val cx = size.width / 2
+                val path = Path().apply {
+                    moveTo(0f, tensionY(tension.left))
+                    lineTo(cx, tensionY(tension.value))
+                    lineTo(size.width, tensionY(tension.right))
+                }
+                drawPath(path, Palette.tension, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+                drawCircle(Palette.tension, radius = 3.dp.toPx(), center = Offset(cx, tensionY(tension.value)))
+            }
+        }
         HistoryChip(entry, last)
         Canvas(Modifier.fillMaxWidth().height(BRACKET_HEIGHT)) {
             val y = size.height - 2.dp.toPx()
@@ -191,6 +312,16 @@ private fun AnnotatedChip(entry: HistoryEntry, opensTwoFive: Boolean, last: Bool
             if (entry.closesTwoFive) {
                 drawLine(Palette.muted, Offset(cx, 0f), Offset(cx, y), strokeWidth = stroke)
                 drawLine(Palette.muted, Offset(0f, y), Offset(cx, y), strokeWidth = stroke)
+            }
+        }
+        if (duration != null) {
+            Column(Modifier.fillMaxWidth().height(DURATION_H), horizontalAlignment = Alignment.CenterHorizontally) {
+                Canvas(Modifier.fillMaxWidth().height(4.dp)) {
+                    val w = size.width * duration.fraction
+                    val color = if (duration.current) Palette.accent else Palette.muted.copy(alpha = 0.7f)
+                    drawRoundRect(color, topLeft = Offset((size.width - w) / 2, 0f), size = androidx.compose.ui.geometry.Size(w, size.height), cornerRadius = CornerRadius(2.dp.toPx()))
+                }
+                Text(duration.label, fontSize = 11.sp, lineHeight = 14.sp, color = Palette.muted, maxLines = 1)
             }
         }
     }
@@ -274,7 +405,7 @@ private fun DrawScope.drawArrow(from: Offset, to: Offset, color: Color, dashed: 
     drawPath(path, color)
 }
 
-enum class Glyph { ARROW, DASHED_ARROW, BRACKET, DASHED_BOX }
+enum class Glyph { ARROW, DASHED_ARROW, BRACKET, DASHED_BOX, TENSION, DURATION }
 
 /** Petit dessin suivi d'un texte, pour les légendes des annotations. */
 @Composable
@@ -292,6 +423,16 @@ fun LegendGlyph(glyph: Glyph, text: String) {
                     drawLine(Palette.muted, Offset(2f, h - stroke), Offset(w - 2f, h - stroke), strokeWidth = stroke)
                     drawLine(Palette.muted, Offset(w - 2f, 0f), Offset(w - 2f, h - stroke), strokeWidth = stroke)
                 }
+                Glyph.TENSION -> {
+                    val path = Path().apply { moveTo(0f, h * 0.8f); lineTo(w * 0.5f, h * 0.2f); lineTo(w, h * 0.6f) }
+                    drawPath(path, Palette.tension, style = Stroke(width = stroke))
+                }
+                Glyph.DURATION -> drawRoundRect(
+                    color = Palette.muted,
+                    topLeft = Offset(0f, h / 2 - stroke),
+                    size = androidx.compose.ui.geometry.Size(w * 0.7f, 2 * stroke),
+                    cornerRadius = CornerRadius(stroke),
+                )
                 Glyph.DASHED_BOX -> drawRoundRect(
                     color = Palette.muted,
                     topLeft = Offset(stroke, stroke),

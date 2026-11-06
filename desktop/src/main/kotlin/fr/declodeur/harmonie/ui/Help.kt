@@ -69,6 +69,8 @@ object Help {
             "déjà à la nouvelle tonalité y sont rechiffrés (au plus 4, réglable). Le premier est l'accord " +
             "pivot, noté comme en analyse classique « vi = ii » : son chiffrage dans l'ancienne tonalité, puis " +
             "dans la nouvelle. L'affichage en direct, lui, ne change pas.\n\n" +
+            "Au-dessus des accords, la courbe de tension (de « repos » à « max ») ; en dessous, la durée de " +
+            "chaque accord et le rythme harmonique. « Grille » ouvre la grille du morceau, à copier ou imprimer.\n\n" +
             "Fonction de VI et VII : celle du dernier accord est provisoire (d'après la suite la plus probable) ; " +
             "elle est corrigée dès que l'accord suivant est joué.\n\n" +
             "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
@@ -424,4 +426,50 @@ object Help {
             "l'historique, puis corrigée dès que l'accord suivant est joué.\n\n" +
             "Désactivé : chaque degré a toujours la même fonction (convention jazz : VI et VII sous-dominante " +
             "en mineur)."
+
+    const val TENSION =
+        "Courbe de tension : un point par accord, de « repos » (en bas) à « max » (en haut, ligne " +
+            "pointillée). La tension combine trois choses :\n" +
+            "• la fonction : la tonique est le repos, la sous-dominante s'éloigne, la dominante appelle la " +
+            "tonique ;\n" +
+            "• la dissonance : septième, septième diminuée, tensions ajoutées (9, 11, 13), altérations (♭9, ♯9, " +
+            "♭5, ♯5), quarte suspendue ;\n" +
+            "• l'éloignement de la tonalité : dominante secondaire, substitution tritonique, emprunt, accord " +
+            "chromatique, renversement.\n" +
+            "On y lit la phrase musicale : la tension monte vers la cadence et retombe sur la tonique. C'est une " +
+            "estimation : aucun corpus d'experts ne la mesure."
+
+    const val RHYTHM =
+        "Rythme harmonique : à quelle fréquence l'harmonie change. Sous chaque accord, une barre donne sa durée " +
+            "(la plus longue occupe toute la case) ; « en cours » pour l'accord joué. La ligne de synthèse donne " +
+            "la durée moyenne d'un accord et signale quand les accords qui précèdent une cadence sont nettement " +
+            "plus courts (l'harmonie accélère vers la fin de la phrase, un procédé classique).\n\n" +
+            "Harmonie ne connaît ni le tempo ni la mesure : les durées sont en secondes.\n\nBanc d'essai : " +
+            "nombre d'accords différents affichés, comparé à celui de l'expert (pop : autant ; Bach : une fois et " +
+            "demie plus ; piano en figurations : deux à trois fois plus, à cause des notes de passage)."
+
+    const val CIRCLE_PATH =
+        "Parcours des derniers accords sur le cercle des quintes : accords majeurs et de dominante sur l'anneau " +
+            "extérieur, mineurs et diminués sur l'anneau intérieur. Les flèches les plus foncées sont les plus " +
+            "récentes ; l'accord actuel est entouré. Un enchaînement de quintes (II – V – I) tourne pas à pas " +
+            "dans le sens inverse des aiguilles d'une montre ; un emprunt ou une modulation fait un saut. Le " +
+            "nombre d'accords se règle dans Réglages, onglet « Suites et affichage » (0 = masqué)."
+
+    const val GRID =
+        "Grille du morceau joué depuis le dernier « Effacer » : quatre cases par ligne, une section par " +
+            "tonalité (avec l'accord pivot d'une modulation). Une boucle jouée plusieurs fois de suite est " +
+            "écrite une fois entre barres de reprise (‖: … :‖ ×3).\n\n« Copier le texte » met la grille dans " +
+            "le presse-papiers (à coller dans un mail ou un document). « Imprimer / PDF » ouvre l'impression ; " +
+            "sous Windows, choisir l'imprimante « Microsoft Print to PDF » pour obtenir un fichier PDF."
+
+    const val GRID_NUMERALS = "Afficher le chiffrage (degré et fonction) sous chaque accord."
+
+    const val GRID_REPEATS =
+        "Une suite de 2 à 8 accords jouée plusieurs fois de suite est écrite une seule fois, entre barres de " +
+            "reprise, avec le nombre de fois."
+
+    const val GRID_DURATION =
+        "Harmonie ne connaît pas la mesure : avec cette option, l'unité est la durée la plus courante d'un " +
+            "accord. Un accord deux fois plus long occupe deux cases, la seconde notée « % » (comme dans une " +
+            "grille de musicien : même accord que la case précédente)."
 }

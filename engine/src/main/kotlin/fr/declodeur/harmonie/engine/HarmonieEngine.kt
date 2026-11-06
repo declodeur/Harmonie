@@ -150,6 +150,7 @@ class HarmonieEngine(
      */
     @Synchronized
     fun tick(nowMs: Long): Boolean {
+        lastTickMs = nowMs
         resolveBurst(nowMs)
         val (melodic, harmonic) = tracker.sounding()
             .partition { (it.channel to it.note) in melodicNotes || !isChordChannel(it.channel) }
@@ -380,6 +381,14 @@ class HarmonieEngine(
 
     private var previousKey: Key? = null
 
+    /** Dernier instant connu (tick), pour la durée de l'accord en cours. */
+    private var lastTickMs = 0L
+
+    /** Grille du morceau (tout l'historique gardé, pas seulement les derniers accords affichés). */
+    @Synchronized
+    fun grid(byDuration: Boolean, groupRepeats: Boolean): List<GridSection> =
+        ChordGrid.build(history.toList(), lastTickMs, byDuration, groupRepeats)
+
     /**
      * Options de lecture de la basse pour le style choisi : la septième à la basse n'est gardée qu'en
      * Classique (banc d'essai : +1,3 point d'accords exacts sur Bach, −1,4 en pop, où l'on écrit C/B♭).
@@ -492,6 +501,8 @@ class HarmonieEngine(
             version, notes, current, currentAnalysis, keyEstimate, shownHistory, predictions, scale,
             voicing = if (settings.voicing.showVoicing) best?.let { Voicings.describe(committedNotes.toList(), it, keyEstimate?.current) } else null,
             spelling = Spelling.forChord(best, currentAnalysis, keyEstimate?.current?.spelling ?: Spelling.DEFAULT),
+            nowMs = lastTickMs,
+            rhythm = HarmonicRhythm.of(history.takeLast(MAX_HISTORY), lastTickMs),
             voiceLeading = if (settings.voicing.showVoiceLeading) voiceLeading?.let { vl ->
                 val v = settings.voicing
                 val parallels = v.flagParallels && (v.parallelsInAllStyles || settings.style == MusicStyle.CLASSICAL)

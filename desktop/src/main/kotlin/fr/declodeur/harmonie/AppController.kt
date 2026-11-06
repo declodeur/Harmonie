@@ -35,7 +35,8 @@ data class LayoutPrefs(
 /** Relie l'entrée MIDI, le moteur d'analyse et l'interface. */
 class AppController(scope: CoroutineScope) {
     private val prefs: Preferences = Preferences.userRoot().node("fr/declodeur/harmonie")
-    private val engine = HarmonieEngine(loadSettings())
+    // Tout le morceau est gardé pour la grille ; l'écran n'affiche que les derniers accords
+    private val engine = HarmonieEngine(loadSettings(), historyLimit = FULL_HISTORY)
     private val midi = MidiInputManager(::onShortMessage)
 
     private val _snapshot = MutableStateFlow(engine.snapshot())
@@ -131,6 +132,9 @@ class AppController(scope: CoroutineScope) {
         publish()
     }
 
+    /** Grille de tout le morceau joué (cadre « Grille »). */
+    fun grid(byDuration: Boolean, groupRepeats: Boolean) = engine.grid(byDuration, groupRepeats)
+
     fun clearHistory() {
         engine.clearHistory()
         publish()
@@ -175,6 +179,7 @@ class AppController(scope: CoroutineScope) {
 
     private companion object {
         const val KEY_DEVICE = "device"
+        const val FULL_HISTORY = 2000
         const val KEY_L_CHORD = "layout2ChordRatio"
         const val KEY_L_CIRCLE = "layout2CircleRatio"
         const val KEY_L_KEYBOARD = "layout2KeyboardHeight"

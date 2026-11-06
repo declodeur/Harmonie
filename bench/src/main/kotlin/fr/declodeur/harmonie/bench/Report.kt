@@ -171,7 +171,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
     private fun overview(sb: StringBuilder, results: List<CorpusResult>) {
         sb.append("<section>\n<h2>Vue d'ensemble</h2>\n<div class=\"card\">\n<div class=\"scroll\"><table>\n<tr><th>Corpus</th><th class=\"n\">Morceaux</th><th class=\"n\">Accords</th>")
         Metric.entries.forEach { sb.append("<th class=\"n\">${esc(it.label)}</th>") }
-        sb.append("<th class=\"n\">Changements de tonalité</th>")
+        sb.append("<th class=\"n\">Changements de tonalité</th><th class=\"n\">Changements d'accord</th>")
         sb.append("</tr>\n")
         for (r in results) {
             sb.append("<tr><td><a href=\"#${r.corpus.id}\">${esc(r.corpus.name)}</a></td><td class=\"n\">${r.pieces.size}</td><td class=\"n\">${fmtInt(r.verdicts.size)}</td>")
@@ -182,13 +182,17 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
                 sb.append("</td>")
             }
             sb.append("<td class=\"n\">${ratio(r.changeRatio)}<span class=\"ref\">${fmtInt(r.appKeyChanges)} contre ${fmtInt(r.expertKeyChanges)}</span></td>")
+            sb.append("<td class=\"n\">${"×%.2f".format(java.util.Locale.FRANCE, r.chordChangeRatio)}<span class=\"ref\">${fmtInt(r.appChordChanges)} contre ${fmtInt(r.expertChordChanges)}</span></td>")
             sb.append("</tr>\n")
         }
         sb.append("</table></div>\n")
         sb.append(
             "<p class=\"muted\">Changements de tonalité : combien de fois la tonalité retenue par l'application change, " +
                 "rapporté aux changements notés par l'expert (×1 = autant ; ×3 = trois fois trop). Une tonalité qui " +
-                "hésite d'un accord à l'autre se voit ici même quand son score reste correct.</p>\n",
+                "hésite d'un accord à l'autre se voit ici même quand son score reste correct. Changements d'accord : le " +
+                "rythme harmonique, nombre d'accords différents affichés par l'application rapporté à ceux de l'expert " +
+                "(au-dessus de ×1, l'application voit des accords là où l'expert lit une seule harmonie : notes de " +
+                "passage, figurations).</p>\n",
         )
         sb.append(
             "<p class=\"muted\">Sous chaque score : l'accord entre deux experts (quand le corpus a un second avis) et l'accord " +

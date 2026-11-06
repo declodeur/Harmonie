@@ -82,7 +82,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
+internal fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier, path: List<ChordCandidate> = emptyList()) {
     Panel("Tonalité probable", modifier, help = Help.KEY) {
         val current = estimate?.current
         if (estimate == null || current == null) {
@@ -116,12 +116,19 @@ internal fun KeyPanel(estimate: KeyEstimate?, modifier: Modifier) {
                 )
             }
             Box(Modifier.fillMaxWidth().weight(1f).padding(vertical = 4.dp)) {
-                CircleOfFifths(estimate, Modifier.fillMaxSize())
+                CircleOfFifths(estimate, Modifier.fillMaxSize(), path)
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 LegendItem(Palette.accent, "Probabilité")
                 LegendOutline(Palette.compatible, "Compatible")
                 LegendOutline(Palette.text, "Retenue")
+                if (path.size >= 2) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        LegendItem(Palette.path, "Parcours des ${path.size} derniers accords")
+                        Spacer(Modifier.width(4.dp))
+                        HelpBubble(Help.CIRCLE_PATH)
+                    }
+                }
             }
         }
     }

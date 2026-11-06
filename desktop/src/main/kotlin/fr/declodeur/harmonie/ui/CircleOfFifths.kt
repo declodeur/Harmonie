@@ -15,7 +15,9 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
+import fr.declodeur.harmonie.engine.ChordCandidate
 import fr.declodeur.harmonie.engine.Key
+import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.KeyEstimate
 import kotlin.math.cos
 import kotlin.math.sin
@@ -26,7 +28,7 @@ import kotlin.math.sin
  * contient les notes jouées), trait épais = tonalité retenue.
  */
 @Composable
-fun CircleOfFifths(estimate: KeyEstimate, modifier: Modifier = Modifier) {
+fun CircleOfFifths(estimate: KeyEstimate, modifier: Modifier = Modifier, path: List<ChordCandidate> = emptyList()) {
     val measurer = rememberTextMeasurer()
     Canvas(modifier) {
         val radius = size.minDimension / 2f
@@ -42,7 +44,52 @@ fun CircleOfFifths(estimate: KeyEstimate, modifier: Modifier = Modifier) {
             drawSector(i, major, middle, outer, center, estimate, maxP, measurer, radius * 0.115f, false)
             drawSector(i, minor, inner, middle, center, estimate, maxP, measurer, radius * 0.085f, true)
         }
+        if (path.size >= 2) drawChordPath(path, center, inner, middle, outer)
     }
+}
+
+/**
+ * Parcours des derniers accords : accords majeurs (et de dominante) sur l'anneau extérieur,
+ * mineurs et diminués sur l'anneau intérieur ; flèches de plus en plus foncées vers l'accord
+ * actuel, entouré.
+ */
+private fun DrawScope.drawChordPath(path: List<ChordCandidate>, center: Offset, inner: Float, middle: Float, outer: Float) {
+    fun position(c: ChordCandidate): Offset {
+        val minorRing = c.type.isMinorTriadBased || c.type.isDiminished
+        val index = if (minorRing) Notes.pc((c.root - 9) * 7) else Notes.pc(c.root * 7)
+        val r = if (minorRing) (inner + middle) / 2f else (middle + outer) / 2f
+        val a = Math.toRadians(-90.0 + index * 30.0)
+        return Offset(center.x + r * cos(a).toFloat(), center.y + r * sin(a).toFloat())
+    }
+    val points = path.map(::position)
+    val stroke = 2.dpPx(this)
+    val gap = 11.dpPx(this)
+    val n = points.size - 1
+    for (k in 0 until n) {
+        val a = points[k]
+        val b = points[k + 1]
+        val d = b - a
+        val len = d.getDistance()
+        if (len < 2 * gap) continue
+        val u = d / len
+        val from = a + u * gap
+        val to = b - u * gap
+        val alpha = 0.3f + 0.7f * (k + 1) / n
+        val color = Palette.path.copy(alpha = alpha)
+        drawLine(color, from, to, strokeWidth = stroke)
+        // Pointe de flèche
+        val head = 7.dpPx(this)
+        val nx = -u.y
+        val ny = u.x
+        val arrow = Path().apply {
+            moveTo(to.x, to.y)
+            lineTo(to.x - u.x * head + nx * head * 0.5f, to.y - u.y * head + ny * head * 0.5f)
+            lineTo(to.x - u.x * head - nx * head * 0.5f, to.y - u.y * head - ny * head * 0.5f)
+            close()
+        }
+        drawPath(arrow, color)
+    }
+    drawCircle(Palette.path, radius = gap, center = points.last(), style = Stroke(stroke))
 }
 
 private fun DrawScope.drawSector(

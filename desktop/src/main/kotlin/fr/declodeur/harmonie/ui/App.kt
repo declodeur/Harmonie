@@ -88,6 +88,7 @@ fun App(controller: AppController) {
     val error by controller.error.collectAsState()
     val layoutPrefs by controller.layout.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
+    var showGrid by remember { mutableStateOf(false) }
 
     MaterialTheme(colorScheme = Palette.scheme) {
         Surface(Modifier.fillMaxSize(), color = Palette.background) {
@@ -120,11 +121,17 @@ fun App(controller: AppController) {
                     onLayoutChanged = controller::saveLayout,
                     onClearHistory = controller::clearHistory,
                     onKeyClick = controller::toggleKey,
+                    historyDisplay = HistoryDisplay(settings.showTension, settings.showDurations, snap.nowMs, snap.rhythm),
+                    circlePathLength = settings.circlePathLength,
+                    onGrid = { showGrid = true },
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Spacer(Modifier.height(10.dp))
                 StatusBar(connected, error)
             }
+        }
+        if (showGrid) {
+            GridDialog(build = controller::grid, onClose = { showGrid = false })
         }
         if (showSettings) {
             SettingsDialog(
@@ -267,6 +274,9 @@ private fun MainArea(
     onLayoutChanged: (LayoutPrefs) -> Unit,
     onClearHistory: () -> Unit,
     onKeyClick: (Int) -> Unit,
+    historyDisplay: HistoryDisplay,
+    circlePathLength: Int,
+    onGrid: () -> Unit,
     modifier: Modifier,
 ) {
     var layout by remember(savedLayout) { mutableStateOf(savedLayout) }
@@ -280,7 +290,9 @@ private fun MainArea(
         val treeR = 1f - chordR - circleR
         val keyboardH = layout.keyboardHeightDp.dp.coerceIn(70.dp, maxOf(70.dp, total * 0.4f))
         // Rangée du haut : réglable ; par défaut, elle prend tout sauf la hauteur naturelle de l'historique
-        val historyNatural = 178.dp
+        val historyNatural = 178.dp +
+            (if (historyDisplay.showTension) TENSION_H else 0.dp) +
+            (if (historyDisplay.showDurations) DURATION_H + 18.dp else 0.dp)
         val topMax = maxOf(160.dp, total - keyboardH - 24.dp - 110.dp)
         val topAuto = total - keyboardH - 24.dp - historyNatural
         val topH = (if (layout.topHeightDp < 0) topAuto else layout.topHeightDp.dp).coerceIn(160.dp, topMax)
@@ -305,13 +317,18 @@ private fun MainArea(
                     },
                     onDragEnd = save,
                 )
-                KeyPanel(snap.key, Modifier.weight(circleR).fillMaxHeight())
+                val path = if (circlePathLength < 2) emptyList()
+                else snap.history.takeLast(circlePathLength).mapNotNull { it.chord.best }
+                KeyPanel(snap.key, Modifier.weight(circleR).fillMaxHeight(), path)
             }
             HorizontalSplitter(
                 onDrag = { dy -> layout = layout.copy(topHeightDp = (topH + dy).coerceIn(160.dp, topMax).value) },
                 onDragEnd = save,
             )
-            HistoryPanel(snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f))
+            HistoryPanel(
+                snap.history, onClear = onClearHistory, modifier = Modifier.fillMaxWidth().weight(1f),
+                display = historyDisplay, onGrid = onGrid,
+            )
             HorizontalSplitter(
                 onDrag = { dy ->
                     layout = layout.copy(keyboardHeightDp = (keyboardH - dy).coerceIn(70.dp, maxOf(70.dp, total * 0.4f)).value)

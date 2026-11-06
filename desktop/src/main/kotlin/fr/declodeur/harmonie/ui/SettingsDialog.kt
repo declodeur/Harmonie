@@ -403,6 +403,19 @@ private fun RowScope.DisplayTab(settings: AnalysisSettings, onChange: (AnalysisS
         SwitchSetting("… dans tous les styles (sinon en classique)", Help.PARALLELS_ALL_STYLES, vs.parallelsInAllStyles) {
             onChange(settings.copy(voicing = vs.copy(parallelsInAllStyles = it)))
         }
+        Spacer(Modifier.height(4.dp))
+        SectionTitle("Historique et cercle des quintes")
+        SwitchSetting("Courbe de tension au-dessus de l'historique", Help.TENSION, settings.showTension) {
+            onChange(settings.copy(showTension = it))
+        }
+        SwitchSetting("Durée des accords et rythme harmonique", Help.RHYTHM, settings.showDurations) {
+            onChange(settings.copy(showDurations = it))
+        }
+        SliderSetting(
+            if (settings.circlePathLength < 2) "Parcours sur le cercle : masqué"
+            else "Parcours sur le cercle : ${settings.circlePathLength} derniers accords",
+            Help.CIRCLE_PATH, settings.circlePathLength.toFloat(), 0f..12f, 1f,
+        ) { onChange(settings.copy(circlePathLength = it.roundToInt().let { v -> if (v == 1) 0 else v })) }
     }
 }
 

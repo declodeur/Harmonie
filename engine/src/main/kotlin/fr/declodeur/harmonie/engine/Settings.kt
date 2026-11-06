@@ -69,6 +69,12 @@ data class AnalysisSettings(
     val degreeNotation: DegreeNotation = DegreeNotation.CLASSICAL,
     /** Fonction de VI et VII d'après l'accord suivant (sinon : table fixe des degrés). */
     val contextualFunctions: Boolean = true,
+    /** Affichage : courbe de tension au-dessus de l'historique. */
+    val showTension: Boolean = true,
+    /** Affichage : durée de chaque accord sous l'historique, et rythme harmonique. */
+    val showDurations: Boolean = true,
+    /** Affichage : nombre d'accords du parcours tracé sur le cercle des quintes (0 = masqué). */
+    val circlePathLength: Int = 7,
 )
 
 /**
