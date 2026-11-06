@@ -10,7 +10,7 @@ object Help {
     const val INPUT =
         "L'instrument ou l'interface MIDI à écouter. Si votre instrument n'apparaît pas, branchez-le puis " +
             "cliquez sur Actualiser. S'il n'apparaît toujours pas, relancez Harmonie : Windows ne signale pas " +
-            "toujours un appareil branché après le démarrage de l'application.\n\nFond vert : instrument " +
+            "toujours un appareil branché après le démarrage de l'application.\n\nNom en vert : instrument " +
             "connecté. « Aucune entrée MIDI » en rouge : rien n'est connecté, Harmonie n'entend rien (le clavier " +
             "à l'écran reste cliquable pour essayer). « Aucune (déconnecté) » ferme l'entrée ; Harmonie ne se " +
             "reconnecte alors plus tout seul au lancement suivant."

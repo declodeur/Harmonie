@@ -47,6 +47,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.sp
@@ -83,7 +86,7 @@ import kotlin.math.roundToInt
 
 /** Lignes du cadre « Accord courant » : resserrées pour tout voir sans défiler (on joue les mains prises). */
 private val LINE_SP = 14.sp
-private val LINE_H = 18.sp
+private val LINE_H = 19.sp
 
 @Composable
 internal fun CurrentChordPanel(
@@ -96,8 +99,12 @@ internal fun CurrentChordPanel(
     chips: (@Composable () -> Unit)? = null,
 ) {
     Panel("Accord courant", modifier, help = Help.CURRENT_CHORD, chips = chips) {
-      // Défilement à la molette si le cadre est trop bas pour tout afficher
+      // Espacement souple : les lignes s'écartent quand le cadre a de la place, se resserrent sinon ;
+      // défilement à la molette seulement si même resserrées elles ne tiennent pas
+      BoxWithConstraints(Modifier.fillMaxSize()) {
+      val available = maxHeight
       Column(Modifier.verticalScroll(rememberScrollState())) {
+      ElasticColumn(available, maxGap = 9.dp) {
         val best = result?.best
         if (result == null) {
             Text("Jouez un accord…", fontSize = 22.sp, color = Palette.muted)
@@ -122,6 +129,31 @@ internal fun CurrentChordPanel(
             ChordDetails(best, result, analysis, snap, spelling, showScale)
         }
       }
+      }
+      }
+    }
+}
+
+/**
+ * Colonne dont l'espace entre les lignes s'adapte à la hauteur disponible ([available]) : la place
+ * libre est répartie entre les lignes, jusqu'à [maxGap] ; s'il n'y en a pas, les lignes sont collées.
+ */
+@Composable
+private fun ElasticColumn(available: Dp, maxGap: Dp, content: @Composable () -> Unit) {
+    Layout(content) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0, maxHeight = Constraints.Infinity)
+        val placeables = measurables.map { it.measure(loose) }
+        val total = placeables.sumOf { it.height }
+        val gaps = (placeables.size - 1).coerceAtLeast(1)
+        val gap = ((available.roundToPx() - total) / gaps).coerceIn(0, maxGap.roundToPx())
+        val height = total + gap * (placeables.size - 1).coerceAtLeast(0)
+        layout(constraints.maxWidth, height) {
+            var y = 0
+            for (p in placeables) {
+                p.placeRelative(0, y)
+                y += p.height + gap
+            }
+        }
     }
 }
 
@@ -163,7 +195,6 @@ internal fun ChordDetails(
         // La phrase n'est affichée que si elle dit plus que les badges (accord diatonique : rien de plus)
         val informative = analysis.category != HarmonicCategory.DIATONIC || analysis.context != null || analysis.function == null
         if (informative) {
-            Spacer(Modifier.height(2.dp))
             Text(analysis.description, fontSize = 14.sp, lineHeight = 18.sp)
         }
     } else {
@@ -183,7 +214,6 @@ internal fun ChordDetails(
             HelpBubble(Help.ARPEGGIO)
         }
     }
-    Spacer(Modifier.height(4.dp))
     val inversion = if (best.bass != best.root && !best.bassDetached) "${best.inversionIn(spelling)}, serré (basse non notée)"
     else best.inversionIn(spelling)
     // Type, renversement et degré sur une seule ligne

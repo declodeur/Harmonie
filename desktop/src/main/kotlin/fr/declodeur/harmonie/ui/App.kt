@@ -147,6 +147,9 @@ fun App(controller: AppController) {
 /** Rouge vif : sans entrée MIDI, l'application ne sert presque à rien (demande utilisateur). */
 private val NO_INPUT_RED = Color(0xFFFF0000)
 
+/** Vert vif : nom de l'instrument connecté. */
+private val CONNECTED_GREEN = Color(0xFF00E676)
+
 @Composable
 private fun TopBar(
     settings: AnalysisSettings,
@@ -172,7 +175,7 @@ private fun TopBar(
             help = Help.STYLE,
         )
         Row(verticalAlignment = Alignment.Bottom) {
-            // Fond vert : instrument connecté ; « Aucune » (null) ferme l'entrée
+            // Nom en vert vif : instrument connecté ; « Aucune » (null) ferme l'entrée
             Selector<String?>(
                 label = "Entrée MIDI",
                 options = listOf<String?>(null) + devices,
@@ -181,7 +184,7 @@ private fun TopBar(
                 onSelect = onDevice,
                 help = Help.INPUT,
                 placeholder = "Aucune entrée MIDI",
-                containerColor = if (connected != null) Palette.success.copy(alpha = 0.28f) else Palette.surfaceHigh,
+                selectedColor = CONNECTED_GREEN,
                 placeholderColor = NO_INPUT_RED,
             )
             Spacer(Modifier.width(4.dp))

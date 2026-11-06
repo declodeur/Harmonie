@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedButton
@@ -164,8 +163,8 @@ fun <T> Selector(
     help: String? = null,
     enabled: Boolean = true,
     placeholder: String = "—",
-    /** Fond du bouton (vert : entrée MIDI connectée), et couleur du texte quand rien n'est choisi. */
-    containerColor: Color = Color.Transparent,
+    /** Couleur du texte choisi (vert vif : entrée MIDI connectée), et du texte quand rien n'est choisi. */
+    selectedColor: Color? = null,
     placeholderColor: Color? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -175,10 +174,14 @@ fun <T> Selector(
             OutlinedButton(
                 onClick = { expanded = true },
                 enabled = enabled && options.isNotEmpty(),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = containerColor),
             ) {
                 val text = selected?.let(display)
-                if (text != null) Text(text, fontSize = 14.sp)
+                if (text != null) {
+                    Text(
+                        text, fontSize = 14.sp, color = selectedColor ?: Color.Unspecified,
+                        fontWeight = if (selectedColor != null) FontWeight.SemiBold else null,
+                    )
+                }
                 else Text(placeholder, fontSize = 14.sp, color = placeholderColor ?: Color.Unspecified, fontWeight = if (placeholderColor != null) FontWeight.SemiBold else null)
                 Spacer(Modifier.width(6.dp))
                 Text("▾", fontSize = 12.sp)
