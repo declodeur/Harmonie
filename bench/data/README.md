@@ -15,6 +15,15 @@ automatique fournie avec When in Rome, logiciel entraîné sur ces corpus).
 | `textbooks/` | 200 exemples de manuels (Reger, Rimsky-Korsakov, Tchaïkovski, Kostka-Payne, Aldwell-Schachter) | [key_modulation_dataset](https://github.com/DDMAL/key_modulation_dataset) (Nápoles López et al.) | – | voir la source |
 | `bach-wtc1/` | 24 préludes du Clavier bien tempéré I | Mark Gotham et al. | – | CC BY-SA 4.0 |
 | `schubert-winterreise/` | 24 lieder (partitions OpenScore, CC0) | Mark Gotham et al. | – | CC BY-SA 4.0 |
+| `rock-corpus/` | 195 chansons du corpus RS 200 (rock, pop, soul) | David Temperley | Trevor de Clercq | CC BY 4.0 (ChoCo) |
+| `isophonics/` | 224 chansons (Beatles, Queen, Carole King, Michael Jackson, Zweieck) | Isophonics (C4DM, Queen Mary University of London) | – | CC BY 4.0 (ChoCo) |
+
+Les deux corpus pop viennent du dépôt [ChoCo](https://github.com/smashub/choco) (de Berardinis et al., 2023)
+et sont convertis par `bench/tools/convert_pop.py <choco> bench/data`. Ils n'ont pas de partition :
+les notes sont **générées** à partir des accords de l'expert A (basse + accord serré, conduite des voix
+minimale, accord rejoué chaque seconde environ), avec les temps réels des enregistrements. Ils testent
+la tonalité et le chiffrage, pas la reconnaissance des accords. RS 200 ne note que la tonique de la
+tonalité : seule la tonique est comparée.
 
 Partitions des chorals : [Chorale-Corpus](https://github.com/MarkGotham/Chorale-Corpus) (archive,
 commit `50fd22c`), `short_score.mxl`, celles auxquelles renvoie When in Rome. Les autres partitions
