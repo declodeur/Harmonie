@@ -77,6 +77,7 @@ fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Mod
                 LegendGlyph(Glyph.BRACKET, "II-V")
                 LegendGlyph(Glyph.DASHED_BOX, "Arpégé")
                 Text("vi = ii : pivot", fontSize = 12.sp, color = Palette.muted)
+                Text("VI? : fonction provisoire", fontSize = 12.sp, color = Palette.muted)
                 TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) }
             }
         },
@@ -197,7 +198,7 @@ private fun AnnotatedChip(entry: HistoryEntry, opensTwoFive: Boolean, last: Bool
 
 @Composable
 private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
-    val sp = entry.analysis?.key?.spelling ?: Spelling.DEFAULT
+    val sp = entry.spelling
     val shape = RoundedCornerShape(8.dp)
     val borderColor = if (last) Palette.accent else Palette.border
     val borderWidth = if (last) 2.dp else 1.dp
@@ -244,7 +245,17 @@ private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
                 maxLines = 1,
             )
         } else {
-            Text(numeral, fontSize = 12.sp, lineHeight = 16.sp, color = color, maxLines = 1)
+            // Fonction provisoire (VI, VII…) : elle dépend de l'accord suivant, pas encore joué
+            val provisional = entry.analysis?.contextPredicted == true
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = color)) { append(numeral) }
+                    if (provisional) withStyle(SpanStyle(color = Palette.muted)) { append("?") }
+                },
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                maxLines = 1,
+            )
         }
     }
 }

@@ -15,7 +15,10 @@ class VoicingsTest {
         assertEquals("position serrée", layout(60, 64, 67, 71))
         assertEquals("drop 2", layout(55, 60, 64, 71)) // CM7, sol descendu d'une octave
         assertEquals("drop 3", layout(52, 60, 67, 71)) // CM7, mi descendu d'une octave
-        assertEquals("position ouverte", layout(48, 55, 64))
+        assertEquals("position large", layout(48, 55, 64))
+        assertEquals("position serrée", layout(48, 52, 55, 60)) // C E G C : l'octave comprise
+        assertEquals("position large", layout(48, 55, 64, 72)) // C3 G3 E4 C5 : voix supérieures écartées
+        assertEquals("position serrée", layout(60, 67, 72, 75)) // Cm, basse C4 sous G4 C5 E♭5 serrés
         assertEquals("shell (fondamentale, tierce, septième)", layout(48, 52, 58))
         assertEquals("en quartes", layout(62, 67, 72, 77))
         assertEquals("position serrée sur basse séparée", layout(36, 60, 64, 67))
@@ -30,6 +33,7 @@ class VoicingsTest {
         val c = Voicings.describe(listOf(48, 55, 60, 64), chord(48, 55, 60, 64), Key(0, false))!!
         assertEquals(listOf("fondamentale doublée"), c.doublings)
         assertEquals("3", c.sopranoDegree)
+        assertEquals("tierce", c.sopranoName)
     }
 
     @Test
@@ -48,9 +52,9 @@ class VoicingsTest {
     @Test
     fun parallelFifthsAndOctaves() {
         val vl = Voicings.lead(listOf(48, 55, 64), chord(48, 55, 64), listOf(50, 57, 66), chord(50, 57, 66), flagParallels = true)!!
-        assertEquals(listOf("quintes parallèles : basse et voix du milieu"), vl.parallels)
+        assertEquals(listOf("quintes consécutives : basse et voix du milieu"), vl.parallels)
         val oct = Voicings.lead(listOf(48, 55, 60, 64), chord(48, 55, 60, 64), listOf(50, 57, 62, 66), chord(50, 57, 62, 66), flagParallels = true)!!
-        assertTrue(oct.parallels.any { it.startsWith("octaves parallèles : basse et alto") }, oct.parallels.toString())
+        assertTrue(oct.parallels.any { it.startsWith("octaves consécutives : basse et alto") }, oct.parallels.toString())
         val contrary = Voicings.lead(listOf(48, 55, 64), chord(48, 55, 64), listOf(53, 57, 60), chord(53, 57, 60), flagParallels = true)!!
         assertEquals("contraire", contrary.outerMotion)
         assertTrue(contrary.parallels.isEmpty())

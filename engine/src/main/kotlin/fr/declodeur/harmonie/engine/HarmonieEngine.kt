@@ -1,208 +1,5 @@
 package fr.declodeur.harmonie.engine
 
-/** Style musical choisi : il oriente l'analyse harmonique (et plus tard les prédictions). */
-enum class MusicStyle(val label: String) {
-    POP_ROCK("Pop/rock"),
-    JAZZ("Jazz"),
-    BLUES("Blues"),
-    CLASSICAL("Classique"),
-}
-
-enum class AnalysisMode(val label: String) {
-    /** Toutes les notes de tous les canaux servent à reconnaître l'accord. */
-    FULL("Complète"),
-
-    /** Seul le canal des accords est analysé ; les autres canaux sont la mélodie. */
-    CHORDS_AND_MELODY("Accords + mélodie"),
-}
-
-data class AnalysisSettings(
-    val style: MusicStyle = MusicStyle.POP_ROCK,
-    val mode: AnalysisMode = AnalysisMode.FULL,
-    /** Canal des accords (0 à 15) en mode [AnalysisMode.CHORDS_AND_MELODY]. */
-    val chordChannel: Int = 0,
-    /** Durée de stabilité avant de valider un accord, en millisecondes. */
-    val stabilityMs: Int = 60,
-    /** Les notes tenues par la pédale de sustain font partie de l'accord. */
-    val includeSustain: Boolean = true,
-    /**
-     * Écart minimal (demi-tons) entre la basse et la note suivante pour noter un accord
-     * sur basse (« Cm/G »). En dessous, le renversement serré est noté « Cm ». 0 = toujours.
-     */
-    val slashMinGap: Int = 7,
-    /** Exceptions à la règle de la basse détachée. */
-    val bassOptions: BassReadingOptions = BassReadingOptions(),
-    /** Mémoire de la tonalité : demi-vie, en secondes, du poids des notes passées. */
-    val keyMemorySeconds: Int = 4,
-    /** Une cadence parfaite (V7 → I) vers une tonalité plausible la fait retenir tout de suite. */
-    val cadenceKeyChange: Boolean = false,
-    /** Modèle de tonalité, réglé séparément pour chaque style (la notion de tonalité n'est pas la même). */
-    val keyParams: Map<MusicStyle, KeyParams> = KeyParams.DEFAULTS,
-    /** Poids de la mélodie par rapport à l'harmonie pour la tonalité, en % (0 à 100). */
-    val melodyWeightPercent: Int = 70,
-    /** Changement de tonalité immédiat quand un accord sort franchement de la tonalité. */
-    val fastKeyChange: Boolean = true,
-    /** Reconnaître les accords arpégés quand aucun accord n'est tenu. */
-    val arpeggioDetection: Boolean = true,
-    /** Arpèges : on remonte au plus ce nombre de millisecondes en arrière. */
-    val arpeggioWindowMs: Int = 2000,
-    /** Arpèges : on remonte au plus ce nombre de notes en arrière. */
-    val arpeggioMaxNotes: Int = 6,
-    /** Prédictions : forme de l'arbre et taille du contexte. */
-    val prediction: PredictionSettings = PredictionSettings(),
-    /**
-     * Réanalyse a posteriori : à un changement de tonalité, nombre maximal d'accords de l'historique
-     * rechiffrés dans la nouvelle tonalité (depuis l'accord pivot). 0 = désactivée.
-     */
-    val reanalysisDepth: Int = 4,
-    /** Règles d'interprétation contextuelle (issues du banc d'essai). */
-    val interpretation: InterpretationSettings = InterpretationSettings(),
-    /** Affichage : repérer la gamme de l'accord courant sur le grand clavier. */
-    val scaleOnKeyboard: Boolean = true,
-    /** Affichage : voicing et conduite des voix. */
-    val voicing: VoicingSettings = VoicingSettings(),
-    /** Chiffrage : degrés en notation classique (VI, VII en mineur) ou jazz (♭VI, ♭VII). */
-    val degreeNotation: DegreeNotation = DegreeNotation.CLASSICAL,
-    /** Fonction de VI et VII d'après l'accord suivant (sinon : table fixe des degrés). */
-    val contextualFunctions: Boolean = true,
-)
-
-/**
- * Réglages du modèle de tonalité pour un style (valeurs mises au point sur le banc d'essai).
- * [memoryChords] : demi-vie en nombre de changements d'accord (0 = en secondes, [AnalysisSettings.keyMemorySeconds]) ;
- * [tonicPercent] : poids du temps passé sur l'accord de tonique ; [dominantPercent] : part de ce poids
- * accordée à la dominante de la tonalité ; [inertiaPercent] : hystérésis de la tonalité retenue.
- */
-data class KeyParams(
-    val memoryChords: Int,
-    val tonicPercent: Int,
-    val dominantPercent: Int,
-    val inertiaPercent: Int,
-    /** Bonus de la tonalité retenue tant que tout ce qu'on joue reste dans sa gamme (0 = désactivé). */
-    val holdPercent: Int = 0,
-    /** Poids des arrivées sur un accord (V → I, ♭VII → I, IV → I) comme indice de tonique (0 = désactivé). */
-    val arrivalPercent: Int = 0,
-    /** Poids du premier accord du morceau comme indice de tonique (0 = désactivé). */
-    val primacyPercent: Int = 0,
-) {
-    companion object {
-        /** Classique : modulations fréquentes, mémoire courte. Pop : tonique stable, mémoire longue. */
-        val CLASSICAL = KeyParams(
-            memoryChords = 4, tonicPercent = 30, dominantPercent = 30, inertiaPercent = 3, holdPercent = 15,
-        )
-        val POP = KeyParams(
-            memoryChords = 12, tonicPercent = 60, dominantPercent = 0, inertiaPercent = 3, holdPercent = 15,
-            arrivalPercent = 20, primacyPercent = 20,
-        )
-
-        /** Jazz et blues : pas encore de corpus dans le banc d'essai, réglages de la pop. */
-        val DEFAULTS: Map<MusicStyle, KeyParams> = mapOf(
-            MusicStyle.CLASSICAL to CLASSICAL,
-            MusicStyle.POP_ROCK to POP,
-            MusicStyle.JAZZ to POP,
-            MusicStyle.BLUES to POP,
-        )
-
-        /** Modèle d'avant le banc d'essai (mémoire en secondes, sans terme tonique). */
-        val LEGACY = KeyParams(memoryChords = 0, tonicPercent = 0, dominantPercent = 0, inertiaPercent = 3)
-    }
-}
-
-/** Réglages de tonalité du style choisi. */
-val AnalysisSettings.currentKeyParams: KeyParams get() = keyParams[style] ?: KeyParams.POP
-
-/** Modifie les réglages de tonalité du style choisi. */
-fun AnalysisSettings.withKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
-    copy(keyParams = keyParams + (style to f(currentKeyParams)))
-
-/** Modifie les réglages de tonalité de tous les styles (expériences du banc d'essai). */
-fun AnalysisSettings.withAllKeyParams(f: (KeyParams) -> KeyParams): AnalysisSettings =
-    copy(keyParams = MusicStyle.entries.associateWith { f(keyParams[it] ?: KeyParams.POP) })
-
-/** Une note qui sonne, telle que l'interface doit l'afficher. */
-data class SoundingNote(
-    val note: Int,
-    val channel: Int,
-    val velocity: Int,
-    /** Tenue par la pédale (touche déjà relâchée). */
-    val sustained: Boolean,
-    /** Considérée comme mélodie (mode accords + mélodie, autre canal). */
-    val melody: Boolean,
-    /** Prise en compte dans la reconnaissance d'accord. */
-    val analysed: Boolean,
-    /** Jouée seule (mode Complète) : traitée comme une note de mélodie pour la tonalité et la gamme. */
-    val solo: Boolean = false,
-    /** Rôle de la note de mélodie sur l'accord courant (notes de mélodie et notes seules uniquement). */
-    val melodyRole: MelodyRole? = null,
-)
-
-/** Type de résolution entre un accord et le précédent (notation d'analyse jazz). */
-enum class Resolution {
-    /** La fondamentale descend d'une quinte depuis une dominante (V → I, V7/II → IIm) : flèche pleine. */
-    FIFTH,
-
-    /** Une dominante descend d'un demi-ton (SubV → I) : flèche pointillée. */
-    HALF_STEP,
-}
-
-/** Un accord de l'historique, avec son analyse dans la tonalité du moment. */
-data class HistoryEntry(
-    val chord: ChordResult,
-    val analysis: HarmonicAnalysis?,
-    /** Résolution depuis l'accord précédent, s'il y en a une. */
-    val resolution: Resolution? = null,
-    /** Cet accord est le V d'un II-V dont le II est l'accord précédent (crochet). */
-    val closesTwoFive: Boolean = false,
-    /** Instant de l'accord (ms, horloge du moteur). */
-    val timeMs: Long = 0L,
-    /** Notes MIDI de l'accord (pour la conduite des voix). */
-    val notes: List<Int> = emptyList(),
-    /** Rechiffré après coup dans la tonalité qui a suivi (réanalyse a posteriori). */
-    val reanalyzed: Boolean = false,
-    /** Accord pivot de la modulation : son chiffrage dans l'ancienne tonalité ([pivotFrom]). */
-    val pivotFrom: HarmonicAnalysis? = null,
-)
-
-/** Relations harmoniques entre deux accords consécutifs. */
-object ChordRelations {
-    fun resolution(previous: ChordCandidate, previousFunction: HarmonicFunction?, chord: ChordCandidate): Resolution? {
-        val fall = Notes.pc(previous.root - chord.root)
-        val dominantLike = previous.type.isDominant ||
-            (previous.type.isMajorTriadBased && previousFunction == HarmonicFunction.DOMINANT)
-        return when {
-            fall == 7 && dominantLike -> Resolution.FIFTH
-            fall == 1 && previous.type.isDominant -> Resolution.HALF_STEP
-            else -> null
-        }
-    }
-
-    /** II-V : accord mineur (ou demi-diminué) suivi d'une dominante une quarte plus haut. */
-    fun isTwoFive(previous: ChordCandidate, chord: ChordCandidate): Boolean =
-        (previous.type.isMinorTriadBased || previous.type == ChordType.MINOR7_FLAT5) &&
-            chord.type.isDominant && Notes.pc(chord.root - previous.root) == 5
-}
-
-data class EngineSnapshot(
-    val version: Long,
-    val notes: List<SoundingNote>,
-    /** Dernier accord validé (reste affiché quand on relâche les notes). */
-    val current: ChordResult?,
-    /** Analyse de l'accord courant dans la tonalité retenue, si elle est connue. */
-    val currentAnalysis: HarmonicAnalysis?,
-    /** Tonalité probable, null tant qu'il n'y a pas assez de notes. */
-    val key: KeyEstimate?,
-    /** Accords successifs, du plus ancien au plus récent. */
-    val history: List<HistoryEntry>,
-    /** Arbre des suites probables (vide tant que la tonalité est inconnue). */
-    val predictions: List<PredictionNode> = emptyList(),
-    /** Gamme de l'accord courant (et variantes), avec notes à éviter et tensions. */
-    val currentScale: ChordScaleResult? = null,
-    /** Disposition de l'accord courant (serrée, ouverte, drop 2…). */
-    val voicing: VoicingInfo? = null,
-    /** Conduite des voix depuis l'accord précédent. */
-    val voiceLeading: VoiceLeadingInfo? = null,
-)
-
 /**
  * Moteur d'analyse, indépendant de la plateforme (Windows, Android).
  *
@@ -281,7 +78,7 @@ class HarmonieEngine(
         tracker.noteOff(channel, note)
         if (isChordChannel(channel)) {
             recentReleases.addLast(note to nowMs)
-            while (recentReleases.size > 16 || (recentReleases.isNotEmpty() && nowMs - recentReleases.first().second > RELEASE_MEMORY_MS)) {
+            while (recentReleases.size > MAX_RECENT_RELEASES || (recentReleases.isNotEmpty() && nowMs - recentReleases.first().second > RELEASE_MEMORY_MS)) {
                 recentReleases.removeFirst()
             }
         }
@@ -299,7 +96,13 @@ class HarmonieEngine(
 
     @Synchronized
     fun updateSettings(newSettings: AnalysisSettings, nowMs: Long) {
+        val old = settings
         settings = newSettings
+        if (old.style != newSettings.style || old.degreeNotation != newSettings.degreeNotation ||
+            old.contextualFunctions != newSettings.contextualFunctions
+        ) {
+            reanalyzeHistory()
+        }
         keyDetector.halfLifeMs = newSettings.keyMemorySeconds * 1000L
         keyDetector.style = newSettings.style
         keyDetector.melodyWeight = newSettings.melodyWeightPercent / 100.0
@@ -375,31 +178,42 @@ class HarmonieEngine(
         burst.clear()
     }
 
+    /**
+     * Valide un accord quand les notes sont stables depuis [AnalysisSettings.stabilityMs] et qu'une note a
+     * été attaquée : lecture des notes, puis enregistrement (tonalité, historique, suites probables).
+     */
     private fun commitIfStable(nowMs: Long): Boolean {
         if (!pending || nowMs - lastChangeMs < settings.stabilityMs) return false
         pending = false
         if (!attackSinceCommit) return false
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
-        var result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
-        val interp = settings.interpretation
-        val key = keyEstimate?.current
-        if (interp.passingTones && isPassingTone(set, nowMs)) {
+        if (keepsCurrentChord(set, nowMs)) {
             attackSinceCommit = false
             peakSet = emptySet()
             return false
         }
-        if (result.pitchClasses.size < 3) {
-            // Une ou deux notes de l'accord en cours ne le remplacent pas
-            val cur = current?.best
-            if (interp.keepChordOnSubset && cur != null && result.pitchClasses.isNotEmpty() &&
-                cur.chordPitchClasses.containsAll(result.pitchClasses)
-            ) {
-                attackSinceCommit = false
-                peakSet = emptySet()
-                return false
-            }
-        }
+        val result = readChord(set, nowMs) ?: return false
+        attackSinceCommit = false
+        peakSet = emptySet()
+        record(result, set, nowMs)
+        return true
+    }
+
+    /** Note de passage, ou une ou deux notes de l'accord en cours : l'accord affiché continue. */
+    private fun keepsCurrentChord(set: Set<Int>, nowMs: Long): Boolean {
+        val interp = settings.interpretation
+        if (interp.passingTones && isPassingTone(set, nowMs)) return true
+        val pcs = set.map { Notes.pc(it) }.toSet()
+        val cur = current?.best
+        return pcs.size < 3 && interp.keepChordOnSubset && cur != null && pcs.isNotEmpty() && cur.chordPitchClasses.containsAll(pcs)
+    }
+
+    /** Lecture des notes tenues : accord, sinon arpège ou fenêtre harmonique, puis règles d'interprétation. */
+    private fun readChord(set: Set<Int>, nowMs: Long): ChordResult? {
+        val interp = settings.interpretation
+        val key = keyEstimate?.current
+        var result = ChordRecognizer.recognize(set, settings.slashMinGap, bassOptions)
         // Reconnaissance d'arpège seulement en secours, quand aucun accord n'est tenu : d'abord la
         // plus longue suite de notes formant un accord exact, sinon la fenêtre harmonique
         val holdsChord = result.best != null && result.pitchClasses.size >= 3
@@ -414,52 +228,67 @@ class HarmonieEngine(
             result = ChordInterpreter.dyad(result, key, settings.style)
         }
         result = ChordInterpreter.interpret(result, key, settings.style, interp)
-        if (result.best == null && result.pitchClasses.size < 2) return false
-        attackSinceCommit = false
-        peakSet = emptySet()
+        return result.takeUnless { it.best == null && it.pitchClasses.size < 2 }
+    }
+
+    /** Enregistre l'accord validé : conduite des voix, tonalité, historique, suites probables. */
+    private fun record(result: ChordResult, set: Set<Int>, nowMs: Long) {
         val previousNotes = committedNotes
         committedNotes = set
         val previous = current?.best
         current = result
         val best = result.best
         voiceLeading = if (best != null && previous != null && previousNotes.isNotEmpty() && previousNotes != set) {
-            Voicings.lead(previousNotes.toList(), previous, set.toList(), best, flagParallels = true, keyEstimate?.current?.spelling ?: Spelling.DEFAULT)
+            val keySpelling = keyEstimate?.current?.spelling ?: Spelling.DEFAULT
+            Voicings.lead(
+                previousNotes.toList(), previous, set.toList(), best, flagParallels = true,
+                prevSpelling = Spelling.forChord(previous, history.lastOrNull()?.analysis, keySpelling),
+                nextSpelling = Spelling.forChord(best, analyze(best), keySpelling),
+            )
         } else {
             voiceLeading.takeIf { previousNotes == set }
         }
         if (best != null) {
-            val key = keyEstimate?.current
-            if (settings.fastKeyChange && key != null && HarmonicAnalyzer.breaksKey(best, key, settings.style)) {
-                keyDetector.forget()
-            }
-            keyDetector.addChord(best, previous)
-            keyDetector.chordSounding(best)
-            if (settings.cadenceKeyChange && previous != null && previous.type.isDominant &&
-                Notes.pc(previous.root - best.root) == 7 && (best.type.isMajorTriadBased || best.type.isMinorTriadBased) &&
-                !best.type.isDominant
-            ) {
-                keyDetector.cadenceTo(Key(best.root, best.type.isMinorTriadBased))
-            }
-            refreshKey()
-            val last = history.lastOrNull()
-            if (last?.chord?.best?.symbol != best.symbol) {
-                val lastBest = last?.chord?.best
-                history.addLast(
-                    HistoryEntry(
-                        chord = result,
-                        analysis = analyze(best),
-                        resolution = lastBest?.let { ChordRelations.resolution(it, last.analysis?.function, best) },
-                        closesTwoFive = lastBest?.let { ChordRelations.isTwoFive(it, best) } ?: false,
-                        timeMs = nowMs,
-                        notes = result.notes,
-                    ),
-                )
-                while (history.size > historyLimit) history.removeFirst()
-                refreshContext(history.size - 2)
-            }
+            updateKey(best, previous)
+            appendToHistory(result, best, nowMs)
         }
         recomputePredictions()
-        return true
+    }
+
+    /** Le nouvel accord nourrit la tonalité (rupture, cadence) puis la tonalité est recalculée. */
+    private fun updateKey(best: ChordCandidate, previous: ChordCandidate?) {
+        val key = keyEstimate?.current
+        if (settings.fastKeyChange && key != null && HarmonicAnalyzer.breaksKey(best, key, settings.style)) {
+            keyDetector.forget()
+        }
+        keyDetector.addChord(best, previous)
+        keyDetector.chordSounding(best)
+        if (settings.cadenceKeyChange && previous != null && previous.type.isDominant &&
+            Notes.pc(previous.root - best.root) == 7 && (best.type.isMajorTriadBased || best.type.isMinorTriadBased) &&
+            !best.type.isDominant
+        ) {
+            keyDetector.cadenceTo(Key(best.root, best.type.isMinorTriadBased))
+        }
+        refreshKey()
+    }
+
+    /** Ajoute l'accord à l'historique (sauf s'il répète le précédent) et rechiffre la fonction du précédent. */
+    private fun appendToHistory(result: ChordResult, best: ChordCandidate, nowMs: Long) {
+        val last = history.lastOrNull()
+        if (last?.chord?.best?.symbol == best.symbol) return
+        val lastBest = last?.chord?.best
+        history.addLast(
+            HistoryEntry(
+                chord = result,
+                analysis = analyze(best),
+                resolution = lastBest?.let { ChordRelations.resolution(it, last.analysis?.function, best) },
+                closesTwoFive = lastBest?.let { ChordRelations.isTwoFive(it, best) } ?: false,
+                timeMs = nowMs,
+                notes = result.notes,
+            ),
+        )
+        while (history.size > historyLimit) history.removeFirst()
+        refreshContext(history.size - 2)
     }
 
     /**
@@ -492,7 +321,8 @@ class HarmonieEngine(
         }
         val degrees = history.mapNotNull { it.chord.best?.let { b -> Predictor.degreeOf(b, key) } }
         // Notes de départ pour la conduite des voix : l'accord joué, sans une basse détachée
-        val notes = cur.notes.let { n -> if (n.size >= 4 && n[1] - n[0] >= 7) n.drop(1) else n }
+        val gap = settings.slashMinGap.coerceAtLeast(1)
+        val notes = cur.notes.let { n -> if (n.size >= 4 && n[1] - n[0] >= gap) n.drop(1) else n }
         predictions = Predictor.tree(degrees, key, settings.style, settings.prediction, notes, settings.degreeNotation)
     }
 
@@ -509,7 +339,7 @@ class HarmonieEngine(
         var found: ChordResult? = null
         for (k in 3..recent.size) {
             val notes = recent.takeLast(k)
-            val r = ChordRecognizer.recognize(notes, settings.slashMinGap, settings.bassOptions)
+            val r = ChordRecognizer.recognize(notes, settings.slashMinGap, bassOptions)
             val b = r.best
             val ok = b != null && b.isExact && r.pitchClasses.size >= 3 &&
                 b.type != ChordType.ONE_PLUS_FIVE && b.type != ChordType.ONE_PLUS_EIGHT
@@ -525,7 +355,7 @@ class HarmonieEngine(
     private fun windowChord(nowMs: Long, held: Set<Int>): ChordResult? {
         val window = settings.interpretation.harmonicWindowMs
         val notes = held + recentAttacks.filter { nowMs - it.second <= window }.map { it.first }
-        val r = ChordRecognizer.recognize(notes, settings.slashMinGap, settings.bassOptions)
+        val r = ChordRecognizer.recognize(notes, settings.slashMinGap, bassOptions)
         val b = r.best ?: return null
         if (r.pitchClasses.size < 3 || b.extraNotes.isNotEmpty()) return null
         if (b.type == ChordType.ONE_PLUS_FIVE || b.type == ChordType.ONE_PLUS_EIGHT) return null
@@ -549,6 +379,13 @@ class HarmonieEngine(
     }
 
     private var previousKey: Key? = null
+
+    /**
+     * Options de lecture de la basse pour le style choisi : la septième à la basse n'est gardée qu'en
+     * Classique (banc d'essai : +1,3 point d'accords exacts sur Bach, −1,4 en pop, où l'on écrit C/B♭).
+     */
+    private val bassOptions: BassReadingOptions
+        get() = settings.bassOptions.let { if (settings.style == MusicStyle.CLASSICAL) it else it.copy(keepSeventhInBass = false) }
 
     /**
      * Réanalyse a posteriori : la tonalité vient de passer de [old] à [new]. On remonte l'historique
@@ -594,7 +431,7 @@ class HarmonieEngine(
         predicted: Boolean,
     ): HarmonicAnalysis? {
         if (a == null || !settings.contextualFunctions) return a
-        return HarmonicAnalyzer.inContext(a, chord, previous, next, predicted)
+        return HarmonicAnalyzer.inContext(a, chord, previous, next, predicted, settings.degreeNotation)
     }
 
     /** Recalcule la fonction de l'entrée [i] de l'historique d'après ses voisins (accord suivant joué). */
@@ -603,9 +440,23 @@ class HarmonieEngine(
         val chord = e.chord.best ?: return
         val a = e.analysis ?: return
         val base = HarmonicAnalyzer.analyze(chord, a.key, settings.style, settings.degreeNotation)
-        history[i] = e.copy(
-            analysis = withContext(base, chord, history.getOrNull(i - 1)?.chord?.best, history.getOrNull(i + 1)?.chord?.best, false),
-        )
+        // Accord suivant : le premier de fondamentale différente (A♭ → A♭M7 → E♭ : E♭)
+        val next = (i + 1 until history.size).asSequence().mapNotNull { history[it].chord.best }.firstOrNull { it.root != chord.root }
+        history[i] = e.copy(analysis = withContext(base, chord, history.getOrNull(i - 1)?.chord?.best, next, false))
+    }
+
+    /** Rechiffre tout l'historique (après un changement de style, de notation ou de règle des fonctions). */
+    private fun reanalyzeHistory() {
+        for (i in history.indices) {
+            val e = history[i]
+            val chord = e.chord.best ?: continue
+            val key = e.analysis?.key ?: continue
+            history[i] = e.copy(
+                analysis = HarmonicAnalyzer.analyze(chord, key, settings.style, settings.degreeNotation),
+                pivotFrom = e.pivotFrom?.let { HarmonicAnalyzer.analyze(chord, it.key, settings.style, settings.degreeNotation) },
+            )
+        }
+        for (i in 0 until history.size - 1) refreshContext(i)
     }
 
     @Synchronized
@@ -640,6 +491,7 @@ class HarmonieEngine(
         return EngineSnapshot(
             version, notes, current, currentAnalysis, keyEstimate, shownHistory, predictions, scale,
             voicing = if (settings.voicing.showVoicing) best?.let { Voicings.describe(committedNotes.toList(), it, keyEstimate?.current) } else null,
+            spelling = Spelling.forChord(best, currentAnalysis, keyEstimate?.current?.spelling ?: Spelling.DEFAULT),
             voiceLeading = if (settings.voicing.showVoiceLeading) voiceLeading?.let { vl ->
                 val v = settings.voicing
                 val parallels = v.flagParallels && (v.parallelsInAllStyles || settings.style == MusicStyle.CLASSICAL)
@@ -673,6 +525,7 @@ class HarmonieEngine(
         const val RELEASE_MEMORY_MS = 600L
         const val KEY_REFRESH_MS = 250L
         private const val MAX_RECENT_ATTACKS = 32
+        private const val MAX_RECENT_RELEASES = 16
         private const val EMPTY_KEY_SIGNATURE = "null|"
     }
 }

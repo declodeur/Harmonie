@@ -113,6 +113,11 @@ data class BassReadingOptions(
     val keepRootPositionReading: Boolean = true,
     /** Si le dessus a moins de 3 notes différentes, compter la basse (C/E plutôt que C1+5/E). */
     val keepFullReadingWhenUpperIncomplete: Boolean = true,
+    /**
+     * Si la basse est la septième d'un accord exact avec le dessus, garder la lecture de l'accord de
+     * septième au 3e renversement (G7/F, Em7♭5/D plutôt que G/F, Edim/D).
+     */
+    val keepSeventhInBass: Boolean = true,
 )
 
 /** Résultat de l'analyse d'un ensemble de notes jouées ensemble. */
@@ -181,6 +186,9 @@ object ChordRecognizer {
             val fullBest = full.firstOrNull()
             val upperBest = upper.firstOrNull()
             val rootPosition = fullBest != null && fullBest.root == bass && fullBest.isExact
+            val seventhInBass = options.keepSeventhInBass && fullBest != null && fullBest.isExact &&
+                fullBest.type.intervals.size >= 4 &&
+                (Notes.pc(bass - fullBest.root) in setOf(10, 11) || (fullBest.type == ChordType.DIM7 && Notes.pc(bass - fullBest.root) == 9))
             val upperComplete = upperNotes.map(Notes::pc).toSet().size >= 3
             val upperIsSolid = upperBest != null && upperBest.isExact &&
                 (upperComplete || !options.keepFullReadingWhenUpperIncomplete)
@@ -190,6 +198,8 @@ object ChordRecognizer {
                 rootPosition && options.keepRootPositionReading ->
                     upper.take(1).let { u -> full.filter { f -> u.none { it.symbol == f.symbol } } + u }
                         .sortedByDescending { it.score }
+                // Septième à la basse : l'accord de septième renversé passe devant la lecture du dessus
+                seventhInBass -> listOf(fullBest!!) + upper + full.drop(1)
                 upperIsSolid || (fullBest == null && upperBest != null) -> upper
                 else -> full
             }

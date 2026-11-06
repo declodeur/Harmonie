@@ -6,17 +6,8 @@ import kotlin.math.sqrt
 
 /** Une tonalité : tonique + mode majeur ou mineur. */
 data class Key(val tonic: Int, val minor: Boolean) {
-    /** Orthographe des notes dans cette tonalité, d'après son armure. */
-    val spelling: Spelling
-        get() {
-            val major = if (minor) Notes.pc(tonic + 3) else tonic
-            return when (major) {
-                0 -> Spelling.DEFAULT
-                5, 10, 3, 8, 1 -> Spelling.FLATS
-                6 -> if (minor) Spelling.FLATS else Spelling.SHARPS // E♭m (6 bémols), F♯ (6 dièses)
-                else -> Spelling.SHARPS
-            }
-        }
+    /** Orthographe des notes dans cette tonalité (armure, sensible haussée en mineur). */
+    val spelling: Spelling get() = Spelling.forKey(this)
 
     val tonicName: String get() = Notes.name(tonic, spelling)
 

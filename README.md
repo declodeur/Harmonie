@@ -12,7 +12,7 @@ Prototype Windows d'abord ; la version Android réutilisera le moteur d'analyse.
 
 Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas toujours un appareil branché ensuite.
 
-## Version 0.13.1 (étapes 1 à 5b, banc d'essai)
+## Version 0.14 (étapes 1 à 5b, banc d'essai)
 
 - Choix de l'entrée MIDI (reconnexion automatique à la dernière utilisée).
 - Reconnaissance des accords du dictionnaire Yamaha (34 types × 12 fondamentales), notation Yamaha, renversements, lectures alternatives, quinte omise, note étrangère.
@@ -34,6 +34,7 @@ Brancher l'instrument **avant** de lancer l'application : Windows ne signale pas
 - Réanalyse a posteriori (v0.13) : quand la tonalité change, les derniers accords qui appartiennent aussi à la nouvelle tonalité y sont rechiffrés, depuis l'accord pivot (noté « vi = ii » dans l'historique) ; l'affichage en direct ne change pas. Banc d'essai : tonalité de l'historique des chorals de Bach 57 % → 71 % (réglable, 4 accords par défaut).
 - Voicing et conduite des voix (étape 5b) : disposition de l'accord (position serrée ou ouverte, drop 2, drop 3, shell, en quartes, sur basse séparée), notes doublées, degré du soprano, sensible doublée signalée en classique ; depuis l'accord précédent : notes communes, mouvements conjoints et sauts, mouvement des voix extrêmes, guide tones (7e → 3ce), quintes et octaves parallèles (signalées en classique, ou dans tous les styles en option). Séparation harmonie / mélodie : option « Notes de passage » (une voix qui bouge par degré conjoint ne change pas l'accord), mesurée au banc et désactivée par défaut.
 - Chiffrage (v0.13.1) : degrés en notation classique par défaut (en C mineur : Im, III, VI, VII, comme les analyses d'experts), notation jazz (♭III, ♭VI, ♭VII) en option ; nom du degré (tonique, sus-tonique, médiante, sous-dominante, dominante, sus-dominante, sensible ou sous-tonique) ; fonction de VI et VII selon l'accord suivant (VI tonique substitutive vers I ou III, sous-dominante vers II, IV, V ou VII, cadence rompue ; VII dominante substitutive vers I ou vers le relatif III) : provisoire en direct (suite la plus probable), corrigée dans l'historique dès que l'accord suivant est joué ; table fixe en option.
+- Revue de la v0.14 : orthographe contextuelle des notes (sensible haussée en mineur : G♯ en la mineur ; accords écrits par tierces depuis leur fondamentale : E7 = E G♯ B D ; dominantes secondaires, substitutions tritoniques et diminués de passage d'après l'accord qu'ils annoncent ; gammes de 7 notes avec 7 lettres) ; vocabulaire (accord majeur avec sixte ajoutée, position large, quintes consécutives, cadence par la sous-tonique, notes guides) ; position serrée jusqu'à l'octave et sur les voix supérieures ; septième à la basse gardée en style Classique (G7/F, Em7♭5/D ; banc : +1,3 point d'accords exacts sur Bach) ; tierce picarde, B♭7 → E♭ chiffré V7/III ; historique rechiffré quand on change de notation ou de style ; fonction provisoire marquée « ? » ; « Ajouts » distingués des tensions ; arbre des suites plus large ; réglages enregistrés par une table unique testée.
 - Accords arpégés reconnus en secours quand aucun accord n'est tenu (plus longue suite de notes formant un accord, fenêtre réglable en notes et en secondes).
 
 ## Banc d'essai

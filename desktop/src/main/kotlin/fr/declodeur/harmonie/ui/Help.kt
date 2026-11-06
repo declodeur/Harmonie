@@ -148,6 +148,13 @@ object Help {
             "du dessus, garder cette lecture : un A grave sous C E G donne Am7. Désactivé : la basse n'est " +
             "jamais comptée et l'on obtient C/A."
 
+    const val KEEP_SEVENTH_IN_BASS =
+        "Quand la basse détachée est la septième d'un accord complet formé avec les notes du dessus, garder " +
+            "l'accord de septième au 3e renversement : F grave sous G B D donne G7/F (V4/2 en classique), D " +
+            "grave sous E G B♭ donne Em7♭5/D. Désactivé : la basse n'est pas comptée (G/F, Edim/D), comme on " +
+            "l'écrit en variété pour une basse qui descend (C – C/B – C/B♭).\n\nStyle Classique seulement : " +
+            "le banc d'essai y gagne des accords exacts (chorals, manuels), la pop en perd."
+
     const val KEEP_FULL_WHEN_INCOMPLETE =
         "Quand la basse est détachée mais que le dessus n'a que deux notes différentes, compter quand même la " +
             "basse : E grave sous C G donne C/E. Désactivé : on obtient C1+5/E."
@@ -348,36 +355,40 @@ object Help {
 
     const val VOICING =
         "Disposition des notes de l'accord :\n" +
-            "• position serrée : les voix sont collées, aucune note de l'accord n'est sautée (moins d'une octave) ;\n" +
-            "• position ouverte : des notes de l'accord sont sautées entre deux voix ;\n" +
+            "• position serrée : les voix sont collées, aucune note de l'accord ne peut s'intercaler entre deux " +
+            "voix voisines (l'octave au plus). À quatre voix, comme en harmonie classique, on regarde les trois " +
+            "voix du dessus : C3 + G3 C4 E♭4 est en position serrée ;\n" +
+            "• position large : une note de l'accord pourrait s'intercaler entre deux voix (C3 G3 E4 C5) ;\n" +
             "• drop 2 / drop 3 : position serrée dont la 2e (ou 3e) voix en partant du haut est descendue d'une " +
-            "octave, voicing classique du jazz à 4 sons ;\n" +
+            "octave, voicing courant du jazz à 4 sons ;\n" +
             "• shell : fondamentale, tierce et septième seulement (jazz, main gauche) ;\n" +
             "• en quartes : notes empilées par quartes (jazz modal) ;\n" +
-            "• sur basse séparée : une basse à plus d'une octave sous les autres voix (main gauche).\n" +
-            "Suivent les notes doublées et le degré du soprano (la note la plus aiguë). En classique, la " +
-            "sensible doublée dans l'accord de dominante est signalée : elle doit monter à la tonique, " +
-            "doublée elle produit des octaves parallèles."
+            "• sur basse séparée : une basse à une octave ou plus sous les autres voix (main gauche).\n" +
+            "Suivent les notes doublées et la note du soprano (la plus aiguë). En classique, la sensible " +
+            "doublée dans l'accord de dominante est signalée : elle doit monter à la tonique, doublée elle " +
+            "produit des octaves consécutives."
 
     const val VOICE_LEADING =
         "Comment chaque voix passe de l'accord précédent à celui-ci (la basse avec la basse, le soprano avec " +
             "le soprano, les voix intérieures au plus proche) : notes communes gardées, mouvements par degré " +
-            "conjoint (1 ou 2 demi-tons) et sauts. Mouvement des voix extrêmes (basse et soprano) : contraire " +
-            "(elles s'écartent ou se rapprochent), oblique (l'une ne bouge pas), direct (même sens), parallèle " +
-            "(même sens, même intervalle).\n\n" +
-            "Guide tones : la tierce et la septième, qui définissent l'accord ; dans un enchaînement de quintes " +
-            "(ii – V – I), la septième descend d'un degré sur la tierce de l'accord suivant (7e F → 3ce E dans " +
-            "G7 → C). Cette ligne est le fil conducteur des improvisateurs."
+            "conjoint (1 ou 2 demi-tons) et sauts (mouvement disjoint). Mouvement des voix extrêmes (basse et " +
+            "soprano) : contraire (elles s'écartent ou se rapprochent), oblique (l'une ne bouge pas), direct " +
+            "(même sens), parallèle (même sens, même intervalle).\n\n" +
+            "Notes guides (« guide tones » en jazz) : la tierce et la septième, qui définissent l'accord ; dans " +
+            "un enchaînement de quintes (II – V – I), la septième descend d'un degré sur la tierce de l'accord " +
+            "suivant (7e F → 3ce E dans G7 → C). Cette ligne est le fil conducteur des improvisateurs.\n\n" +
+            "Couleurs : bleu = notes guides ; orange = faute d'écriture classique (quintes ou octaves " +
+            "consécutives, sensible doublée)."
 
     const val PARALLELS =
-        "Deux voix qui forment une quinte (ou une octave) puis une autre quinte (ou octave) en bougeant dans " +
-            "le même sens : les deux voix perdent leur indépendance. C'est la faute d'écriture la plus " +
-            "connue de l'harmonie classique ; en pop, en rock (power chords) ou en jazz, c'est courant et " +
-            "voulu. Signalé en orange."
+        "Quintes (ou octaves) consécutives, dites aussi parallèles : deux voix forment une quinte (ou une " +
+            "octave) puis une autre quinte (ou octave) en bougeant dans le même sens. Les deux voix perdent " +
+            "leur indépendance : c'est la faute d'écriture la plus connue de l'harmonie classique. En pop, en " +
+            "rock (power chords) ou en jazz, c'est courant et voulu. Signalé en orange."
 
     const val PARALLELS_ALL_STYLES =
-        "Désactivé : les quintes et octaves parallèles ne sont signalées qu'en style Classique. Activé : dans " +
-            "tous les styles."
+        "Désactivé : les quintes et octaves consécutives ne sont signalées qu'en style Classique. Activé : " +
+            "dans tous les styles."
 
     const val DEGREE_NAME =
         "Nom du degré sur lequel est bâti l'accord :\n" +
@@ -396,16 +407,19 @@ object Help {
             "En majeur, les deux notations sont identiques (un emprunt reste ♭VI, ♭VII)."
 
     const val CONTEXT_FUNCTIONS =
-        "Certains accords changent de rôle selon ce qui vient après. Exemple en C mineur :\n" +
+        "Certains accords changent de rôle selon ce qui vient après. Exemples en C mineur :\n" +
             "• A♭ (VI) suivi de E♭ ou de Cm : il prolonge la tonique → tonique substitutive (T).\n" +
             "• A♭ (VI) suivi de G, de Fm ou de B♭ : il prépare la dominante → sous-dominante (SD).\n" +
             "• A♭ juste après G : la dominante annonçait Cm, A♭ prend sa place (cadence rompue) → T.\n" +
             "• B♭ (VII) suivi de Cm : il ramène à la tonique comme le ferait G → dominante substitutive (D) " +
-            "(cadence éolienne ; en majeur, B♭ → C : cadence mixolydienne, typique du rock).\n" +
-            "• B♭ (VII) suivi de E♭ : c'est la dominante du relatif majeur → D.\n\n" +
+            "(cadence par la sous-tonique ; « éolienne » quand A♭ précède : VI – VII – I ; en majeur, B♭ → C : " +
+            "cadence mixolydienne, typique du rock).\n" +
+            "• B♭ (VII) suivi de E♭ : c'est la dominante du relatif majeur → D ; B♭7 → E♭ est chiffré V7/III.\n" +
+            "• C majeur en C mineur : suivi de F ou de Fm, c'est la dominante de IV (V/IV) ; sinon, c'est la " +
+            "tierce picarde (I), souvent sur le dernier accord.\n\n" +
             "En jouant, on ne connaît pas encore l'accord suivant : la fonction affichée est provisoire, " +
-            "tirée de la suite la plus probable (cadre « Suites probables »), puis corrigée dans l'historique " +
-            "dès que l'accord suivant est joué.\n\n" +
+            "tirée de la suite la plus probable (cadre « Suites probables »), signalée par « ? » dans " +
+            "l'historique, puis corrigée dès que l'accord suivant est joué.\n\n" +
             "Désactivé : chaque degré a toujours la même fonction (convention jazz : VI et VII sous-dominante " +
             "en mineur)."
 }

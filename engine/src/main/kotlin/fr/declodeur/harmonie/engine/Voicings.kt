@@ -14,12 +14,14 @@ data class VoicingSettings(
 
 /** Comment un accord est disposé sur le clavier. */
 data class VoicingInfo(
-    /** Disposition : « position serrée », « position ouverte », « drop 2 », « en quartes »… */
+    /** Disposition : « position serrée », « position large », « drop 2 », « en quartes »… */
     val layout: String,
     /** Notes doublées, par degré (« fondamentale doublée »). */
     val doublings: List<String>,
     /** Degré de la note la plus aiguë (« 3 » : soprano sur la tierce). */
     val sopranoDegree: String?,
+    /** Le même degré en toutes lettres (« tierce »). */
+    val sopranoName: String? = null,
     /** Mise en garde (classique) : « sensible doublée ». */
     val warning: String?,
     /** Écart entre la note la plus grave et la plus aiguë, en demi-tons. */
@@ -33,7 +35,7 @@ data class VoiceLeadingInfo(
     val leaps: Int,
     /** Mouvement des voix extrêmes (basse et soprano) : contraire, parallèle, oblique, direct. */
     val outerMotion: String?,
-    /** Quintes et octaves parallèles (« quintes parallèles : basse et soprano »). */
+    /** Quintes et octaves consécutives, ou parallèles (« quintes consécutives : basse et soprano »). */
     val parallels: List<String>,
     /** Guide tones : 3ce et 7e qui s'enchaînent (« 7e F → 3ce E »). */
     val guideTones: List<String>,
@@ -47,7 +49,12 @@ object Voicings {
         "1", "R" -> "fondamentale"
         "3", "♭3" -> "tierce"
         "5", "♭5", "♯5" -> "quinte"
-        "7", "♭7", "M7" -> "septième"
+        "7", "♭7", "M7", "♭♭7" -> "septième"
+        "6" -> "sixte"
+        "4" -> "quarte"
+        "2", "9", "♭9", "♯9" -> "neuvième"
+        "11", "♯11" -> "onzième"
+        "13", "♭13" -> "treizième"
         else -> label
     }
 
@@ -64,16 +71,19 @@ object Voicings {
         val leading = key?.let { Notes.pc(it.tonic - 1) }
         val onDominant = key != null && Notes.pc(chord.root - key.tonic) == 7
         val warning = if (leading != null && onDominant && leading in doubled) "sensible doublée" else null
-        // Basse séparée (main gauche) : la disposition se lit sur les voix supérieures
-        val separated = n.size >= 4 && n[1] - n[0] >= 12
-        val upper = if (separated) n.drop(1) else n
-        val layout = layout(upper, pcs, chord) + if (separated) " sur basse séparée" else ""
-        return VoicingInfo(layout, doublings, chord.degreeOf(n.last()), warning, n.last() - n.first())
+        // Basse séparée (main gauche) : une octave ou plus sous les autres voix
+        val separated = n.size >= 4 && n[1] - n[0] >= SEPARATED_BASS
+        val layout = layout(n, pcs, chord) + if (separated && !layout(n, pcs, chord).startsWith("drop")) " sur basse séparée" else ""
+        val soprano = chord.degreeOf(n.last())
+        return VoicingInfo(layout, doublings, soprano, sopranoName = soprano?.let { degreeName(it) }, warning = warning, span = n.last() - n.first())
     }
 
+    /** Écart (demi-tons) à partir duquel la basse est séparée des autres voix. */
+    const val SEPARATED_BASS = 12
+
+    /** Voix serrées : moins d'une octave (l'octave comprise), aucune note de l'accord sautée entre deux voix voisines. */
     private fun isClose(v: List<Int>, pcs: Set<Int>): Boolean {
-        if (v.last() - v.first() >= 12) return false
-        // Aucune note de l'accord sautée entre deux voix voisines
+        if (v.last() - v.first() > 12) return false
         for (i in 0 until v.size - 1) {
             for (m in v[i] + 1 until v[i + 1]) if (Notes.pc(m) in pcs) return false
         }
@@ -90,17 +100,19 @@ object Voicings {
         val hasSeventh = 10 in rel || 11 in rel
         if (distinct.size == 3 && 0 in rel && hasThird && hasSeventh && 7 !in rel) return "shell (fondamentale, tierce, septième)"
         if (isClose(v, pcs)) return "position serrée"
+        // Drop 2 / drop 3 (jazz, 4 sons) : une voix de la position serrée descendue d'une octave
         if (v.size == 4 && distinct.size == 4) {
             val raised = (v.drop(1) + (v[0] + 12)).sorted()
             if (isClose(raised, pcs)) {
-                return when (raised.indexOf(v[0] + 12)) {
-                    2 -> "drop 2"
-                    1 -> "drop 3"
-                    else -> "position ouverte"
+                when (raised.indexOf(v[0] + 12)) {
+                    2 -> return "drop 2"
+                    1 -> return "drop 3"
                 }
             }
         }
-        return "position ouverte"
+        // À quatre voix et plus, la position se lit sur les voix supérieures (définition classique)
+        if (v.size >= 4 && isClose(v.drop(1), pcs)) return "position serrée"
+        return "position large"
     }
 
     private fun voiceNames(count: Int): List<String> = when (count) {
@@ -129,7 +141,8 @@ object Voicings {
         next: List<Int>,
         nextChord: ChordCandidate,
         flagParallels: Boolean,
-        spelling: Spelling = Spelling.DEFAULT,
+        prevSpelling: Spelling = Spelling.DEFAULT,
+        nextSpelling: Spelling = prevSpelling,
     ): VoiceLeadingInfo? {
         val a = prev.sorted()
         val b = next.sorted()
@@ -156,8 +169,8 @@ object Voicings {
                 if (mi == 0 || mj == 0 || (mi > 0) != (mj > 0)) continue
                 val before = Notes.pc(a[j] - a[i])
                 val after = Notes.pc(b[j] - b[i])
-                if (before == 7 && after == 7) parallels += "quintes parallèles : ${names[i]} et ${names[j]}"
-                if (before == 0 && after == 0 && a[j] != a[i]) parallels += "octaves parallèles : ${names[i]} et ${names[j]}"
+                if (before == 7 && after == 7) parallels += "quintes consécutives : ${names[i]} et ${names[j]}"
+                if (before == 0 && after == 0 && a[j] != a[i]) parallels += "octaves consécutives : ${names[i]} et ${names[j]}"
             }
         }
         // Guide tones : la 7e et la 3ce de l'accord précédent vers la 3ce ou la 7e du suivant
@@ -172,10 +185,10 @@ object Voicings {
                 val rx = role(x, prevChord) ?: continue
                 val ry = role(y, nextChord) ?: continue
                 if (abs(y - x) <= 2 && rx != ry) {
-                    guide += "$rx ${Notes.name(x, spelling)} → $ry ${Notes.name(y, spelling)}"
+                    guide += "$rx ${Notes.name(x, prevSpelling)} → $ry ${Notes.name(y, nextSpelling)}"
                 }
             }
         }
-        return VoiceLeadingInfo(common, steps, leaps, outer, parallels.distinct(), guide, prevChord.symbolIn(spelling))
+        return VoiceLeadingInfo(common, steps, leaps, outer, parallels.distinct(), guide, prevChord.symbolIn(prevSpelling))
     }
 }

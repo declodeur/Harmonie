@@ -250,30 +250,68 @@ object HarmonicAnalyzer {
     }
 
     /**
-     * Fonction selon le contexte : VI et VII (sous-tonique) changent de rôle selon l'accord suivant.
+     * Lecture selon le contexte (l'accord suivant, joué ou le plus probable) :
      * - VI (mineur) : suivi de I ou de III, il prolonge la tonique (tonique substitutive) ; suivi de II, IV,
      *   V ou VII, il prépare la dominante (sous-dominante) ; juste après la dominante, sans suite connue,
      *   il remplace la tonique (cadence rompue).
-     * - VII sous-tonique (un ton sous la tonique, en mineur ou emprunté en majeur) : suivi de I (cadence
-     *   éolienne, ou mixolydienne en majeur) ou, en mineur, de III, il joue le rôle de dominante
-     *   (dominante substitutive) ; sinon sous-dominante.
-     * Les autres accords gardent la fonction de la table des degrés.
+     * - VII sous-tonique (un ton sous la tonique, en mineur ou emprunté en majeur) : suivi de I, il joue
+     *   le rôle de dominante (dominante substitutive ; cadence par la sous-tonique, éolienne après VI,
+     *   mixolydienne en majeur) ; en mineur, suivi de III, c'est la dominante du relatif ; sinon
+     *   sous-dominante.
+     * - Septième de dominante de la gamme (VII7, IV7 en mineur) qui descend d'une quinte vers un accord
+     *   de la gamme : dominante secondaire (B♭7 → E♭ en C mineur = V7/III).
+     * - Accord parfait majeur de tonique en mineur : V/IV s'il va vers IV, sinon tierce picarde (I).
+     * Un accord suivant de même fondamentale (A♭ → A♭M7) ne compte pas : la suite reste inconnue.
      */
     fun inContext(
         a: HarmonicAnalysis,
         chord: ChordCandidate,
         previous: ChordCandidate?,
-        next: ChordCandidate?,
+        nextChord: ChordCandidate?,
         nextPredicted: Boolean = false,
+        notation: DegreeNotation = DegreeNotation.CLASSICAL,
     ): HarmonicAnalysis {
-        if (a.category != HarmonicCategory.DIATONIC && a.category != HarmonicCategory.BORROWED) return a
+        val next = nextChord?.takeIf { it.root != chord.root }
         val key = a.key
         val iv = Notes.pc(chord.root - key.tonic)
-        val majorBased = chord.type.isMajorTriadBased || chord.type.isDominant
-        if (!majorBased) return a
         val nextIv = next?.let { Notes.pc(it.root - key.tonic) }
         val nextName = next?.symbolIn(key.spelling)
         val after = if (nextPredicted) "s'il est suivi de $nextName (suite la plus probable)" else "suivi de $nextName"
+
+        // Tierce picarde : accord de tonique majeur en mineur, qui ne va pas vers IV
+        if (key.minor && iv == 0 && chord.type.isMajorTriadBased && a.category == HarmonicCategory.SECONDARY_DOMINANT && nextIv != 5) {
+            return a.copy(
+                numeral = numeral(0, chord.type, key, notation),
+                function = HarmonicFunction.TONIC,
+                category = HarmonicCategory.BORROWED,
+                description = "Tierce picarde : accord de tonique majeur dans une tonalité mineure, souvent en fin de morceau" +
+                    (if (next != null) " ($after)." else "."),
+                degreeName = degreeName(0),
+                context = "tierce picarde",
+                contextPredicted = nextPredicted && next != null,
+            )
+        }
+        // Septième de dominante de la gamme qui résout une quinte plus bas : dominante secondaire
+        if (a.category == HarmonicCategory.DIATONIC && chord.type.isDominant && iv != 7 && nextIv != null &&
+            nextIv == Notes.pc(iv - 7) && isTarget(nextIv, key.minor)
+        ) {
+            val target = nextIv
+            return a.copy(
+                numeral = "V${chord.type.suffix}/${roman(target, key, notation)}",
+                function = HarmonicFunction.DOMINANT,
+                category = HarmonicCategory.SECONDARY_DOMINANT,
+                description = "Dominante secondaire : dominante de ${targetChordName(key, target)} " +
+                    "(${targetNumeral(key, target, notation)}), $after.",
+                degreeName = null,
+                context = "dominante secondaire",
+                contextPredicted = nextPredicted,
+                substitute = false,
+            )
+        }
+
+        if (a.category != HarmonicCategory.DIATONIC && a.category != HarmonicCategory.BORROWED) return a
+        val majorBased = chord.type.isMajorTriadBased || chord.type.isDominant
+        if (!majorBased) return a
         val (f, why) = when {
             key.minor && iv == 8 -> when {
                 nextIv == 0 || nextIv == 3 -> HarmonicFunction.TONIC to "tonique substitutive : $after, il prolonge la tonique"
@@ -283,8 +321,15 @@ object HarmonicAnalyzer {
                 else -> return a
             }
             iv == 10 -> when {
-                nextIv == 0 -> HarmonicFunction.DOMINANT to "dominante substitutive : $after, la sous-tonique ramène à la tonique " +
-                    if (key.minor) "(cadence éolienne)" else "(cadence mixolydienne, typique du rock)"
+                nextIv == 0 -> {
+                    val afterSix = previous != null && Notes.pc(previous.root - key.tonic) == 8
+                    val cadence = when {
+                        !key.minor -> "cadence mixolydienne, typique du rock"
+                        afterSix -> "cadence éolienne VI – VII – I"
+                        else -> "cadence par la sous-tonique"
+                    }
+                    HarmonicFunction.DOMINANT to "dominante substitutive : $after, la sous-tonique ramène à la tonique ($cadence)"
+                }
                 key.minor && nextIv == 3 -> HarmonicFunction.DOMINANT to "dominante substitutive : $after, c'est la dominante du relatif majeur"
                 nextIv != null -> HarmonicFunction.SUBDOMINANT to "sous-dominante : $after"
                 else -> return a

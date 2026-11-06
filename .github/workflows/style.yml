@@ -1,0 +1,30 @@
+name: Style du code
+
+# Contrôle de style (ktlint) : rapport seulement, ne bloque jamais la compilation.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - '.editorconfig'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ktlint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.3.1/ktlint
+          chmod +x ktlint
+          ./ktlint --relative "**/src/**/*.kt" > ktlint.txt || true
+          echo "Remarques de style : $(wc -l < ktlint.txt)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          head -200 ktlint.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"

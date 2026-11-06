@@ -75,6 +75,12 @@ object Experiments {
             active = false,
         ) { it.interp { i -> i.copy(passingTones = true) } },
         Experiment(
+            "sans-septieme-basse", "Sans : septième à la basse gardée",
+            "Retire la règle (style Classique) : quand la basse détachée est la septième d'un accord exact avec le dessus, garder l'accord de septième (G7/F, Em7♭5/D) au lieu de G/F, Edim/D. " +
+                "Essai du 6 novembre : +1,3 point d'accords exacts sur Bach et +1,5 sur les manuels ; −1,4 en pop (Isophonics) → classique seulement.",
+            active = false,
+        ) { it.copy(bassOptions = it.bassOptions.copy(keepSeventhInBass = false)) },
+        Experiment(
             "sans-reanalyse", "Sans réanalyse a posteriori",
             "Retire la réanalyse : à un changement de tonalité, les accords précédents ne sont pas rechiffrés depuis l'accord pivot. " +
                 "Essai du 6 novembre : tonalité de l'historique −5,3 points (chorals de Bach −13,4).",

@@ -3,6 +3,7 @@ package fr.declodeur.harmonie.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -33,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.Notes
 import fr.declodeur.harmonie.engine.PredictionNode
-import fr.declodeur.harmonie.engine.Spelling
 import fr.declodeur.harmonie.engine.ToneRole
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -50,6 +50,12 @@ private val CHIP1_H = 46.dp
 private val BRANCH_GAP = 10.dp
 private val KEYBOARD_H = 24.dp
 
+/** Élargissement maximal des colonnes quand le cadre est large. */
+private const val MAX_WIDEN = 2.2f
+
+/** À partir de cette largeur, les petites cases affichent aussi le chiffrage. */
+private val SMALL_WITH_NUMERAL = 96.dp
+
 /** Position calculée d'un nœud de l'arbre. */
 private data class Placed(val node: PredictionNode, val level: Int, val x: Dp, val y: Dp, val w: Dp, val h: Dp, val parent: Int = -1)
 
@@ -63,7 +69,6 @@ private data class Placed(val node: PredictionNode, val level: Int, val x: Dp, v
 fun PredictionPanel(
     nodes: List<PredictionNode>,
     style: MusicStyle,
-    spelling: Spelling,
     showMiniKeyboards: Boolean,
     source: String,
     modifier: Modifier = Modifier,
@@ -77,13 +82,13 @@ fun PredictionPanel(
         if (nodes.isEmpty()) {
             Text("Jouez quelques accords…", fontSize = 15.sp, color = Palette.muted)
         } else {
-            TreeBody(nodes, spelling, showMiniKeyboards)
+            TreeBody(nodes, showMiniKeyboards)
         }
     }
 }
 
 @Composable
-private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling, showMiniKeyboards: Boolean) {
+private fun TreeBody(nodes: List<PredictionNode>, showMiniKeyboards: Boolean) {
     run {
         BoxWithConstraints(Modifier.fillMaxSize().padding(top = 4.dp).clipToBounds()) {
             val placed = layoutTree(nodes, maxHeight, maxWidth, showMiniKeyboards)
@@ -122,14 +127,14 @@ private fun TreeBody(nodes: List<PredictionNode>, spelling: Spelling, showMiniKe
                 Box(Modifier.offset(p.x, p.y)) {
                     if (p.level == 1) {
                         Column {
-                            FirstLevelChip(p.node, alpha, spelling, Modifier.size(p.w, CHIP1_H))
+                            FirstLevelChip(p.node, alpha, Modifier.size(p.w, CHIP1_H))
                             if (showMiniKeyboards && p.h >= CHIP1_H + KEYBOARD_H + 4.dp && p.node.voicing.isNotEmpty()) {
                                 Spacer(Modifier.size(4.dp))
                                 MiniKeyboard(p.node, Modifier.size(p.w, KEYBOARD_H))
                             }
                         }
                     } else {
-                        SmallChip(p.node, alpha, spelling, Modifier.size(p.w, p.h))
+                        SmallChip(p.node, alpha, p.w >= SMALL_WITH_NUMERAL, Modifier.size(p.w, p.h))
                     }
                 }
             }
@@ -150,9 +155,9 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
     if (total() > height) blockMin = CHIP1_H + 4.dp
     if (total() > height) rowH = ((height - gaps) / totalRows).coerceAtLeast(20.dp)
 
-    // Colonnes élargies quand la place le permet (jusqu'à +60 %)
+    // Colonnes élargies pour occuper la largeur du cadre (jusqu'à 2,2 fois la largeur de base)
     val natural = LEFT_MARGIN + COL1_W + GAP_12 + COL2_W + GAP_23 + COL3_W
-    val k = (width / natural).coerceIn(1f, 1.6f)
+    val k = (width / natural).coerceIn(1f, MAX_WIDEN)
     val w1 = COL1_W * k
     val w2 = COL2_W * k
     val w3 = COL3_W * k
@@ -179,7 +184,7 @@ private fun layoutTree(nodes: List<PredictionNode>, height: Dp, width: Dp, showK
 }
 
 @Composable
-private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spelling, modifier: Modifier) {
+private fun FirstLevelChip(node: PredictionNode, alpha: Float, modifier: Modifier) {
     val shape = RoundedCornerShape(6.dp)
     Row(
         modifier.background(Palette.background, shape).background(Palette.accent.copy(alpha = alpha), shape)
@@ -188,7 +193,7 @@ private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spellin
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(node.chord.symbolIn(spelling), fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Text(node.chord.symbolIn(node.spelling), fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
             Text(
                 node.numeral,
                 fontSize = 11.sp,
@@ -202,20 +207,18 @@ private fun FirstLevelChip(node: PredictionNode, alpha: Float, spelling: Spellin
 }
 
 @Composable
-private fun SmallChip(node: PredictionNode, alpha: Float, spelling: Spelling, modifier: Modifier) {
+private fun SmallChip(node: PredictionNode, alpha: Float, showNumeral: Boolean, modifier: Modifier) {
     val shape = RoundedCornerShape(5.dp)
-    Box(
+    val color = node.function?.let { functionColor(it) }?.let { lerpToText(it) } ?: Palette.text
+    Row(
         modifier.background(Palette.background, shape).background(Palette.accent.copy(alpha = alpha), shape)
-            .border(1.dp, Palette.border, shape),
-        contentAlignment = Alignment.Center,
+            .border(1.dp, Palette.border, shape)
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = if (showNumeral) Arrangement.SpaceBetween else Arrangement.Center,
     ) {
-        Text(
-            node.chord.symbolIn(spelling),
-            fontSize = 12.sp,
-            lineHeight = 15.sp,
-            color = node.function?.let { functionColor(it) }?.let { lerpToText(it) } ?: Palette.text,
-            maxLines = 1,
-        )
+        Text(node.chord.symbolIn(node.spelling), fontSize = 12.sp, lineHeight = 15.sp, color = Palette.text, maxLines = 1)
+        if (showNumeral) Text(node.numeral, fontSize = 11.sp, lineHeight = 14.sp, color = color, maxLines = 1)
     }
 }
 

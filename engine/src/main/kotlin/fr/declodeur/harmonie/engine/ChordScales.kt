@@ -47,6 +47,9 @@ data class ChordScaleResult(
 
     /** Tensions disponibles (libellés « 9 », « ♯11 », « 13 »…) dans la gamme principale. */
     val tensions: List<String> get() = ChordScales.tensions(chord, primary)
+
+    /** Sur un accord sans septième : sixte et septième de la gamme, qu'on peut ajouter (« 6 », « ♭7 ») ; ce ne sont pas des tensions. */
+    val additions: List<String> get() = ChordScales.additions(chord, primary)
 }
 
 /** Rôle d'une note de mélodie par rapport à l'accord et à sa gamme. */
@@ -220,15 +223,34 @@ object ChordScales {
         }.toSet()
     }
 
-    /** Libellés des tensions disponibles : notes de la gamme hors accord et non à éviter. */
+    /** Libellés des tensions disponibles : notes de la gamme hors accord et non à éviter (9, 11, 13 et altérations). */
     fun tensions(chord: ChordCandidate, suggestion: ScaleSuggestion): List<String> {
         val tones = chord.chordPitchClasses
         val avoid = avoidNotes(chord, suggestion)
         return suggestion.pitchClasses
             .filter { it !in tones && it !in avoid }
             .map { Notes.pc(it - chord.root) }
+            .filter { !isAddition(it, chord) }
             .sortedBy { TENSION_ORDER.indexOf(it).let { i -> if (i < 0) 99 else i } }
             .map { TENSION_LABELS[it] ?: "?" }
+    }
+
+    private fun hasSeventh(chord: ChordCandidate) = chord.type.intervals.any { it == 10 || it == 11 } || chord.type == ChordType.DIM7
+
+    /** Septième (toujours) et sixte (sur un accord sans septième) : notes d'accord qu'on ajoute, pas des tensions. */
+    private fun isAddition(iv: Int, chord: ChordCandidate) = iv == 10 || iv == 11 || (iv == 9 && !hasSeventh(chord))
+
+    /** Sixte et septième de la gamme sur un accord sans septième (« 6 », « ♭7 », « 7 »). */
+    fun additions(chord: ChordCandidate, suggestion: ScaleSuggestion): List<String> {
+        if (hasSeventh(chord)) return emptyList()
+        val tones = chord.chordPitchClasses
+        val avoid = avoidNotes(chord, suggestion)
+        return suggestion.pitchClasses
+            .filter { it !in tones && it !in avoid }
+            .map { Notes.pc(it - chord.root) }
+            .filter { isAddition(it, chord) }
+            .sorted()
+            .map { when (it) { 9 -> "6"; 10 -> "♭7"; else -> "7" } }
     }
 
     /** Libellé d'une note de la gamme par rapport à la fondamentale de l'accord (« ♭9 », « 11 », « 13 »…). */

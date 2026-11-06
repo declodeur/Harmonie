@@ -13,6 +13,8 @@ data class PredictionNode(
     val chord: ChordCandidate,
     val numeral: String,
     val function: HarmonicFunction?,
+    /** Orthographe de l'accord proposé. */
+    val spelling: Spelling,
     /** Probabilité de cet accord sachant ce qui précède (affichée au premier niveau). */
     val probability: Double,
     /** Probabilité du chemin depuis maintenant (produit des probabilités), pour l'intensité. */
@@ -323,6 +325,7 @@ object Predictor {
                     chord = chord,
                     numeral = analysis.numeral,
                     function = analysis.function,
+                    spelling = Spelling.forChord(chord, analysis, key.spelling),
                     probability = p,
                     pathProbability = parentP * p,
                     voicing = if (depth == 1) Voicing.lead(currentNotes, chord) else emptyList(),

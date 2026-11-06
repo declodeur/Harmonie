@@ -193,3 +193,15 @@ class ChordRecognizerTest {
         assertEquals("2", best(48, 50, 55).degreeOf(50))
     }
 }
+
+class SeventhInBassTest {
+    @Test
+    fun seventhChordInThirdInversionKeepsItsSeventh() {
+        kotlin.test.assertEquals("Em7♭5/D", ChordRecognizer.recognize(listOf(38, 64, 67, 70), 7).best?.symbol)
+        kotlin.test.assertEquals("G7/F", ChordRecognizer.recognize(listOf(41, 55, 59, 62), 7).best?.symbol)
+        val off = BassReadingOptions(keepSeventhInBass = false)
+        kotlin.test.assertEquals("Edim/D", ChordRecognizer.recognize(listOf(38, 64, 67, 70), 7, off).best?.symbol)
+        // Basse fondamentale : inchangé
+        kotlin.test.assertEquals("Cm/G", ChordRecognizer.recognize(listOf(43, 60, 63, 67), 7).best?.symbol)
+    }
+}

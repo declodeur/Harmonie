@@ -131,7 +131,6 @@ class HarmonyTest {
         assertEquals("C♯ mineur", Key(1, true).name)
         assertEquals("G♯ mineur", Key(8, true).name)
         assertEquals("D♭ majeur", Key(1, false).name)
-        assertEquals(Spelling.SHARPS, Key(4, false).spelling)
         assertEquals("D♯", Notes.name(3, Key(4, false).spelling))
         assertEquals(Key(9, true), cMajor.relative)
     }
@@ -337,5 +336,88 @@ class ContextFunctionTest {
         assertEquals(listOf(T, T, T, D, T, T, T, D), h.take(8).map { it.analysis?.function })
         // Option désactivée : table fixe (VI et VII sous-dominante)
         assertEquals(HarmonicFunction.SUBDOMINANT, HarmonicAnalyzer.analyze(bb, cMinor).function)
+    }
+}
+
+class SpellingTest {
+    private fun ch(vararg n: Int) = ChordRecognizer.recognize(n.toList()).best!!
+    private fun names(key: Key, vararg n: Int): String {
+        val c = ch(*n)
+        val sp = Spelling.forChord(c, HarmonicAnalyzer.analyze(c, key), key.spelling)
+        return c.symbolIn(sp) + ":" + n.joinToString(" ") { Notes.name(it, sp) }
+    }
+
+    @Test
+    fun leadingToneIsRaisedInMinor() {
+        assertEquals("G♯", Notes.name(8, Key(9, true).spelling)) // la mineur
+        assertEquals("C♯", Notes.name(1, Key(2, true).spelling)) // ré mineur
+        assertEquals("F♯", Notes.name(6, Key(7, true).spelling)) // sol mineur
+        assertEquals("B", Notes.name(11, Key(0, true).spelling)) // do mineur
+        assertEquals("F♯♯", Notes.name(7, Key(8, true).spelling)) // sol♯ mineur : fa double dièse
+        assertEquals("E", Notes.name(4, Key(9, true).spelling))
+        assertEquals("D♯", Notes.name(3, Key(4, false).spelling)) // mi majeur
+        assertEquals("B♭", Notes.name(10, Key(0, false).spelling)) // ♭7 en do majeur
+        assertEquals("F♯", Notes.name(6, Key(0, false).spelling)) // ♯4 en do majeur
+    }
+
+    @Test
+    fun chordsAreSpelledInThirds() {
+        val c = Key(0, false); val f = Key(5, false); val cm = Key(0, true)
+        assertEquals("E7:E G♯ B D", names(c, 52, 56, 59, 62))
+        assertEquals("D7:D F♯ A C", names(f, 50, 54, 57, 60))
+        assertEquals("E:E G♯ B", names(Key(9, true), 52, 56, 59))
+        assertEquals("F♯dim7:F♯ A C E♭", names(cm, 54, 57, 60, 63))
+        assertEquals("D♭7:D♭ F A♭ C♭", names(c, 49, 53, 56, 59)) // substitution tritonique
+        assertEquals("G7:G B D F", names(cm, 55, 59, 62, 65))
+        assertEquals("A♭:A♭ C E♭", names(cm, 56, 60, 63))
+        assertEquals("C♭5", Notes.nameWithOctave(71, Spelling.forChord(ch(61, 65, 68, 71), null, Spelling.FLATS)))
+    }
+
+    @Test
+    fun sevenNoteScalesUseSevenLetters() {
+        val s = ScaleSuggestion(Scale.entries.first { it.intervals.size == 7 }, 6, "")
+        val sp = s.spelling(Spelling.DEFAULT)
+        assertEquals(7, s.pitchClasses.map { Notes.name(it, sp)[0] }.toSet().size)
+    }
+}
+
+class ContextCasesTest {
+    private fun ch(vararg n: Int) = ChordRecognizer.recognize(n.toList()).best!!
+    private val cm = Key(0, true)
+    private fun ctx(c: ChordCandidate, prev: ChordCandidate?, next: ChordCandidate?) =
+        HarmonicAnalyzer.inContext(HarmonicAnalyzer.analyze(c, cm), c, prev, next)
+
+    @Test
+    fun picardyThirdAndSecondaryDominants() {
+        val cMaj = ch(48, 52, 55); val g = ch(43, 47, 50); val fm = ch(41, 44, 48)
+        assertEquals("I", ctx(cMaj, g, null).numeral) // fin de morceau : tierce picarde
+        assertEquals("V/IV", ctx(cMaj, g, fm).numeral) // vers Fm : dominante de IV
+        val bb7 = ch(46, 50, 53, 56); val eb = ch(51, 55, 58)
+        val v = ctx(bb7, null, eb)
+        assertEquals("V7/III", v.numeral)
+        assertEquals(HarmonicFunction.DOMINANT, v.function)
+        assertEquals("VII7", ctx(bb7, null, ch(48, 51, 55)).numeral) // B♭7 → Cm : reste VII7 (dominante substitutive)
+        // Même fondamentale : la suite reste inconnue
+        val ab = ch(44, 48, 51)
+        assertEquals(HarmonicFunction.SUBDOMINANT, ctx(ab, null, ch(44, 48, 51, 55)).function)
+    }
+
+    @Test
+    fun historyIsReanalysedWhenTheNotationChanges() {
+        val e = HarmonieEngine(AnalysisSettings(style = MusicStyle.POP_ROCK))
+        var t = 0L
+        repeat(2) {
+            for (c in listOf(listOf(48, 60, 63, 67), listOf(44, 60, 63, 68), listOf(51, 58, 63, 67), listOf(46, 58, 62, 65))) {
+                c.forEach { e.noteOn(0, it, 90, t) }
+                val end = t + 1500
+                while (t < end) { t += 10; e.tick(t) }
+                c.forEach { e.noteOff(0, it, t) }
+                t += 30; e.tick(t)
+            }
+        }
+        assertEquals("VI", e.snapshot().history[1].analysis?.numeral)
+        e.updateSettings(e.settings.copy(degreeNotation = DegreeNotation.JAZZ), t)
+        assertEquals("♭VI", e.snapshot().history[1].analysis?.numeral)
+        assertEquals(HarmonicFunction.TONIC, e.snapshot().history[1].analysis?.function)
     }
 }

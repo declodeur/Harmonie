@@ -117,7 +117,7 @@ object ChordInterpreter {
         val target = order.firstOrNull { t -> Notes.pc(t) in scale && Notes.pc(key.tonic + t - 1) in roots } ?: return c
         val root = Notes.pc(key.tonic + target - 1)
         if (root == c.root) return c
-        return c.copy(root = root, interpretation = "Septième diminuée nommée d'après la sensible (${Notes.name(root, key.spelling)}).")
+        return c.copy(root = root, interpretation = "Septième diminuée nommée d'après la sensible (${Spelling.leadingTone(root + 1, key.spelling)}).")
     }
 
     /**
