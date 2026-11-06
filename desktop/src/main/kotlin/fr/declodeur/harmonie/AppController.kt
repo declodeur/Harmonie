@@ -10,6 +10,7 @@ import fr.declodeur.harmonie.engine.EngineSnapshot
 import fr.declodeur.harmonie.engine.HarmonieEngine
 import fr.declodeur.harmonie.engine.MusicStyle
 import fr.declodeur.harmonie.engine.PredictionSettings
+import fr.declodeur.harmonie.engine.VoicingSettings
 import fr.declodeur.harmonie.midi.MidiInputInfo
 import fr.declodeur.harmonie.midi.MidiInputManager
 import kotlinx.coroutines.CoroutineScope
@@ -201,11 +202,19 @@ class AppController(scope: CoroutineScope) {
                 keepChordOnSubset = prefs.getBoolean(KEY_I_SUBSET, d.interpretation.keepChordOnSubset),
                 completeDyads = prefs.getBoolean(KEY_I_DYADS, d.interpretation.completeDyads),
                 harmonicWindowMs = prefs.getInt(KEY_I_WINDOW, d.interpretation.harmonicWindowMs).coerceIn(0, 1500),
+                passingTones = prefs.getBoolean(KEY_I_PASSING, d.interpretation.passingTones),
+            ),
+            voicing = VoicingSettings(
+                showVoicing = prefs.getBoolean(KEY_V_SHOW, d.voicing.showVoicing),
+                showVoiceLeading = prefs.getBoolean(KEY_V_LEADING, d.voicing.showVoiceLeading),
+                flagParallels = prefs.getBoolean(KEY_V_PARALLELS, d.voicing.flagParallels),
+                parallelsInAllStyles = prefs.getBoolean(KEY_V_PARALLELS_ALL, d.voicing.parallelsInAllStyles),
             ),
             melodyWeightPercent = prefs.getInt(KEY_MELODY_WEIGHT, d.melodyWeightPercent).coerceIn(0, 100),
             fastKeyChange = prefs.getBoolean(KEY_FAST_KEY, d.fastKeyChange),
             arpeggioDetection = prefs.getBoolean(KEY_ARPEGGIO, d.arpeggioDetection),
             scaleOnKeyboard = prefs.getBoolean(KEY_SCALE_KEYBOARD, d.scaleOnKeyboard),
+            reanalysisDepth = prefs.getInt(KEY_REANALYSIS, d.reanalysisDepth).coerceIn(0, 16),
             arpeggioWindowMs = prefs.getInt(KEY_ARPEGGIO_WINDOW, d.arpeggioWindowMs).coerceIn(500, 5000),
             arpeggioMaxNotes = prefs.getInt(KEY_ARPEGGIO_NOTES, d.arpeggioMaxNotes).coerceIn(3, 12),
             prediction = PredictionSettings(
@@ -251,10 +260,16 @@ class AppController(scope: CoroutineScope) {
         prefs.putBoolean(KEY_I_SUBSET, s.interpretation.keepChordOnSubset)
         prefs.putBoolean(KEY_I_DYADS, s.interpretation.completeDyads)
         prefs.putInt(KEY_I_WINDOW, s.interpretation.harmonicWindowMs)
+        prefs.putBoolean(KEY_I_PASSING, s.interpretation.passingTones)
+        prefs.putBoolean(KEY_V_SHOW, s.voicing.showVoicing)
+        prefs.putBoolean(KEY_V_LEADING, s.voicing.showVoiceLeading)
+        prefs.putBoolean(KEY_V_PARALLELS, s.voicing.flagParallels)
+        prefs.putBoolean(KEY_V_PARALLELS_ALL, s.voicing.parallelsInAllStyles)
         prefs.putInt(KEY_MELODY_WEIGHT, s.melodyWeightPercent)
         prefs.putBoolean(KEY_FAST_KEY, s.fastKeyChange)
         prefs.putBoolean(KEY_ARPEGGIO, s.arpeggioDetection)
         prefs.putBoolean(KEY_SCALE_KEYBOARD, s.scaleOnKeyboard)
+        prefs.putInt(KEY_REANALYSIS, s.reanalysisDepth)
         prefs.putInt(KEY_ARPEGGIO_WINDOW, s.arpeggioWindowMs)
         prefs.putInt(KEY_ARPEGGIO_NOTES, s.arpeggioMaxNotes)
         prefs.putInt(KEY_P_CONTEXT, s.prediction.contextSize)
@@ -291,9 +306,15 @@ class AppController(scope: CoroutineScope) {
         const val KEY_I_SUBSET = "interpKeepChordOnSubset"
         const val KEY_I_DYADS = "interpCompleteDyads"
         const val KEY_I_WINDOW = "interpHarmonicWindowMs"
+        const val KEY_I_PASSING = "interpPassingTones"
+        const val KEY_V_SHOW = "voicingShow"
+        const val KEY_V_LEADING = "voicingLeading"
+        const val KEY_V_PARALLELS = "voicingParallels"
+        const val KEY_V_PARALLELS_ALL = "voicingParallelsAllStyles"
         const val KEY_MELODY_WEIGHT = "melodyWeightPercent"
         const val KEY_ARPEGGIO = "arpeggioDetection"
         const val KEY_SCALE_KEYBOARD = "scaleOnKeyboard"
+        const val KEY_REANALYSIS = "reanalysisDepth"
         const val KEY_FAST_KEY = "fastKeyChange"
         const val KEY_L_CHORD = "layout2ChordRatio"
         const val KEY_L_CIRCLE = "layout2CircleRatio"

@@ -10,7 +10,24 @@ import fr.declodeur.harmonie.engine.Key
 data class Display(val chord: ChordCandidate?, val key: Key?, val analysis: HarmonicAnalysis?)
 
 /** Ce qu'affiche l'application au fil du morceau, échantillonné toutes les [stepMs] ms. */
-class Timeline(val stepMs: Long, val samples: List<Display>) {
+class Timeline(
+    val stepMs: Long,
+    val samples: List<Display>,
+    /** Historique complet en fin de morceau (après réanalyse a posteriori). */
+    val history: List<fr.declodeur.harmonie.engine.HistoryEntry> = emptyList(),
+) {
+    /** Tonalité de l'historique à l'instant [ms] : celle de l'accord en cours, telle qu'elle est en fin de morceau. */
+    fun historyKeyAt(ms: Long): Key? {
+        var lo = 0
+        var hi = history.size - 1
+        var found = -1
+        while (lo <= hi) {
+            val mid = (lo + hi) / 2
+            if (history[mid].timeMs <= ms) { found = mid; lo = mid + 1 } else hi = mid - 1
+        }
+        return if (found < 0) null else history[found].analysis?.key
+    }
+
     fun at(ms: Long): Display = samples[(ms / stepMs).toInt().coerceIn(0, samples.lastIndex)]
 }
 
@@ -23,7 +40,7 @@ object Player {
     const val SAMPLE_MS = 25L
 
     fun play(piece: Piece, settings: AnalysisSettings, msPerQuarter: Double): Timeline {
-        val engine = HarmonieEngine(settings)
+        val engine = HarmonieEngine(settings, historyLimit = Int.MAX_VALUE)
         // Événements : relâchés avant les attaques au même instant (note rejouée)
         data class Ev(val ms: Long, val on: Boolean, val midi: Int)
         val events = piece.notes.flatMap {
@@ -61,6 +78,6 @@ object Player {
             }
             t += TICK_MS
         }
-        return Timeline(SAMPLE_MS, samples)
+        return Timeline(SAMPLE_MS, samples, engine.historyLog())
     }
 }

@@ -74,3 +74,38 @@ class KeyStabilityTest {
         kotlin.test.assertTrue(e.snapshot().history.all { it.analysis?.key == cMinor })
     }
 }
+
+class ReanalysisTest {
+    @Test
+    fun modulationIsMovedBackToThePivotChord() {
+        val c = listOf(48, 52, 55, 60); val f = listOf(41, 53, 57, 60); val g7 = listOf(43, 53, 59, 62)
+        val am = listOf(45, 52, 57, 60); val d7 = listOf(38, 54, 57, 60); val g = listOf(43, 55, 59, 62)
+        val e = HarmonieEngine(AnalysisSettings(style = MusicStyle.CLASSICAL))
+        var t = 0L
+        for (ch in listOf(c, f, g7, c, am, d7, g, d7, g)) {
+            ch.forEach { e.noteOn(0, it, 90, t) }
+            val end = t + 1200
+            while (t < end) { t += 10; e.tick(t) }
+            ch.forEach { e.noteOff(0, it, t) }
+            t += 20; e.tick(t)
+        }
+        val h = e.snapshot().history
+        val cMaj = Key(0, false); val gMaj = Key(7, false)
+        assertEquals(gMaj, h.last().analysis?.key)
+        val pivot = h.indexOfFirst { it.pivotFrom != null }
+        kotlin.test.assertTrue(pivot >= 0, "un accord pivot attendu : " + h.map { it.chord.best?.symbol + ":" + it.analysis?.key?.name })
+        assertEquals(cMaj, h[pivot].pivotFrom?.key)
+        kotlin.test.assertTrue(h.drop(pivot).all { it.analysis?.key == gMaj })
+        // Sans réanalyse : aucun pivot
+        val off = HarmonieEngine(AnalysisSettings(style = MusicStyle.CLASSICAL, reanalysisDepth = 0))
+        t = 0L
+        for (ch in listOf(c, f, g7, c, am, d7, g, d7, g)) {
+            ch.forEach { off.noteOn(0, it, 90, t) }
+            val end = t + 1200
+            while (t < end) { t += 10; off.tick(t) }
+            ch.forEach { off.noteOff(0, it, t) }
+            t += 20; off.tick(t)
+        }
+        kotlin.test.assertTrue(off.snapshot().history.none { it.pivotFrom != null })
+    }
+}

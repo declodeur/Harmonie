@@ -30,6 +30,12 @@ data class InterpretationSettings(
      * les notes tenues et les notes attaquées dans ce délai (basse d'Alberti, figurations).
      */
     val harmonicWindowMs: Int = 0,
+    /**
+     * Séparation harmonie / mélodie (mode Complète) : une seule voix qui bouge par degré conjoint vers
+     * une note étrangère à l'accord en cours, les autres voix restant dans l'accord, est une note de
+     * passage ou une broderie : l'accord continue.
+     */
+    val passingTones: Boolean = false,
 )
 
 object ChordInterpreter {

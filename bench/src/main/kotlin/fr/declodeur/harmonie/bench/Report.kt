@@ -151,6 +151,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
         Metric.CHORD to "bonne fondamentale et bon type (majeur, mineur, diminué…)",
         Metric.EXACT to "même chose, septième comprise",
         Metric.KEY to "même tonalité que l'expert à cet instant",
+        Metric.KEY_HISTORY to "tonalité des accords dans l'historique en fin de morceau, après la réanalyse a posteriori (accord pivot)",
         Metric.KEY_LATE_OK to "en acceptant l'ancienne tonalité pendant les 4 temps qui suivent une modulation de l'expert (il la place dès l'accord pivot ; en direct, on ne l'entend qu'après)",
         Metric.NUMERAL to "accord et tonalité justes, donc même chiffrage romain",
     )
@@ -163,7 +164,7 @@ ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap:
             Metric.CHORD -> pct(a.count { it.first }, a.size)
             Metric.KEY -> pct(a.count { it.second }, a.size)
             Metric.NUMERAL -> pct(a.count { it.first && it.second }, a.size)
-            Metric.EXACT, Metric.KEY_LATE_OK -> null
+            Metric.EXACT, Metric.KEY_LATE_OK, Metric.KEY_HISTORY -> null
         }
     }
 

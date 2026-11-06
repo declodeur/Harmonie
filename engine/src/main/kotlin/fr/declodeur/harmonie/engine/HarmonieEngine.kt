@@ -50,10 +50,17 @@ data class AnalysisSettings(
     val arpeggioMaxNotes: Int = 6,
     /** Prédictions : forme de l'arbre et taille du contexte. */
     val prediction: PredictionSettings = PredictionSettings(),
+    /**
+     * Réanalyse a posteriori : à un changement de tonalité, nombre maximal d'accords de l'historique
+     * rechiffrés dans la nouvelle tonalité (depuis l'accord pivot). 0 = désactivée.
+     */
+    val reanalysisDepth: Int = 4,
     /** Règles d'interprétation contextuelle (issues du banc d'essai). */
     val interpretation: InterpretationSettings = InterpretationSettings(),
     /** Affichage : repérer la gamme de l'accord courant sur le grand clavier. */
     val scaleOnKeyboard: Boolean = true,
+    /** Affichage : voicing et conduite des voix. */
+    val voicing: VoicingSettings = VoicingSettings(),
 )
 
 /**
@@ -142,6 +149,14 @@ data class HistoryEntry(
     val resolution: Resolution? = null,
     /** Cet accord est le V d'un II-V dont le II est l'accord précédent (crochet). */
     val closesTwoFive: Boolean = false,
+    /** Instant de l'accord (ms, horloge du moteur). */
+    val timeMs: Long = 0L,
+    /** Notes MIDI de l'accord (pour la conduite des voix). */
+    val notes: List<Int> = emptyList(),
+    /** Rechiffré après coup dans la tonalité qui a suivi (réanalyse a posteriori). */
+    val reanalyzed: Boolean = false,
+    /** Accord pivot de la modulation : son chiffrage dans l'ancienne tonalité ([pivotFrom]). */
+    val pivotFrom: HarmonicAnalysis? = null,
 )
 
 /** Relations harmoniques entre deux accords consécutifs. */
@@ -178,6 +193,10 @@ data class EngineSnapshot(
     val predictions: List<PredictionNode> = emptyList(),
     /** Gamme de l'accord courant (et variantes), avec notes à éviter et tensions. */
     val currentScale: ChordScaleResult? = null,
+    /** Disposition de l'accord courant (serrée, ouverte, drop 2…). */
+    val voicing: VoicingInfo? = null,
+    /** Conduite des voix depuis l'accord précédent. */
+    val voiceLeading: VoiceLeadingInfo? = null,
 )
 
 /**
@@ -190,12 +209,23 @@ data class EngineSnapshot(
  * Un nouvel accord n'est validé qu'après une nouvelle attaque : relâcher des notes ne
  * change pas l'accord affiché. Toutes les méthodes publiques sont synchronisées.
  */
-class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
+class HarmonieEngine(
+    settings: AnalysisSettings = AnalysisSettings(),
+    /** Nombre d'accords gardés dans l'historique (le banc d'essai garde tout le morceau). */
+    private val historyLimit: Int = MAX_HISTORY,
+) {
     var settings: AnalysisSettings = settings
         private set
 
     private val tracker = NoteTracker()
     private var analysisSet: Set<Int> = emptySet()
+
+    /** Notes de l'accord validé en dernier, et notes relâchées récemment (notes de passage). */
+    private var committedNotes: Set<Int> = emptySet()
+
+    /** Conduite des voix calculée au dernier accord validé. */
+    private var voiceLeading: VoiceLeadingInfo? = null
+    private val recentReleases = ArrayDeque<Pair<Int, Long>>()
     private var peakSet: Set<Int> = emptySet()
     private var lastChangeMs = 0L
     private var pending = false
@@ -245,6 +275,12 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
     @Synchronized
     fun noteOff(channel: Int, note: Int, nowMs: Long) {
         tracker.noteOff(channel, note)
+        if (isChordChannel(channel)) {
+            recentReleases.addLast(note to nowMs)
+            while (recentReleases.size > 16 || (recentReleases.isNotEmpty() && nowMs - recentReleases.first().second > RELEASE_MEMORY_MS)) {
+                recentReleases.removeFirst()
+            }
+        }
         onChange(nowMs)
     }
 
@@ -278,13 +314,21 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         onChange(nowMs)
     }
 
+    /** Historique complet gardé par le moteur (jusqu'à `historyLimit` accords), pour le banc d'essai. */
+    @Synchronized
+    fun historyLog(): List<HistoryEntry> = history.toList()
+
     /** Efface l'historique et repart de zéro pour la tonalité (nouveau morceau). */
     @Synchronized
     fun clearHistory() {
         history.clear()
+        previousKey = null
         current = null
         keyDetector.reset()
         recentAttacks.clear()
+        recentReleases.clear()
+        committedNotes = emptySet()
+        voiceLeading = null
         melodicNotes.clear()
         burst.clear()
         keyEstimate = null
@@ -336,6 +380,11 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         var result = ChordRecognizer.recognize(set, settings.slashMinGap, settings.bassOptions)
         val interp = settings.interpretation
         val key = keyEstimate?.current
+        if (interp.passingTones && isPassingTone(set, nowMs)) {
+            attackSinceCommit = false
+            peakSet = emptySet()
+            return false
+        }
         if (result.pitchClasses.size < 3) {
             // Une ou deux notes de l'accord en cours ne le remplacent pas
             val cur = current?.best
@@ -364,9 +413,16 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         if (result.best == null && result.pitchClasses.size < 2) return false
         attackSinceCommit = false
         peakSet = emptySet()
+        val previousNotes = committedNotes
+        committedNotes = set
         val previous = current?.best
         current = result
         val best = result.best
+        voiceLeading = if (best != null && previous != null && previousNotes.isNotEmpty() && previousNotes != set) {
+            Voicings.lead(previousNotes.toList(), previous, set.toList(), best, flagParallels = true, keyEstimate?.current?.spelling ?: Spelling.DEFAULT)
+        } else {
+            voiceLeading.takeIf { previousNotes == set }
+        }
         if (best != null) {
             val key = keyEstimate?.current
             if (settings.fastKeyChange && key != null && HarmonicAnalyzer.breaksKey(best, key, settings.style)) {
@@ -390,13 +446,35 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
                         analysis = analyze(best),
                         resolution = lastBest?.let { ChordRelations.resolution(it, last.analysis?.function, best) },
                         closesTwoFive = lastBest?.let { ChordRelations.isTwoFive(it, best) } ?: false,
+                        timeMs = nowMs,
+                        notes = result.notes,
                     ),
                 )
-                while (history.size > MAX_HISTORY) history.removeFirst()
+                while (history.size > historyLimit) history.removeFirst()
             }
         }
         recomputePredictions()
         return true
+    }
+
+    /**
+     * Note de passage ou broderie : une seule note nouvelle depuis l'accord validé, étrangère à
+     * l'accord en cours, atteinte par degré conjoint (1 ou 2 demi-tons) depuis une note qui vient
+     * d'être relâchée, et toutes les autres notes appartiennent encore à l'accord.
+     */
+    private fun isPassingTone(set: Set<Int>, nowMs: Long): Boolean {
+        val cur = current?.best ?: return false
+        if (committedNotes.isEmpty()) return false
+        val added = set - committedNotes
+        if (added.size != 1) return false
+        val removed = committedNotes - set
+        if (removed.size > 1) return false
+        val n = added.first()
+        if (Notes.pc(n) in cur.chordPitchClasses) return false
+        val others = (set - n).map { Notes.pc(it) }.toSet()
+        if (others.size < 2 || !cur.chordPitchClasses.containsAll(others)) return false
+        val sources = removed + recentReleases.filter { nowMs - it.second <= RELEASE_MEMORY_MS }.map { it.first }
+        return sources.any { kotlin.math.abs(it - n) in 1..2 }
     }
 
     /** Recalcule l'arbre des suites probables d'après l'historique et la tonalité retenue. */
@@ -458,8 +536,44 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
         if (signature == keySignature) return false
         val keyChanged = keySignature.substringBefore('|') != signature.substringBefore('|')
         keySignature = signature
+        val newKey = estimate.current
+        if (keyChanged && newKey != null && previousKey != null && previousKey != newKey) reanalyze(previousKey!!, newKey)
+        previousKey = newKey ?: previousKey
         if (keyChanged) recomputePredictions()
         return true
+    }
+
+    private var previousKey: Key? = null
+
+    /**
+     * Réanalyse a posteriori : la tonalité vient de passer de [old] à [new]. On remonte l'historique
+     * (au plus [AnalysisSettings.reanalysisDepth] accords, dans l'ancienne tonalité) tant que les
+     * accords appartiennent aussi à la nouvelle tonalité : la modulation a commencé là. Ces accords
+     * sont rechiffrés dans la nouvelle tonalité ; le premier est l'accord pivot.
+     */
+    private fun reanalyze(old: Key, new: Key) {
+        val depth = settings.reanalysisDepth
+        if (depth <= 0 || history.isEmpty()) return
+        var first = history.size
+        var i = history.size - 1
+        while (i >= 0 && history.size - i <= depth) {
+            val e = history[i]
+            val chord = e.chord.best ?: break
+            if (e.analysis?.key != old) break
+            val inNew = HarmonicAnalyzer.analyze(chord, new, settings.style)
+            if (inNew.category != HarmonicCategory.DIATONIC) break
+            first = i
+            i--
+        }
+        for (j in first until history.size) {
+            val e = history[j]
+            val chord = e.chord.best ?: continue
+            history[j] = e.copy(
+                analysis = HarmonicAnalyzer.analyze(chord, new, settings.style),
+                reanalyzed = true,
+                pivotFrom = if (j == first) e.analysis else null,
+            )
+        }
     }
 
     private fun analyze(chord: ChordCandidate): HarmonicAnalysis? =
@@ -485,7 +599,13 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
             )
         }
         return EngineSnapshot(
-            version, notes, current, currentAnalysis, keyEstimate, history.toList(), predictions, scale,
+            version, notes, current, currentAnalysis, keyEstimate, history.takeLast(MAX_HISTORY), predictions, scale,
+            voicing = if (settings.voicing.showVoicing) best?.let { Voicings.describe(committedNotes.toList(), it, keyEstimate?.current) } else null,
+            voiceLeading = if (settings.voicing.showVoiceLeading) voiceLeading?.let { vl ->
+                val v = settings.voicing
+                val parallels = v.flagParallels && (v.parallelsInAllStyles || settings.style == MusicStyle.CLASSICAL)
+                if (parallels) vl else vl.copy(parallels = emptyList())
+            } else null,
         )
     }
 
@@ -511,6 +631,7 @@ class HarmonieEngine(settings: AnalysisSettings = AnalysisSettings()) {
 
     companion object {
         const val MAX_HISTORY = 32
+        const val RELEASE_MEMORY_MS = 600L
         const val KEY_REFRESH_MS = 250L
         private const val MAX_RECENT_ATTACKS = 32
         private const val EMPTY_KEY_SIGNATURE = "null|"

@@ -85,6 +85,8 @@ data class Verdict(
     val keyError: KeyError?,
     /** Sixte en trop ou en moins : accord juste mais septième différente. */
     val seventhNote: String?,
+    /** Tonalité de l'historique (après réanalyse a posteriori) identique à celle de l'expert. */
+    val historyKeyOk: Boolean = false,
 ) {
     val numeralOk: Boolean get() = chordOk && keyOk
 }
@@ -178,7 +180,9 @@ object Compare {
             val seventhNote = if (chordOk && !exactOk && app != null) {
                 if (expert.quality.seventh.isEmpty()) "Septième en plus" else "Septième en moins ou différente"
             } else null
-            verdicts += Verdict(piece, e, prev, shown, chordOk, exactOk, keyOk, chordError, keyError, seventhNote)
+            val hk = timeline.historyKeyAt((startMs + endMs) / 2)
+            val historyKeyOk = if (tonicOnly) hk?.tonic == expertKey.tonic else hk == expertKey
+            verdicts += Verdict(piece, e, prev, shown, chordOk, exactOk, keyOk, chordError, keyError, seventhNote, historyKeyOk)
         }
         return verdicts
     }

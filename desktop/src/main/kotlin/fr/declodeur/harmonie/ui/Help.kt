@@ -65,6 +65,10 @@ object Help {
             "Flèche pointillée : une dominante résout un demi-ton plus bas (substitution tritonique, SubV7 → I).\n" +
             "Crochet : II-V, un accord mineur suivi d'une dominante une quarte plus haut (Dm7 – G7).\n" +
             "Bordure pointillée : accord arpégé, reconstitué à partir de notes jouées successivement.\n\n" +
+            "Réanalyse a posteriori : quand une modulation se confirme, les derniers accords qui appartiennent " +
+            "déjà à la nouvelle tonalité y sont rechiffrés (au plus 4, réglable). Le premier est l'accord " +
+            "pivot, noté comme en analyse classique « vi = ii » : son chiffrage dans l'ancienne tonalité, puis " +
+            "dans la nouvelle. L'affichage en direct, lui, ne change pas.\n\n" +
             "Les accords sont regroupés par tonalité : un séparateur marque chaque changement, et le nom de " +
             "la tonalité court sous ses accords. Le dernier accord reste visible ; Maj + molette ou pavé tactile " +
             "pour revoir les accords plus anciens. « Effacer » vide " +
@@ -322,4 +326,50 @@ object Help {
             "encore de corpus).\n\nBanc d'essai, accord suivant parmi les 4 premières propositions : chorals " +
             "de Bach 68 % → 84 %, Mozart 70 % → 82 %, Winterreise 68 % → 80 % ; en pop, la mémoire du morceau " +
             "(boucles) faisait déjà l'essentiel (RS 200 96 %)."
+
+    const val REANALYSIS =
+        "Quand la tonalité change, les derniers accords de l'historique qui appartiennent aussi à la nouvelle " +
+            "tonalité y sont rechiffrés : la modulation avait commencé là, à l'accord pivot (noté « vi = ii »). " +
+            "Un expert, qui connaît la suite, la place à cet endroit ; en direct, on ne l'entend qu'après. " +
+            "Nombre maximal d'accords rechiffrés ; 0 = désactivée."
+
+    const val PASSING_TONES =
+        "Séparation harmonie / mélodie (utile en mode Complète, quand la mélodie et l'accompagnement sont sur " +
+            "le même canal) : si une seule voix bouge d'un demi-ton ou d'un ton vers une note étrangère à " +
+            "l'accord, les autres restant dans l'accord, c'est une note de passage ou une broderie : l'accord " +
+            "affiché continue.\n\nBanc d'essai : +1,9 point d'accords justes sur les préludes de Bach, mais " +
+            "−0,9 point sur l'ensemble (les experts y voient souvent un nouvel accord). Désactivé par défaut."
+
+    const val VOICING =
+        "Disposition des notes de l'accord :\n" +
+            "• position serrée : les voix sont collées, aucune note de l'accord n'est sautée (moins d'une octave) ;\n" +
+            "• position ouverte : des notes de l'accord sont sautées entre deux voix ;\n" +
+            "• drop 2 / drop 3 : position serrée dont la 2e (ou 3e) voix en partant du haut est descendue d'une " +
+            "octave, voicing classique du jazz à 4 sons ;\n" +
+            "• shell : fondamentale, tierce et septième seulement (jazz, main gauche) ;\n" +
+            "• en quartes : notes empilées par quartes (jazz modal) ;\n" +
+            "• sur basse séparée : une basse à plus d'une octave sous les autres voix (main gauche).\n" +
+            "Suivent les notes doublées et le degré du soprano (la note la plus aiguë). En classique, la " +
+            "sensible doublée dans l'accord de dominante est signalée : elle doit monter à la tonique, " +
+            "doublée elle produit des octaves parallèles."
+
+    const val VOICE_LEADING =
+        "Comment chaque voix passe de l'accord précédent à celui-ci (la basse avec la basse, le soprano avec " +
+            "le soprano, les voix intérieures au plus proche) : notes communes gardées, mouvements par degré " +
+            "conjoint (1 ou 2 demi-tons) et sauts. Mouvement des voix extrêmes (basse et soprano) : contraire " +
+            "(elles s'écartent ou se rapprochent), oblique (l'une ne bouge pas), direct (même sens), parallèle " +
+            "(même sens, même intervalle).\n\n" +
+            "Guide tones : la tierce et la septième, qui définissent l'accord ; dans un enchaînement de quintes " +
+            "(ii – V – I), la septième descend d'un degré sur la tierce de l'accord suivant (7e F → 3ce E dans " +
+            "G7 → C). Cette ligne est le fil conducteur des improvisateurs."
+
+    const val PARALLELS =
+        "Deux voix qui forment une quinte (ou une octave) puis une autre quinte (ou octave) en bougeant dans " +
+            "le même sens : les deux voix perdent leur indépendance. C'est la faute d'écriture la plus " +
+            "connue de l'harmonie classique ; en pop, en rock (power chords) ou en jazz, c'est courant et " +
+            "voulu. Signalé en orange."
+
+    const val PARALLELS_ALL_STYLES =
+        "Désactivé : les quintes et octaves parallèles ne sont signalées qu'en style Classique. Activé : dans " +
+            "tous les styles."
 }

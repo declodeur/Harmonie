@@ -34,6 +34,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,6 +76,7 @@ fun HistoryPanel(history: List<HistoryEntry>, onClear: () -> Unit, modifier: Mod
                 LegendGlyph(Glyph.DASHED_ARROW, "Subst. tritonique")
                 LegendGlyph(Glyph.BRACKET, "II-V")
                 LegendGlyph(Glyph.DASHED_BOX, "Arpégé")
+                Text("vi = ii : pivot", fontSize = 12.sp, color = Palette.muted)
                 TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) }
             }
         },
@@ -224,13 +228,24 @@ private fun HistoryChip(entry: HistoryEntry, last: Boolean) {
             fontWeight = if (last) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,
         )
-        Text(
-            entry.analysis?.numeral ?: "·",
-            fontSize = 12.sp,
-            lineHeight = 16.sp,
-            color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted,
-            maxLines = 1,
-        )
+        val numeral = entry.analysis?.numeral ?: "·"
+        val color = entry.analysis?.function?.let { functionColor(it) } ?: Palette.muted
+        val pivot = entry.pivotFrom
+        if (pivot != null) {
+            // Accord pivot, notation d'analyse classique : chiffrage dans l'ancienne tonalité = dans la nouvelle
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = Palette.muted)) { append(pivot.numeral) }
+                    withStyle(SpanStyle(color = Palette.muted)) { append(" = ") }
+                    withStyle(SpanStyle(color = color, fontWeight = FontWeight.SemiBold)) { append(numeral) }
+                },
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                maxLines = 1,
+            )
+        } else {
+            Text(numeral, fontSize = 12.sp, lineHeight = 16.sp, color = color, maxLines = 1)
+        }
     }
 }
 

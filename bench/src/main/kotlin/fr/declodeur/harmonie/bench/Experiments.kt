@@ -68,6 +68,18 @@ object Experiments {
                 "Essai du 6 novembre : utile seule, mais n'apporte plus rien une fois les autres règles en place (désactivée par défaut).",
             active = false,
         ) { it.interp { i -> i.copy(harmonicWindowMs = 600) } },
+        Experiment(
+            "notes-de-passage", "Notes de passage : l'accord continue",
+            "Séparation harmonie / mélodie : une seule voix qui bouge par degré conjoint vers une note étrangère, les autres restant dans l'accord, ne change pas l'accord. " +
+                "Essai du 6 novembre : +1,9 point sur les préludes de Bach, −0,9 point sur l'ensemble (désactivée par défaut).",
+            active = false,
+        ) { it.interp { i -> i.copy(passingTones = true) } },
+        Experiment(
+            "sans-reanalyse", "Sans réanalyse a posteriori",
+            "Retire la réanalyse : à un changement de tonalité, les accords précédents ne sont pas rechiffrés depuis l'accord pivot. " +
+                "Essai du 6 novembre : tonalité de l'historique −5,3 points (chorals de Bach −13,4).",
+            active = false,
+        ) { it.copy(reanalysisDepth = 0) },
         Experiment("fenetre-400", "Fenêtre harmonique de 400 ms", "Même essai avec une fenêtre plus courte.", active = false) {
             it.interp { i -> i.copy(harmonicWindowMs = 400) }
         },
@@ -158,6 +170,8 @@ object Experiments {
             values["n"]?.let { v -> r = r.withAllKeyParams { it.copy(memoryChords = v) } }
             values["i"]?.let { v -> r = r.withAllKeyParams { it.copy(inertiaPercent = v) } }
             values["h"]?.let { v -> r = r.withAllKeyParams { it.copy(holdPercent = v) } }
+            values["r"]?.let { r = r.copy(reanalysisDepth = it) }
+            values["np"]?.let { v -> r = r.copy(interpretation = r.interpretation.copy(passingTones = v == 1)) }
             values["a"]?.let { v -> r = r.withAllKeyParams { it.copy(arrivalPercent = v) } }
             values["p"]?.let { v -> r = r.withAllKeyParams { it.copy(primacyPercent = v) } }
             values["c"]?.let { r = r.copy(cadenceKeyChange = it == 1) }
@@ -173,6 +187,7 @@ enum class Metric(val label: String, val ok: (Verdict) -> Boolean) {
     EXACT("Accord exact", { it.exactOk }),
     KEY("Tonalité", { it.keyOk }),
     KEY_LATE_OK("Tonalité, retard toléré", { it.keyOk || it.keyError == KeyError.LATE }),
+    KEY_HISTORY("Tonalité de l'historique", { it.historyKeyOk }),
     NUMERAL("Chiffrage", { it.numeralOk }),
 }
 

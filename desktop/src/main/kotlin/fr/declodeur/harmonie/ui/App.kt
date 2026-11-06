@@ -289,6 +289,7 @@ private fun ChordDetails(
     InfoLine("Type", best.type.frenchName)
     InfoLine("Renversement", inversion, Help.INVERSION)
     NotesLine(result, best, snap, spelling)
+    VoiceLines(snap)
     snap.currentScale?.let { ScaleLines(it, spelling) }
     if (best.omittedFifth) {
         Text("Accord reconnu sans sa quinte (voicing courant).", fontSize = 13.sp, color = Palette.warning)
@@ -302,6 +303,54 @@ private fun ChordDetails(
     }
     if (result.alternatives.isNotEmpty()) {
         InfoLine("Autres lectures", result.alternatives.joinToString("   ") { it.symbolIn(spelling) }, Help.ALTERNATIVES)
+    }
+}
+
+/** Voicing de l'accord et conduite des voix depuis l'accord précédent (étape 5b). */
+@Composable
+private fun VoiceLines(snap: EngineSnapshot) {
+    snap.voicing?.let { v ->
+        val details = buildList {
+            add(v.layout)
+            addAll(v.doublings)
+            v.sopranoDegree?.let { add("soprano sur la ${if (it == "1") "fondamentale" else it}") }
+        }.joinToString(", ")
+        WrappedInfoLine("Voicing", details, Help.VOICING)
+        v.warning?.let { Text("Classique : $it", fontSize = 13.sp, color = Palette.warning) }
+    }
+    snap.voiceLeading?.let { vl ->
+        fun count(n: Int, one: String, many: String) = if (n == 1) "1 $one" else "$n $many"
+        val parts = buildList {
+            if (vl.commonTones > 0) add(count(vl.commonTones, "note commune", "notes communes"))
+            if (vl.steps > 0) add(count(vl.steps, "voix par degré conjoint", "voix par degré conjoint"))
+            if (vl.leaps > 0) add(count(vl.leaps, "saut", "sauts"))
+            vl.outerMotion?.let { add("mouvement $it des voix extrêmes") }
+        }
+        WrappedInfoLine("Depuis ${vl.from}", parts.joinToString(", "), Help.VOICE_LEADING)
+        if (vl.guideTones.isNotEmpty()) {
+            Text("Guide tones : " + vl.guideTones.joinToString("   "), fontSize = 13.sp, color = Palette.accent)
+        }
+        if (vl.parallels.isNotEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    vl.parallels.joinToString(" ; ").replaceFirstChar { it.uppercase() },
+                    fontSize = 13.sp, color = Palette.warning, modifier = Modifier.weight(1f, fill = false),
+                )
+                Spacer(Modifier.width(6.dp))
+                HelpBubble(Help.PARALLELS)
+            }
+        }
+    }
+}
+
+/** Comme [InfoLine], mais la valeur peut passer à la ligne. */
+@Composable
+private fun WrappedInfoLine(label: String, value: String, help: String) {
+    Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("$label : ", fontSize = 15.sp, color = Palette.muted)
+        Text(value, fontSize = 15.sp, lineHeight = 19.sp, modifier = Modifier.weight(1f, fill = false))
+        Spacer(Modifier.width(6.dp))
+        HelpBubble(help)
     }
 }
 
@@ -671,10 +720,28 @@ private fun SettingsDialog(
                         SwitchSetting("Tierce seule lue comme accord (A–C♯ = A)", Help.COMPLETE_DYADS, ip.completeDyads) {
                             onChange(settings.copy(interpretation = ip.copy(completeDyads = it)))
                         }
+                        SwitchSetting("Notes de passage : l'accord continue (mode Complète)", Help.PASSING_TONES, ip.passingTones) {
+                            onChange(settings.copy(interpretation = ip.copy(passingTones = it)))
+                        }
                         Spacer(Modifier.height(4.dp))
                         SectionTitle("Gammes")
                         SwitchSetting("Afficher la gamme de l'accord sur le clavier", Help.SCALE_KEYBOARD, settings.scaleOnKeyboard) {
                             onChange(settings.copy(scaleOnKeyboard = it))
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        SectionTitle("Voicings et conduite des voix")
+                        val vs = settings.voicing
+                        SwitchSetting("Afficher le voicing de l'accord", Help.VOICING, vs.showVoicing) {
+                            onChange(settings.copy(voicing = vs.copy(showVoicing = it)))
+                        }
+                        SwitchSetting("Afficher la conduite des voix", Help.VOICE_LEADING, vs.showVoiceLeading) {
+                            onChange(settings.copy(voicing = vs.copy(showVoiceLeading = it)))
+                        }
+                        SwitchSetting("Signaler les quintes et octaves parallèles", Help.PARALLELS, vs.flagParallels) {
+                            onChange(settings.copy(voicing = vs.copy(flagParallels = it)))
+                        }
+                        SwitchSetting("… dans tous les styles (sinon en classique)", Help.PARALLELS_ALL_STYLES, vs.parallelsInAllStyles) {
+                            onChange(settings.copy(voicing = vs.copy(parallelsInAllStyles = it)))
                         }
                         Spacer(Modifier.height(4.dp))
                         SectionTitle("Suites probables")
@@ -772,6 +839,11 @@ private fun SettingsDialog(
                             "Inertie de la tonalité : ${kp.inertiaPercent}", Help.KEY_INERTIA,
                             kp.inertiaPercent.toFloat(), 0f..10f, 1f,
                         ) { v -> onChange(settings.withKeyParams { it.copy(inertiaPercent = v.roundToInt()) }) }
+                        SliderSetting(
+                            if (settings.reanalysisDepth == 0) "Réanalyse a posteriori : désactivée"
+                            else "Réanalyse a posteriori : jusqu'à ${settings.reanalysisDepth} accords",
+                            Help.REANALYSIS, settings.reanalysisDepth.toFloat(), 0f..16f, 1f,
+                        ) { onChange(settings.copy(reanalysisDepth = it.roundToInt())) }
                     }
                 }
                 Spacer(Modifier.height(20.dp))
