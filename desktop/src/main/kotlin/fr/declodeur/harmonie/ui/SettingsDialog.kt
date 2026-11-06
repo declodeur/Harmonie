@@ -204,7 +204,7 @@ private fun RowScope.RecognitionTab(settings: AnalysisSettings, onChange: (Analy
             settings.arpeggioMaxNotes.toFloat(), 3f..12f, 1f, enabled = settings.arpeggioDetection,
         ) { onChange(settings.copy(arpeggioMaxNotes = it.roundToInt())) }
         SliderSetting(
-            "… et au plus ${"%.2f".format(settings.arpeggioWindowMs / 1000.0).trimEnd('0').trimEnd(',', '.')} s en arrière",
+            "… et au plus ${frenchDecimal(settings.arpeggioWindowMs / 1000.0, 2).trimEnd('0').trimEnd(',')} s en arrière",
             Help.ARPEGGIO_WINDOW,
             settings.arpeggioWindowMs.toFloat(), 500f..5000f, 250f, enabled = settings.arpeggioDetection,
         ) { onChange(settings.copy(arpeggioWindowMs = it.roundToInt())) }

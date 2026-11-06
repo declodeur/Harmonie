@@ -153,10 +153,15 @@ private fun RhythmLine(r: RhythmInfo) {
     }
 }
 
+/** Nombre avec une virgule décimale (« 1,7 »), quel que soit le Java installé. */
+internal fun frenchDecimal(value: Double, decimals: Int): String =
+    String.format(java.util.Locale.ROOT, "%.${decimals}f", value).replace('.', ',')
+
 /** Durée lisible : « 2 s », « 1,5 s », « 12 s ». */
 internal fun seconds(ms: Long): String {
     val s = ms / 1000.0
-    return if (s >= 10) "${s.roundToInt()} s" else String.format(java.util.Locale.FRANCE, "%.1f", s).removeSuffix(",0") + " s"
+    // Virgule décimale écrite à la main : le Java fourni avec l'application n'a pas les formats régionaux
+    return if (s >= 10) "${s.roundToInt()} s" else frenchDecimal(s, 1).removeSuffix(",0") + " s"
 }
 
 /** Tension d'un accord et des points de liaison avec ses voisins (milieux), pour tracer la courbe. */

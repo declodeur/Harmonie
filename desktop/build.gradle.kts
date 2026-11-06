@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-val appVersion = "0.16.2"
+val appVersion = "0.16.3"
 val buildNumber: String = System.getenv("GITHUB_RUN_NUMBER") ?: "dev"
 
 // Génère BuildInfo.kt (version et numéro de build affichés dans l'application)
@@ -54,6 +54,10 @@ compose.desktop {
             description = "Analyse harmonique en direct d'un instrument MIDI"
             vendor = "declodeur"
             modules("java.desktop", "java.prefs")
+            windows {
+                // Icône de Harmonie.exe (accord sur une portée ; version simplifiée pour les petites tailles)
+                iconFile.set(project.file("icons/harmonie.ico"))
+            }
         }
     }
 }
