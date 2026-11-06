@@ -24,6 +24,9 @@ object Palette {
     val bass = Color(0xFFB98CFF)
     val compatible = Color(0xFFEF9F27)
 
+    /** Aire sous la courbe de tension : à mi-chemin entre le fond des cadres et l'orange de la courbe (opaque). */
+    val tensionFill = Color(0xFF8E6A36)
+
     /** Parcours des accords sur le cercle des quintes (visible sur le bleu des probabilités). */
     val path = Color(0xFFE879F9)
     /** Repères de la gamme de l'accord sur le clavier : gris neutre, foncé sur les touches blanches, clair sur les noires. */

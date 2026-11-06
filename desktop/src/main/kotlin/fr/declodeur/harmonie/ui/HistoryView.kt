@@ -260,6 +260,9 @@ private fun Connector(entry: HistoryEntry, keyChange: Boolean, tension: Double?,
     Column {
         if (display.showTension) {
             Canvas(Modifier.width(CONNECTOR_WIDTH).height(TENSION_H)) {
+                if (tension != null) {
+                    drawRect(Palette.tensionFill, Offset(0f, tensionY(tension)), androidx.compose.ui.geometry.Size(size.width, tensionY(0.0) - tensionY(tension)))
+                }
                 tensionGuides()
                 if (tension != null) {
                     val y = tensionY(tension)
@@ -294,8 +297,18 @@ private fun AnnotatedChip(entry: HistoryEntry, opensTwoFive: Boolean, last: Bool
     Column(Modifier.width(IntrinsicSize.Max)) {
         if (tension != null) {
             Canvas(Modifier.fillMaxWidth().height(TENSION_H)) {
-                tensionGuides()
                 val cx = size.width / 2
+                // Aire sous la courbe, jusqu'à la ligne de repos
+                val area = Path().apply {
+                    moveTo(0f, tensionY(tension.left))
+                    lineTo(cx, tensionY(tension.value))
+                    lineTo(size.width, tensionY(tension.right))
+                    lineTo(size.width, tensionY(0.0))
+                    lineTo(0f, tensionY(0.0))
+                    close()
+                }
+                drawPath(area, Palette.tensionFill)
+                tensionGuides()
                 val path = Path().apply {
                     moveTo(0f, tensionY(tension.left))
                     lineTo(cx, tensionY(tension.value))
