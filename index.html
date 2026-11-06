@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Banc d'essai Harmonie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Rapport d'analyse : une colonne de lecture, des barres à l'échelle 0-100 %, les exemples en tableaux défilants. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1c2230; --muted: #5d6676; --line: #dde1e8;
+  --accent: #2f6fe0; --accent-soft: #dbe6fb; --expert: #c06a12; --good: #1f8a5b; --bad: #c4423a;
+  --display: "Literata", Georgia, "Times New Roman", serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #14161a; --surface: #1d2026; --fg: #eceef2; --muted: #9aa1ad; --line: #343944;
+  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #14161a; --surface: #1d2026; --fg: #eceef2; --muted: #9aa1ad; --line: #343944;
+  --accent: #5b9bff; --accent-soft: #23324d; --expert: #f0a050; --good: #4fd1a1; --bad: #ff7b72; color-scheme: dark }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); }
+.page { max-width: 1040px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.1rem; font-weight: 500; }
+p { margin: 0; max-width: 68ch; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.meta { color: var(--muted); font-size: 0.92rem; display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.lead { font-size: 1.05rem; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-size: 0.9em; }
+.num { font-variant-numeric: tabular-nums; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.scores { display: grid; grid-template-columns: minmax(130px, 220px) 1fr 64px; gap: 10px 16px; align-items: center; }
+.scores .label { font-weight: 600; }
+.scores .label small { display: block; font-weight: 400; color: var(--muted); font-size: 0.82rem; line-height: 1.3; }
+.bar { position: relative; height: 14px; background: var(--accent-soft); border-radius: 7px; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 7px; }
+.bar .mark { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1px; background: var(--expert); border-radius: 2px; }
+.value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.88rem; color: var(--muted); align-items: center; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); vertical-align: -1px; margin-right: 6px; }
+.swatch.expert { width: 3px; height: 14px; background: var(--expert); border-radius: 2px; }
+.category { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+.category header { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.category header .count { font-variant-numeric: tabular-nums; color: var(--muted); }
+.share { height: 6px; background: var(--accent-soft); border-radius: 3px; max-width: 360px; }
+.share > div { height: 100%; background: var(--bad); border-radius: 3px; }
+.scroll { overflow-x: auto; min-width: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.app { color: var(--accent); }
+.exp { color: var(--expert); }
+.up { color: var(--good); } .down { color: var(--bad); }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details[open] summary { margin-bottom: 10px; }
+a { color: var(--accent); }
+ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; max-width: 72ch; }
+@media (max-width: 560px) {
+  .scores { grid-template-columns: 1fr 56px; }
+  .scores .label { grid-column: 1 / -1; margin-top: 6px; }
+  h1 { font-size: 1.7rem; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+<header style="display:flex;flex-direction:column;gap:10px">
+<h1>Banc d'essai Harmonie</h1>
+<div class="meta"><span>6 novembre 2026 à 06:50</span><span>moteur au commit <span class="mono">7dc8bf5</span></span><span>calcul : 8 s</span></div>
+<p class="lead">Des morceaux analysés par des experts sont rejoués dans le moteur d'Harmonie, note par note, comme si on les jouait en direct. Pour chaque accord noté par l'expert, on compare ce que l'application affiche à ce que l'expert a écrit.</p>
+</header>
+<section>
+<h2>Chorals de Bach</h2>
+<p class="muted">371 chorals à quatre voix, analysés par Dmitri Tymoczko, Andrew Jones, Hamish Robb et al. (corpus When in Rome) ; 100 d'entre eux analysés aussi par un second corpus (BCMH). 363 morceaux rejoués, 20 566 accords comparés ; tempo 80 à la noire, style Classique.</p>
+<div class="card">
+<h3>Scores</h3>
+<div class="scores">
+<div class="label">Accord<small>bonne fondamentale et bon type (majeur, mineur, diminué…)</small></div><div class="bar" role="img" aria-label="Accord : 84,5 %"><div class="fill" style="width:84.46%"></div><div class="mark" style="left:96.87%" title="Experts entre eux : 96,9 %"></div></div><div class="value">84,5 %</div>
+<div class="label">Accord exact<small>même chose, septième comprise</small></div><div class="bar" role="img" aria-label="Accord exact : 82,4 %"><div class="fill" style="width:82.43%"></div></div><div class="value">82,4 %</div>
+<div class="label">Tonalité<small>même tonalité que l'expert à cet instant</small></div><div class="bar" role="img" aria-label="Tonalité : 52,7 %"><div class="fill" style="width:52.68%"></div><div class="mark" style="left:92.79%" title="Experts entre eux : 92,8 %"></div></div><div class="value">52,7 %</div>
+<div class="label">Chiffrage<small>accord et tonalité justes, donc même chiffrage romain</small></div><div class="bar" role="img" aria-label="Chiffrage : 44,8 %"><div class="fill" style="width:44.81%"></div><div class="mark" style="left:91.27%" title="Experts entre eux : 91,3 %"></div></div><div class="value">44,8 %</div>
+</div>
+<div class="legend"><span><span class="swatch"></span>application</span><span><span class="swatch expert"></span>accord entre deux corpus d'experts (5 337 accords de 98 chorals)</span></div>
+<p class="muted">Sur ces mêmes 98 chorals, l'application obtient 86,0 % pour l'accord et 53,9 % pour la tonalité. Le repère orange montre jusqu'où il est raisonnable d'espérer aller : au-delà, on ne ferait que copier les habitudes d'un expert.</p>
+</div>
+<div class="card">
+<h3>Désaccords sur l'accord</h3>
+<p class="muted">3 195 accords sur 20 566, classés par cause probable, la plus fréquente d'abord.</p>
+<div class="category">
+<header><h3>Note étrangère comptée dans l'accord</h3><span class="count">1 853 · 58,0 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:58.00%"></div></div>
+<p class="muted">Une note de passage, un retard ou une appoggiature est lue comme une note de l'accord.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>001</td><td class="num">m2 t2</td><td class="mono">D3 F♯3 D4 B4</td><td class="exp"><span class="mono">V</span> en G majeur = <b>D</b></td><td class="app">Bm · IIIm · G majeur</td></tr>
+<tr><td>058</td><td class="num">m16 t2</td><td class="mono">C♯4 E4 B4 E5</td><td class="exp"><span class="mono">V6</span> en D majeur = <b>A/C♯</b></td><td class="app">C♯m7 · VIIm7 · D majeur</td></tr>
+<tr><td>115</td><td class="num">m10 t2</td><td class="mono">A3 F♯4 C♯5</td><td class="exp"><span class="mono">V7</span> en D majeur = <b>A7</b></td><td class="app">F♯m/A · Vm · B mineur</td></tr>
+<tr><td>152</td><td class="num">m3 t4.5</td><td class="mono">B2 B3 F♯4 D5</td><td class="exp"><span class="mono">viio6</span> en A majeur = <b>G♯dim/B</b></td><td class="app">Bm · VIm · D majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>197</td><td class="num">m19 t3</td><td class="mono">C3 G3 D4</td><td class="exp"><span class="mono">iv6</span> en D mineur = <b>Gm/B♭</b></td><td class="app">Csus2 · ♭VIIsus2 · D mineur</td></tr>
+<tr><td>224</td><td class="num">m6 t3</td><td class="mono">C3 C4 F4 G4</td><td class="exp"><span class="mono">V</span> en F majeur = <b>C</b></td><td class="app">Csus4 · Vsus4 · F majeur</td></tr>
+<tr><td>265</td><td class="num">m6 t1</td><td class="mono">G♯3 B3 E4 B4</td><td class="exp"><span class="mono">V6</span> en A majeur = <b>E/G♯</b></td><td class="app">Aadd9 · ♭VIIadd9 · B mineur</td></tr>
+<tr><td>315</td><td class="num">m1 t1</td><td class="mono">E3 B3 F♯4 B4</td><td class="exp"><span class="mono">v6</span> en E mineur = <b>Bm/D</b></td><td class="app">Esus2 · Isus2 · E mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Mêmes notes, autre nom</h3><span class="count">765 · 23,9 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:23.94%"></div></div>
+<p class="muted">Mêmes notes que l'expert, nommées sur une autre fondamentale (Am7 / C6, accords diminués…).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>001</td><td class="num">m5 t2</td><td class="mono">G2 B3 E4 D5</td><td class="exp"><span class="mono">vi6/5</span> en G majeur = <b>Em7/G</b></td><td class="app">G6 · I6 · G majeur</td></tr>
+<tr><td>049</td><td class="num">m3 t3</td><td class="mono">D3 A3 F4 B4</td><td class="exp"><span class="mono">ii/o6/5</span> en A mineur = <b>Bm7♭5/D</b></td><td class="app">Dm6 · IVm6 · A mineur</td></tr>
+<tr><td>106</td><td class="num">m12 t1</td><td class="mono">A3 C♯4 F♯4 E5</td><td class="exp"><span class="mono">ii6/5</span> en E majeur = <b>F♯m7/A</b></td><td class="app">A6 · I6 · A majeur</td></tr>
+<tr><td>139</td><td class="num">m12 t4.5</td><td class="mono">C4 E4 G4 A4</td><td class="exp"><span class="mono">ii6/5</span> en G majeur = <b>Am7/C</b></td><td class="app">C6 · IV6 · G majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>193</td><td class="num">m8 t1</td><td class="mono">F3 C4 A4 D5</td><td class="exp"><span class="mono">iv6/5</span> en A mineur = <b>Dm7/F</b></td><td class="app">F6 · ♭VI6 · A mineur</td></tr>
+<tr><td>235</td><td class="num">m13 t1</td><td class="mono">F3 D4 A4 C5</td><td class="exp"><span class="mono">ii6/5</span> en C majeur = <b>Dm7/F</b></td><td class="app">F6 · I6 · F majeur</td></tr>
+<tr><td>268</td><td class="num">m16 t3</td><td class="mono">F3 C4 A4 D5</td><td class="exp"><span class="mono">v6/5</span> en G majeur = <b>Dm7/F</b></td><td class="app">F6 · IV6 · C majeur</td></tr>
+<tr><td>320</td><td class="num">m4 t1</td><td class="mono">D3 A3 F♯4 B4</td><td class="exp"><span class="mono">ii6/5</span> en A majeur = <b>Bm7/D</b></td><td class="app">D6 · ♭VI6 · F♯ mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Aucun accord affiché</h3><span class="count">335 · 10,5 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:10.49%"></div></div>
+<p class="muted">L'application n'affiche aucun accord (notes non reconnues).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>002</td><td class="num">m5 t2</td><td class="mono">A3 C♯4 A4 C♯5</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">aucun accord · E majeur</td></tr>
+<tr><td>049</td><td class="num">m2 t1</td><td class="mono">A2 C4 A4 C5</td><td class="exp"><span class="mono">i</span> en A mineur = <b>Am</b></td><td class="app">aucun accord · A mineur</td></tr>
+<tr><td>088</td><td class="num">m9 t3</td><td class="mono">C3 C4 E4 E5</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">aucun accord · A mineur</td></tr>
+<tr><td>126</td><td class="num">m8 t3</td><td class="mono">D3 F3 D4</td><td class="exp"><span class="mono">i</span> en D mineur = <b>Dm</b></td><td class="app">aucun accord · D mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>200</td><td class="num">m8 t3</td><td class="mono">D3 F4 D5</td><td class="exp"><span class="mono">ii</span> en C majeur = <b>Dm</b></td><td class="app">aucun accord · G mineur</td></tr>
+<tr><td>257</td><td class="num">m10 t3</td><td class="mono">B♭2 B♭3 D4 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">aucun accord · G mineur</td></tr>
+<tr><td>294</td><td class="num">m9 t3</td><td class="mono">D3 D4 F♯4 F♯5</td><td class="exp"><span class="mono">i6</span> en B mineur = <b>Bm/D</b></td><td class="app">aucun accord · B mineur</td></tr>
+<tr><td>335</td><td class="num">m4 t3</td><td class="mono">C3 C4 E4 C5</td><td class="exp"><span class="mono">I</span> en C majeur = <b>C</b></td><td class="app">aucun accord · F majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Accord incomplet lu autrement</h3><span class="count">194 · 6,1 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:6.07%"></div></div>
+<p class="muted">L'application lit une partie seulement des notes de l'expert, et la nomme autrement.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>003</td><td class="num">m2 t1.5</td><td class="mono">A♭3 B3 B4 D5</td><td class="exp"><span class="mono">V6/5</span> en A mineur = <b>E7/A♭</b></td><td class="app">A♭dim · VIIdim · A mineur</td></tr>
+<tr><td>057</td><td class="num">m6 t1</td><td class="mono">A♭3 B3 B4 D5</td><td class="exp"><span class="mono">V6/5</span> en A mineur = <b>E7/A♭</b></td><td class="app">A♭dim · VIIdim · A mineur</td></tr>
+<tr><td>111</td><td class="num">m3 t2</td><td class="mono">F3 A3 A4 B4</td><td class="exp"><span class="mono">iv6/5</span> en A mineur = <b>Dm7/F</b></td><td class="app">F · ♭VI · A mineur</td></tr>
+<tr><td>163</td><td class="num">m6 t1.75</td><td class="mono">G♭3 C4 A4</td><td class="exp"><span class="mono">V6/5</span> en G mineur = <b>D7/G♭</b></td><td class="app">G♭dim · VIIdim · G mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>219</td><td class="num">m5 t4.5</td><td class="mono">B♭2 D4 F4 B♭4</td><td class="exp"><span class="mono">ii6/5</span> en F majeur = <b>Gm7/B♭</b></td><td class="app">B♭ · IV · F majeur</td></tr>
+<tr><td>269</td><td class="num">m11 t3.5</td><td class="mono">A3 C4 E♭4 C5</td><td class="exp"><span class="mono">V6/5</span> en B♭ majeur = <b>F7/A</b></td><td class="app">Adim · IIdim · G mineur</td></tr>
+<tr><td>304</td><td class="num">m7 t2.5</td><td class="mono">A3 C4 E♭4 C5</td><td class="exp"><span class="mono">V6/5</span> en B♭ majeur = <b>F7/A</b></td><td class="app">Adim · IIdim · G mineur</td></tr>
+<tr><td>331</td><td class="num">m11 t2</td><td class="mono">D3 A♯3 C♯5 E5</td><td class="exp"><span class="mono">V4/3</span> en B mineur = <b>F♯7/C♯</b></td><td class="app">A♯dim/D · ♯Idim · A majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Accord précédent encore affiché</h3><span class="count">45 · 1,4 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:1.41%"></div></div>
+<p class="muted">L'application montre encore l'accord d'avant : changement trop bref, ou sans nouvelle attaque.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>011</td><td class="num">m30 t3</td><td class="mono">F3 D4 A4 F5</td><td class="exp"><span class="mono">V</span> en C majeur = <b>G</b></td><td class="app">Dm/F · IIm · C majeur</td></tr>
+<tr><td>057</td><td class="num">m1 t2</td><td class="mono">A2 F♯3 E4 C5</td><td class="exp"><span class="mono">viio4/3/V</span> en A mineur = <b>E♭dim7/A</b></td><td class="app">Am6 · Im6 · A mineur</td></tr>
+<tr><td>091</td><td class="num">m1 t2</td><td class="mono">C♯3 A3 D4 F♯4</td><td class="exp"><span class="mono">iv7</span> en F♯ mineur = <b>Bm7</b></td><td class="app">D/C♯ · IV · A majeur</td></tr>
+<tr><td>119</td><td class="num">m15 t1</td><td class="mono">D♭3 F3 F4 A♭4</td><td class="exp"><span class="mono">VI</span> en F mineur = <b>D♭</b></td><td class="app">Fm/C · Im · F mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>172</td><td class="num">m4 t2</td><td class="mono">E♭3 B♭3 G4 D5</td><td class="exp"><span class="mono">ii6/5</span> en B♭ majeur = <b>Cm7/E♭</b></td><td class="app">E♭M7 · ♭VIM7 · G mineur</td></tr>
+<tr><td>248</td><td class="num">m8 t2.5</td><td class="mono">A3 E♭4 A4 C5</td><td class="exp"><span class="mono">viio4/3/V</span> en A mineur = <b>E♭dim7/A</b></td><td class="app">Am · IIm · G majeur</td></tr>
+<tr><td>270</td><td class="num">m12 t3</td><td class="mono">E2 B3 E4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">Amadd9/E · VImadd9 · C majeur</td></tr>
+<tr><td>324</td><td class="num">m1 t4</td><td class="mono">A2 C4 E4 G4</td><td class="exp"><span class="mono">i6</span> en E mineur = <b>Em/G</b></td><td class="app">Am7 · IVm7 · E mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Accord spécial non reconnu</h3><span class="count">3 · 0,1 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:0.09%"></div></div>
+<p class="muted">Sixte augmentée (italienne, allemande, française) ou napolitain : l'application ne les connaît pas encore.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>019</td><td class="num">m1 t2</td><td class="mono">E♭3 G3 D4 G4</td><td class="exp"><span class="mono">It6</span> en G mineur = <b>sixte italienne (E♭ G D♭)</b></td><td class="app">E♭M7 · ♭VIM7 · G mineur</td></tr>
+<tr><td>216</td><td class="num">m15 t4</td><td class="mono">G3 F4 B4</td><td class="exp"><span class="mono">It6/ii</span> en A majeur = <b>sixte italienne (G B F)</b></td><td class="app">G7 · SubV7/II · E majeur</td></tr>
+<tr><td>332</td><td class="num">m13 t3</td><td class="mono">F3 C4 A4</td><td class="exp"><span class="mono">N</span> en E mineur = <b>F</b></td><td class="app">Am7(9) · Im7(9) · A mineur</td></tr>
+</table></div>
+</div>
+</div>
+<div class="card">
+<h3>Accord juste, septième différente</h3>
+<p class="muted">Comptés justes pour l'accord, faux pour l'accord exact.</p>
+<div class="category">
+<header><h3>Septième en moins ou différente</h3><span class="count">358 · 85,4 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:85.44%"></div></div>
+<p class="muted">L'expert note une septième que l'application ne lit pas (souvent une septième de passage, ou absente au moment observé).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>005</td><td class="num">m13 t3</td><td class="mono">D3 B♭3 E4 G4</td><td class="exp"><span class="mono">ii/o2</span> en D mineur = <b>Em7♭5/D</b></td><td class="app">Edim/D · VIdim · G majeur</td></tr>
+<tr><td>061</td><td class="num">m6 t1</td><td class="mono">C3 A♭3 D4 F4</td><td class="exp"><span class="mono">ii/o2</span> en C mineur = <b>Dm7♭5/C</b></td><td class="app">Ddim/C · VIIdim · E♭ majeur</td></tr>
+<tr><td>133</td><td class="num">m6 t4.5</td><td class="mono">F3 A3 D4 B4</td><td class="exp"><span class="mono">ii/o4/3</span> en A mineur = <b>Bm7♭5/F</b></td><td class="app">Bdim · VIdim · D mineur</td></tr>
+<tr><td>182</td><td class="num">m4 t2.5</td><td class="mono">F3 E♭4 A4 C5</td><td class="exp"><span class="mono">V7</span> en B♭ majeur = <b>F7</b></td><td class="app">F · V · B♭ majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>206</td><td class="num">m9 t4.5</td><td class="mono">E♭3 C4 F4 A4</td><td class="exp"><span class="mono">V2</span> en B♭ majeur = <b>F7/E♭</b></td><td class="app">F/E♭ · I · F majeur</td></tr>
+<tr><td>237</td><td class="num">m1 t2</td><td class="mono">G3 E♭4 A4 C5</td><td class="exp"><span class="mono">ii/o2</span> en G mineur = <b>Am7♭5/G</b></td><td class="app">Adim/G · IIdim · G mineur</td></tr>
+<tr><td>275</td><td class="num">m10 t4.5</td><td class="mono">D3 B3 E4 G♯4</td><td class="exp"><span class="mono">V2</span> en A majeur = <b>E7/D</b></td><td class="app">E/D · V · A majeur</td></tr>
+<tr><td>327</td><td class="num">m9 t2</td><td class="mono">G3 E4 A4 C♯5</td><td class="exp"><span class="mono">V2</span> en D majeur = <b>A7/G</b></td><td class="app">A/G · I · A majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Septième en plus</h3><span class="count">61 · 14,6 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:14.56%"></div></div>
+<p class="muted">L'application ajoute une septième que l'expert considère comme une note de passage.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>004</td><td class="num">m6 t1.5</td><td class="mono">E3 B3 B4 D♯5</td><td class="exp"><span class="mono">IV</span> en B majeur = <b>E</b></td><td class="app">EM7 · IVM7 · B majeur</td></tr>
+<tr><td>046</td><td class="num">m7 t4</td><td class="mono">G3 B3 B4</td><td class="exp"><span class="mono">IV</span> en D majeur = <b>G</b></td><td class="app">GM7 · IVM7 · D majeur</td></tr>
+<tr><td>102</td><td class="num">m4 t3</td><td class="mono">G3 G4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">GM7 · IM7 · G majeur</td></tr>
+<tr><td>122</td><td class="num">m4 t2</td><td class="mono">C3 G3 E♭4 B4</td><td class="exp"><span class="mono">i</span> en C mineur = <b>Cm</b></td><td class="app">CmM7 · ImM7 · C mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>162</td><td class="num">m1 t1.5</td><td class="mono">D3 C4 F4 A4</td><td class="exp"><span class="mono">i</span> en D mineur = <b>Dm</b></td><td class="app">Dm7 · Im7 · D mineur</td></tr>
+<tr><td>205</td><td class="num">m35 t2.5</td><td class="mono">D3 B3 F4 A4</td><td class="exp"><span class="mono">iv</span> en A mineur = <b>Dm</b></td><td class="app">Dm7 · IIm7 · C majeur</td></tr>
+<tr><td>268</td><td class="num">m7 t3.5</td><td class="mono">C3 G3 E4 B4</td><td class="exp"><span class="mono">IV</span> en G majeur = <b>C</b></td><td class="app">CM7 · ♭IIIM7 · A mineur</td></tr>
+<tr><td>312</td><td class="num">m15 t2.5</td><td class="mono">G3 D4 F♯4</td><td class="exp"><span class="mono">IV</span> en D majeur = <b>G</b></td><td class="app">GM7 · IVM7 · D majeur</td></tr>
+</table></div></details>
+</div>
+</div>
+<div class="card">
+<h3>Désaccords sur la tonalité</h3>
+<p class="muted">9 732 accords sur 20 566. Rappel : l'expert connaît la suite du morceau, l'application seulement le passé.</p>
+<div class="category">
+<header><h3>Retard au changement de tonalité</h3><span class="count">4 502 · 46,3 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:46.26%"></div></div>
+<p class="muted">L'expert a changé de tonalité il y a moins de 4 temps ; l'application est encore dans l'ancienne.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>002</td><td class="num">m4 t4</td><td class="mono">C♯3 G♯3 C♯5 E5</td><td class="exp"><span class="mono">iii</span> en A majeur = <b>C♯m</b></td><td class="app">C♯m · VIm · E majeur</td></tr>
+<tr><td>052</td><td class="num">m3 t4</td><td class="mono">C♯3 A3 E4 E5</td><td class="exp"><span class="mono">I6</span> en A majeur = <b>A/C♯</b></td><td class="app">A/C♯ · ♭III · F♯ mineur</td></tr>
+<tr><td>097</td><td class="num">m8 t2</td><td class="mono">D3 D4 F♯4 A4</td><td class="exp"><span class="mono">IV</span> en A majeur = <b>D</b></td><td class="app">D · ♭VI · F♯ mineur</td></tr>
+<tr><td>143</td><td class="num">m22 t3.5</td><td class="mono">A2 C4 E4 G4</td><td class="exp"><span class="mono">v7</span> en D mineur = <b>Am7</b></td><td class="app">Am7 · IIIm7 · F majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>201</td><td class="num">m2 t3</td><td class="mono">G2 G3 D4 B♭4</td><td class="exp"><span class="mono">i</span> en G mineur = <b>Gm</b></td><td class="app">Gm · Vm · C mineur</td></tr>
+<tr><td>238</td><td class="num">m2 t2</td><td class="mono">G3 D4 G4 B4</td><td class="exp"><span class="mono">I</span> en G majeur = <b>G</b></td><td class="app">G · ♭III · E mineur</td></tr>
+<tr><td>279</td><td class="num">m5 t3</td><td class="mono">F3 A3 F4 C5</td><td class="exp"><span class="mono">V</span> en B♭ majeur = <b>F</b></td><td class="app">F · I · F majeur</td></tr>
+<tr><td>325</td><td class="num">m1 t4.5</td><td class="mono">A♭3 B3 E4 D5</td><td class="exp"><span class="mono">V6/5</span> en A mineur = <b>E7/A♭</b></td><td class="app">E7 · V7/V · D mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Modulation brève non suivie</h3><span class="count">1 694 · 17,4 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:17.41%"></div></div>
+<p class="muted">L'expert note une tonalité pendant moins de 2 mesures (tonicisation) ; l'application reste dans la tonalité principale.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>002</td><td class="num">m1 t1</td><td class="mono">F♯3 C♯4 F♯4 A4</td><td class="exp"><span class="mono">vi</span> en A majeur = <b>F♯m</b></td><td class="app">F♯m · IVm · C♯ mineur</td></tr>
+<tr><td>064</td><td class="num">m10 t2</td><td class="mono">C3 E3 E4 A4</td><td class="exp"><span class="mono">iv6</span> en E mineur = <b>Am/C</b></td><td class="app">Am · IIm · G majeur</td></tr>
+<tr><td>110</td><td class="num">m10 t2</td><td class="mono">B♭2 B♭3 D4 F4</td><td class="exp"><span class="mono">V</span> en E♭ majeur = <b>B♭</b></td><td class="app">B♭ · ♭VII · C mineur</td></tr>
+<tr><td>158</td><td class="num">m14 t2</td><td class="mono">A2 E3 C♯4 E4</td><td class="exp"><span class="mono">V</span> en D majeur = <b>A</b></td><td class="app">A · V/V · G majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>205</td><td class="num">m11 t2</td><td class="mono">E3 E4 G4 B4</td><td class="exp"><span class="mono">i</span> en E mineur = <b>Em</b></td><td class="app">Em · VIm · G majeur</td></tr>
+<tr><td>249</td><td class="num">m6 t1.25</td><td class="mono">F3 A3 D4 A4</td><td class="exp"><span class="mono">iv6</span> en A mineur = <b>Dm/F</b></td><td class="app">Dm · Vm · G majeur</td></tr>
+<tr><td>283</td><td class="num">m9 t1</td><td class="mono">G3 G4 B4</td><td class="exp"><span class="mono">IV</span> en D majeur = <b>G</b></td><td class="app">aucun accord · E mineur</td></tr>
+<tr><td>318</td><td class="num">m10 t3</td><td class="mono">D3 D4 G4 A4</td><td class="exp"><span class="mono">I</span> en D majeur = <b>D</b></td><td class="app">D · ♭VI · F♯ mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Tonalité voisine</h3><span class="count">1 420 · 14,6 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:14.59%"></div></div>
+<p class="muted">Une quinte au-dessus ou au-dessous (C / G, C / F).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>002</td><td class="num">m5 t4.5</td><td class="mono">A2 E4 G4 A4</td><td class="exp"><span class="mono">V7/IV</span> en A majeur = <b>A7</b></td><td class="app">A7 · IV7 · E majeur</td></tr>
+<tr><td>035</td><td class="num">m5 t2</td><td class="mono">F♯3 E4 A4 C♯5</td><td class="exp"><span class="mono">vi7</span> en A majeur = <b>F♯m7</b></td><td class="app">F♯m7 · IIm7 · E majeur</td></tr>
+<tr><td>084</td><td class="num">m12 t2</td><td class="mono">B3 E4 F♯4</td><td class="exp"><span class="mono">V</span> en E majeur = <b>B</b></td><td class="app">Bsus4 · IIsus4 · A majeur</td></tr>
+<tr><td>126</td><td class="num">m11 t2</td><td class="mono">D3 A3 F4 D5</td><td class="exp"><span class="mono">iv</span> en A mineur = <b>Dm</b></td><td class="app">Dm · Im · D mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>173</td><td class="num">m8 t2</td><td class="mono">A♭3 B♭3 F4 D5</td><td class="exp"><span class="mono">V2/IV</span> en B♭ majeur = <b>B♭7/A♭</b></td><td class="app">B♭7 · V7 · E♭ majeur</td></tr>
+<tr><td>230</td><td class="num">m3 t1</td><td class="mono">B♭3 D4 F4 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭ · IV · F majeur</td></tr>
+<tr><td>274</td><td class="num">m12 t3</td><td class="mono">D4 F4 A4 F5</td><td class="exp"><span class="mono">vi</span> en F majeur = <b>Dm</b></td><td class="app">Dm · IIIm · B♭ majeur</td></tr>
+<tr><td>329</td><td class="num">m6 t1</td><td class="mono">B3 D4 B4 G5</td><td class="exp"><span class="mono">IV6</span> en D majeur = <b>G/B</b></td><td class="app">G · I · G majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Tonalité relative</h3><span class="count">1 365 · 14,0 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:14.03%"></div></div>
+<p class="muted">Même armure (C majeur / A mineur).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>007</td><td class="num">m2 t3</td><td class="mono">D3 G♯3 B3 E4</td><td class="exp"><span class="mono">V2</span> en A majeur = <b>E7/D</b></td><td class="app">E7 · ♭VII7 · F♯ mineur</td></tr>
+<tr><td>036</td><td class="num">m11 t3</td><td class="mono">D3 A3 D4 F♯4</td><td class="exp"><span class="mono">IV</span> en A majeur = <b>D</b></td><td class="app">D · ♭VI · F♯ mineur</td></tr>
+<tr><td>111</td><td class="num">m6 t2</td><td class="mono">F3 B3 G4 D5</td><td class="exp"><span class="mono">V</span> en C majeur = <b>G</b></td><td class="app">G7 · ♭VII7 · A mineur</td></tr>
+<tr><td>153</td><td class="num">m12 t2.75</td><td class="mono">A2 G3 C♯4 D4</td><td class="exp"><span class="mono">V7</span> en D majeur = <b>A7</b></td><td class="app">Dsus4/A · ♭IIIsus4 · B mineur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>196</td><td class="num">m9 t4</td><td class="mono">F2 A♭3 F4 D5</td><td class="exp"><span class="mono">viio6</span> en E♭ majeur = <b>Ddim/F</b></td><td class="app">Ddim/F · IIdim · C mineur</td></tr>
+<tr><td>225</td><td class="num">m8 t1</td><td class="mono">B♭3 F4 C5 D5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭add9 · ♭IIIadd9 · G mineur</td></tr>
+<tr><td>265</td><td class="num">m4 t4.5</td><td class="mono">F♯3 A♯3 E4 C♯5</td><td class="exp"><span class="mono">V7</span> en B mineur = <b>F♯7</b></td><td class="app">F♯7 · V7/VI · D majeur</td></tr>
+<tr><td>318</td><td class="num">m12 t4.5</td><td class="mono">A2 A3 E4 A4</td><td class="exp"><span class="mono">I</span> en A majeur = <b>A</b></td><td class="app">Aadd9 · ♭IIIadd9 · F♯ mineur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Autre tonalité</h3><span class="count">679 · 7,0 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:6.98%"></div></div>
+<p class="muted">Tonalité éloignée.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>003</td><td class="num">m0 t4</td><td class="mono">E3 E4 A♭4 B4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">E · I · E majeur</td></tr>
+<tr><td>059</td><td class="num">m5 t1</td><td class="mono">G3 B♭3 G4 E♭5</td><td class="exp"><span class="mono">IV6</span> en B♭ majeur = <b>E♭/G</b></td><td class="app">E♭ · ♭III · C mineur</td></tr>
+<tr><td>102</td><td class="num">m13 t1</td><td class="mono">E3 A♭3 E4 B4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">E · V/II · G majeur</td></tr>
+<tr><td>132</td><td class="num">m21 t2.5</td><td class="mono">D♭3 A3 E4 G4</td><td class="exp"><span class="mono">V6/5</span> en D mineur = <b>A7/D♭</b></td><td class="app">A7/C♯ · V7/II · C majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>171</td><td class="num">m2 t2</td><td class="mono">G2 B♭3 G4 D5</td><td class="exp"><span class="mono">i</span> en G mineur = <b>Gm</b></td><td class="app">Gm · ♭VIm · B mineur</td></tr>
+<tr><td>205</td><td class="num">m19 t1</td><td class="mono">G3 D4 G4 B4</td><td class="exp"><span class="mono">IV</span> en D mineur = <b>G</b></td><td class="app">G · ♭III · E mineur</td></tr>
+<tr><td>251</td><td class="num">m4 t4</td><td class="mono">B♭3 F4 D5</td><td class="exp"><span class="mono">VI</span> en D mineur = <b>B♭</b></td><td class="app">B♭ · I · B♭ majeur</td></tr>
+<tr><td>314</td><td class="num">m6 t2</td><td class="mono">F♯3 A♯3 F♯4 C♯5</td><td class="exp"><span class="mono">V</span> en B mineur = <b>F♯</b></td><td class="app">F♯ · V/V · E majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Mode homonyme</h3><span class="count">69 · 0,7 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:0.71%"></div></div>
+<p class="muted">Même tonique, autre mode (C majeur / C mineur).</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>011</td><td class="num">m27 t1</td><td class="mono">G♭3 A3 A4 D5</td><td class="exp"><span class="mono">V6/iv</span> en D mineur = <b>D/G♭</b></td><td class="app">D · I · D majeur</td></tr>
+<tr><td>135</td><td class="num">m10 t4</td><td class="mono">D♭3 B3 E4</td><td class="exp"><span class="mono">V6</span> en D mineur = <b>A/D♭</b></td><td class="app">C♯m7 · VIIm7 · D majeur</td></tr>
+<tr><td>135</td><td class="num">m12 t3</td><td class="mono">D3 G♭3 A3 D4</td><td class="exp"><span class="mono">I</span> en D mineur = <b>D</b></td><td class="app">D · I · D majeur</td></tr>
+<tr><td>135</td><td class="num">m14 t2</td><td class="mono">D3 G3 B3 E4</td><td class="exp"><span class="mono">ii2</span> en D mineur = <b>Em7/D</b></td><td class="app">Em7 · IIm7 · D majeur</td></tr>
+</table></div>
+<details><summary>4 autres exemples</summary><div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>135</td><td class="num">m16 t1</td><td class="mono">A3 E4 G♭4</td><td class="exp"><span class="mono">I64</span> en D mineur = <b>D/A</b></td><td class="app">F♯m7/A · IIIm7 · D majeur</td></tr>
+<tr><td>150</td><td class="num">m20 t1</td><td class="mono">B♭3 D4 F4 B♭4 F5</td><td class="exp"><span class="mono">I</span> en B♭ majeur = <b>B♭</b></td><td class="app">B♭ · V/IV · B♭ mineur</td></tr>
+<tr><td>216</td><td class="num">m10 t3.5</td><td class="mono">F♯3 F♯4 A4 D♯5</td><td class="exp"><span class="mono">viio6</span> en E mineur = <b>D♯dim/F♯</b></td><td class="app">D♯dim/F♯ · VIIdim · E majeur</td></tr>
+<tr><td>300</td><td class="num">m6 t1</td><td class="mono">E3 E4 A♭4 B4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">E · V · A majeur</td></tr>
+</table></div></details>
+</div>
+<div class="category">
+<header><h3>Pas encore de tonalité</h3><span class="count">3 · 0,0 % des désaccords</span></header>
+<div class="share" aria-hidden="true"><div style="width:0.03%"></div></div>
+<p class="muted">Début du morceau : l'application n'a pas encore assez d'indices.</p>
+<div class="scroll"><table>
+<tr><th>Choral</th><th>Mesure</th><th>Notes jouées</th><th>Expert</th><th>Application</th></tr>
+<tr><td>133</td><td class="num">m1 t1</td><td class="mono">D4</td><td class="exp"><span class="mono">i</span> en D mineur = <b>Dm</b></td><td class="app">aucun accord · pas de tonalité</td></tr>
+<tr><td>283</td><td class="num">m1 t1</td><td class="mono">B4</td><td class="exp"><span class="mono">i</span> en E mineur = <b>Em</b></td><td class="app">aucun accord · pas de tonalité</td></tr>
+<tr><td>345</td><td class="num">m0 t4</td><td class="mono">E3 A♭3 E4</td><td class="exp"><span class="mono">V</span> en A mineur = <b>E</b></td><td class="app">aucun accord · pas de tonalité</td></tr>
+</table></div>
+</div>
+</div>
+<div class="card">
+<h3>Morceau par morceau</h3>
+<p class="muted">Du moins bien analysé au mieux analysé (score d'accord).</p>
+<div class="scroll"><table>
+<tr><th>Morceau</th><th class="n">Accords</th><th class="n">Accord</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
+<tr><td>Choral 123 (BWV 183.5) — Zeuch ein zu deinen Toren (5)</td><td class="n">52</td><td class="n">67,3 %</td><td class="n">59,6 %</td><td class="n">38,5 %</td></tr>
+<tr><td>Choral 174 (BWV 364) — Jesus Christus, unser Heiland, der den Tod überwand</td><td class="n">38</td><td class="n">68,4 %</td><td class="n">34,2 %</td><td class="n">23,7 %</td></tr>
+<tr><td>Choral 193 (BWV 424) — Was bist du doch, o Seele so betrübet</td><td class="n">35</td><td class="n">68,6 %</td><td class="n">74,3 %</td><td class="n">45,7 %</td></tr>
+<tr><td>Choral 283 (BWV 227.7) — Jesu, meine Freude (4)</td><td class="n">77</td><td class="n">68,8 %</td><td class="n">45,5 %</td><td class="n">26,0 %</td></tr>
+<tr><td>Choral 153 (BWV 262) — Alle Menschen müssen sterben</td><td class="n">45</td><td class="n">68,9 %</td><td class="n">37,8 %</td><td class="n">26,7 %</td></tr>
+<tr><td>Choral 243 (BWV 356) — Jesu, du mein liebstes Leben</td><td class="n">58</td><td class="n">69,0 %</td><td class="n">53,4 %</td><td class="n">36,2 %</td></tr>
+<tr><td>Choral 092 (BWV 168.6) — Herr Jesu Christ, du höchstes Gut (8)</td><td class="n">46</td><td class="n">69,6 %</td><td class="n">50,0 %</td><td class="n">32,6 %</td></tr>
+<tr><td>Choral 362 (BWV 248.59) — Ich steh an deiner Krippen hier (1)</td><td class="n">46</td><td class="n">69,6 %</td><td class="n">84,8 %</td><td class="n">58,7 %</td></tr>
+<tr><td>Choral 130 (BWV 324) — Meine Seel erhebt den Herren The German Magnificat]</td><td class="n">20</td><td class="n">70,0 %</td><td class="n">30,0 %</td><td class="n">25,0 %</td></tr>
+<tr><td>Choral 343 (BWV 11.6) — Du Du Lebensfürst, Herr Jesu Christ (4)</td><td class="n">63</td><td class="n">71,4 %</td><td class="n">46,0 %</td><td class="n">33,3 %</td></tr>
+</table></div>
+<details><summary>Les 353 autres</summary><div class="scroll"><table>
+<tr><th>Morceau</th><th class="n">Accords</th><th class="n">Accord</th><th class="n">Tonalité</th><th class="n">Chiffrage</th></tr>
+<tr><td>Choral 100 (BWV 18.5) — Durch Adams Fall ist ganz verderbt (8)</td><td class="n">57</td><td class="n">71,9 %</td><td class="n">49,1 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 126 (BWV 18.5) — Durch Adams Fall ist ganz verderbt (8)</td><td class="n">57</td><td class="n">71,9 %</td><td class="n">47,4 %</td><td class="n">31,6 %</td></tr>
+<tr><td>Choral 228 (BWV 286) — Danket dem Herren</td><td class="n">26</td><td class="n">73,1 %</td><td class="n">76,9 %</td><td class="n">57,7 %</td></tr>
+<tr><td>Choral 049 (BWV 382) — Mit Fried und Freud ich fahr dahin</td><td class="n">60</td><td class="n">73,3 %</td><td class="n">75,0 %</td><td class="n">53,3 %</td></tr>
+<tr><td>Choral 199 (BWV 343) — Hilf, Gott, dass mirs gelinge</td><td class="n">60</td><td class="n">73,3 %</td><td class="n">70,0 %</td><td class="n">48,3 %</td></tr>
+<tr><td>Choral 197 (BWV 276) — Christ ist erstanden</td><td class="n">132</td><td class="n">73,5 %</td><td class="n">47,7 %</td><td class="n">35,6 %</td></tr>
+<tr><td>Choral 175 (BWV 365) — Jesus, meine Zuversicht</td><td class="n">38</td><td class="n">73,7 %</td><td class="n">36,8 %</td><td class="n">26,3 %</td></tr>
+<tr><td>Choral 154 (BWV 293) — Der du bist drei in Einigkeit</td><td class="n">42</td><td class="n">73,8 %</td><td class="n">11,9 %</td><td class="n">7,1 %</td></tr>
+<tr><td>Choral 070 (BWV 322) — Gott sei gelobet und gebenedeiet</td><td class="n">96</td><td class="n">74,0 %</td><td class="n">67,7 %</td><td class="n">49,0 %</td></tr>
+<tr><td>Choral 271 (BWV 315) — Gib dich zufrieden und sei stille</td><td class="n">58</td><td class="n">74,1 %</td><td class="n">50,0 %</td><td class="n">34,5 %</td></tr>
+<tr><td>Choral 172 (BWV 410) — Sei gegrüßet, Jesu gütig</td><td class="n">55</td><td class="n">74,5 %</td><td class="n">45,5 %</td><td class="n">34,5 %</td></tr>
+<tr><td>Choral 302 (BWV 343) — Hilf, Gott, dass mirs gelinge</td><td class="n">59</td><td class="n">74,6 %</td><td class="n">78,0 %</td><td class="n">55,9 %</td></tr>
+<tr><td>Choral 180 (BWV 265) — Als Jesu Christus in der Nacht</td><td class="n">36</td><td class="n">75,0 %</td><td class="n">47,2 %</td><td class="n">30,6 %</td></tr>
+<tr><td>Choral 264 (BWV 361) — Jesu, meines Herzens Freud</td><td class="n">44</td><td class="n">75,0 %</td><td class="n">54,5 %</td><td class="n">43,2 %</td></tr>
+<tr><td>Choral 270 (BWV 161.6) — Herzlich tut mich verlangen (4)</td><td class="n">52</td><td class="n">75,0 %</td><td class="n">21,2 %</td><td class="n">17,3 %</td></tr>
+<tr><td>Choral 212 (BWV 329) — Herr, ich denk an jene Zeit</td><td class="n">61</td><td class="n">75,4 %</td><td class="n">70,5 %</td><td class="n">50,8 %</td></tr>
+<tr><td>Choral 019 (BWV 351) — Ich hab mein Sach Gott heimgestellt</td><td class="n">45</td><td class="n">75,6 %</td><td class="n">68,9 %</td><td class="n">48,9 %</td></tr>
+<tr><td>Choral 116 (BWV 29.8) — Nun lob, mein Seel, den Herren (5)</td><td class="n">111</td><td class="n">75,7 %</td><td class="n">32,4 %</td><td class="n">27,0 %</td></tr>
+<tr><td>Choral 109 (BWV 187.7) — Singen wir aus Herzensgrund (4)</td><td class="n">66</td><td class="n">75,8 %</td><td class="n">66,7 %</td><td class="n">47,0 %</td></tr>
+<tr><td>Choral 239 (BWV 292) — Den Vater dort oben</td><td class="n">66</td><td class="n">75,8 %</td><td class="n">54,5 %</td><td class="n">42,4 %</td></tr>
+<tr><td>Choral 202 (BWV 407) — O wir armen Sünder!</td><td class="n">96</td><td class="n">76,0 %</td><td class="n">50,0 %</td><td class="n">40,6 %</td></tr>
+<tr><td>Choral 169 (BWV 355) — Jesu, der du selbsten wohl</td><td class="n">71</td><td class="n">76,1 %</td><td class="n">74,6 %</td><td class="n">56,3 %</td></tr>
+<tr><td>Choral 033 (BWV 330) — Herr, ich habe missgehandelt</td><td class="n">46</td><td class="n">76,1 %</td><td class="n">73,9 %</td><td class="n">56,5 %</td></tr>
+<tr><td>Choral 265 (BWV 144.6) — Was mein will, das gscheh allzeit (1)</td><td class="n">63</td><td class="n">76,2 %</td><td class="n">28,6 %</td><td class="n">20,6 %</td></tr>
+<tr><td>Choral 141 (BWV 409) — Seelenbräutigam, Jesu, Gottes Lamm</td><td class="n">43</td><td class="n">76,7 %</td><td class="n">62,8 %</td><td class="n">48,8 %</td></tr>
+<tr><td>Choral 366 (BWV 394) — O Welt, sieh hier dein Leben</td><td class="n">48</td><td class="n">77,1 %</td><td class="n">79,2 %</td><td class="n">60,4 %</td></tr>
+<tr><td>Choral 149 (BWV 384) — Nicht so traurig, nicht so sehr</td><td class="n">31</td><td class="n">77,4 %</td><td class="n">54,8 %</td><td class="n">38,7 %</td></tr>
+<tr><td>Choral 251 (BWV 345) — Ich bin ja, Herr, in deiner Macht</td><td class="n">49</td><td class="n">77,6 %</td><td class="n">51,0 %</td><td class="n">34,7 %</td></tr>
+<tr><td>Choral 269 (BWV 353) — Jesu, der du meine Seele</td><td class="n">58</td><td class="n">77,6 %</td><td class="n">58,6 %</td><td class="n">43,1 %</td></tr>
+<tr><td>Choral 309 (BWV 267) — Ein Lämmlein geht und trägt die Schuld (for B5)</td><td class="n">76</td><td class="n">77,6 %</td><td class="n">56,6 %</td><td class="n">42,1 %</td></tr>
+<tr><td>Choral 224 (BWV 290) — Das walt Gott Vater und Gott Sohn</td><td class="n">36</td><td class="n">77,8 %</td><td class="n">61,1 %</td><td class="n">41,7 %</td></tr>
+<tr><td>Choral 005 (BWV 267) — An Wasserflüssen Babylon (for B308)</td><td class="n">77</td><td class="n">77,9 %</td><td class="n">57,1 %</td><td class="n">42,9 %</td></tr>
+<tr><td>Choral 226 (BWV 333) — Herr Jesu Christ, du hast bereitt</td><td class="n">59</td><td class="n">78,0 %</td><td class="n">67,8 %</td><td class="n">54,2 %</td></tr>
+<tr><td>Choral 073 (BWV 334) — Herr Jesu Christ, du höchstes Gut</td><td class="n">55</td><td class="n">78,2 %</td><td class="n">61,8 %</td><td class="n">47,3 %</td></tr>
+<tr><td>Choral 203 (BWV 403) — O Mensch, schau Jesum Christum an</td><td class="n">55</td><td class="n">78,2 %</td><td class="n">74,5 %</td><td class="n">56,4 %</td></tr>
+<tr><td>Choral 246 (BWV 411) — Singt dem Herrn ein neues Lied</td><td class="n">69</td><td class="n">78,3 %</td><td class="n">40,6 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 077 (BWV 248.46) — Nun, liebe Seel, nun ist es Zeit (5)</td><td class="n">60</td><td class="n">78,3 %</td><td class="n">53,3 %</td><td class="n">40,0 %</td></tr>
+<tr><td>Choral 111 (BWV 245.17) — Herzliebster Jesu, was hast du verbrochen (8,9)</td><td class="n">51</td><td class="n">78,4 %</td><td class="n">25,5 %</td><td class="n">19,6 %</td></tr>
+<tr><td>Choral 346 (BWV 381) — Meines Lebens letzte Zeit</td><td class="n">65</td><td class="n">78,5 %</td><td class="n">46,2 %</td><td class="n">33,8 %</td></tr>
+<tr><td>Choral 022 (BWV 180.7) — Schmücke dich, o liebe Seele (9)</td><td class="n">56</td><td class="n">78,6 %</td><td class="n">73,2 %</td><td class="n">64,3 %</td></tr>
+<tr><td>Choral 220 (BWV 413) — Sollt ich meinem Gott nicht singen</td><td class="n">84</td><td class="n">78,6 %</td><td class="n">51,2 %</td><td class="n">42,9 %</td></tr>
+<tr><td>Choral 225 (BWV 316) — Gott, der du selber bist das Licht</td><td class="n">56</td><td class="n">78,6 %</td><td class="n">39,3 %</td><td class="n">30,4 %</td></tr>
+<tr><td>Choral 099 (BWV 16.6) — Helft mir Gotts Güte preisen (6)</td><td class="n">47</td><td class="n">78,7 %</td><td class="n">27,7 %</td><td class="n">23,4 %</td></tr>
+<tr><td>Choral 241 (BWV 425) — Was willst du dich, o meine Seele, kränken</td><td class="n">138</td><td class="n">79,0 %</td><td class="n">36,2 %</td><td class="n">27,5 %</td></tr>
+<tr><td>Choral 135 (BWV 317) — Gott der Vater wohn uns bei</td><td class="n">72</td><td class="n">79,2 %</td><td class="n">30,6 %</td><td class="n">26,4 %</td></tr>
+<tr><td>Choral 221 (BWV 338) — Herr, straf mich nicht in deinem Zorn (paraph. of Ps.38)</td><td class="n">53</td><td class="n">79,2 %</td><td class="n">58,5 %</td><td class="n">45,3 %</td></tr>
+<tr><td>Choral 267 (BWV 90.5) — Nimm von uns, Herr, du treuer Gott (7)</td><td class="n">58</td><td class="n">79,3 %</td><td class="n">74,1 %</td><td class="n">60,3 %</td></tr>
+<tr><td>Choral 287 (BWV 331) — Herr, ich habe missgehandelt</td><td class="n">39</td><td class="n">79,5 %</td><td class="n">61,5 %</td><td class="n">53,8 %</td></tr>
+<tr><td>Choral 133 (BWV 437) — Wir glauben all an einen Gott</td><td class="n">171</td><td class="n">79,5 %</td><td class="n">52,6 %</td><td class="n">42,1 %</td></tr>
+<tr><td>Choral 046 (BWV 248.09) — Vom Himmel hoch da komm ich her (13)</td><td class="n">44</td><td class="n">79,5 %</td><td class="n">36,4 %</td><td class="n">31,8 %</td></tr>
+<tr><td>Choral 266 (BWV 48.7) — Herr Jesu Christ, ich schrei zu dir (12)</td><td class="n">54</td><td class="n">79,6 %</td><td class="n">51,9 %</td><td class="n">42,6 %</td></tr>
+<tr><td>Choral 091 (BWV 42.7) — Verleih uns Frieden gnädiglich</td><td class="n">113</td><td class="n">79,6 %</td><td class="n">59,3 %</td><td class="n">48,7 %</td></tr>
+<tr><td>Choral 259 (BWV 42.7) — Verleih uns Frieden gnädiglich</td><td class="n">113</td><td class="n">79,6 %</td><td class="n">51,3 %</td><td class="n">44,2 %</td></tr>
+<tr><td>Choral 364 (BWV 417) — Von Gott will ich nicht lassen</td><td class="n">59</td><td class="n">79,7 %</td><td class="n">32,2 %</td><td class="n">23,7 %</td></tr>
+<tr><td>Choral 211 (BWV 426) — Weltlich Ehr und zeitlich Gut</td><td class="n">69</td><td class="n">79,7 %</td><td class="n">62,3 %</td><td class="n">50,7 %</td></tr>
+<tr><td>Choral 132 (BWV 371) — Kyrie, Gott Vater in Ewigkeit</td><td class="n">212</td><td class="n">79,7 %</td><td class="n">31,6 %</td><td class="n">23,6 %</td></tr>
+<tr><td>Choral 205 (BWV 328) — Herr Gott, dich loben wir German Te Deum]</td><td class="n">228</td><td class="n">79,8 %</td><td class="n">41,7 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 018 (BWV 318) — Gottes Sohn ist kommen</td><td class="n">50</td><td class="n">80,0 %</td><td class="n">60,0 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 120 (BWV 103.6) — Barmherzger Vater, höchster Gott (9)</td><td class="n">55</td><td class="n">80,0 %</td><td class="n">38,2 %</td><td class="n">25,5 %</td></tr>
+<tr><td>Choral 131 (BWV 373) — Liebster Jesu, wir sind hier</td><td class="n">40</td><td class="n">80,0 %</td><td class="n">82,5 %</td><td class="n">62,5 %</td></tr>
+<tr><td>Choral 207 (BWV 295) — Des heilgen Geistes reiche Gnad</td><td class="n">45</td><td class="n">80,0 %</td><td class="n">46,7 %</td><td class="n">37,8 %</td></tr>
+<tr><td>Choral 298 (BWV 19.7) — Freu dich sehr, o meine Seele (9)</td><td class="n">55</td><td class="n">80,0 %</td><td class="n">58,2 %</td><td class="n">47,3 %</td></tr>
+<tr><td>Choral 349 (BWV 103.6) — Barmherzger Vater, höchster Gott</td><td class="n">55</td><td class="n">80,0 %</td><td class="n">38,2 %</td><td class="n">25,5 %</td></tr>
+<tr><td>Choral 258 (BWV 378) — Mein Augen schließ ich jetzt</td><td class="n">61</td><td class="n">80,3 %</td><td class="n">90,2 %</td><td class="n">73,8 %</td></tr>
+<tr><td>Choral 163 (BWV 313) — Vor Freuden lasst uns springen</td><td class="n">51</td><td class="n">80,4 %</td><td class="n">76,5 %</td><td class="n">60,8 %</td></tr>
+<tr><td>Choral 090 (BWV 57.8) — Hast du denn, Jesu, dein Angesicht gänzlich verborgen (6)</td><td class="n">36</td><td class="n">80,6 %</td><td class="n">72,2 %</td><td class="n">58,3 %</td></tr>
+<tr><td>Choral 076 (BWV 30.6) — Tröstet, tröstet meine Lieben (3)</td><td class="n">62</td><td class="n">80,6 %</td><td class="n">27,4 %</td><td class="n">22,6 %</td></tr>
+<tr><td>Choral 015 (BWV 277) — Christ lag in Todesbanden</td><td class="n">57</td><td class="n">80,7 %</td><td class="n">50,9 %</td><td class="n">42,1 %</td></tr>
+<tr><td>Choral 030 (BWV 363) — Jesus Christus, unser Heiland, der von uns</td><td class="n">57</td><td class="n">80,7 %</td><td class="n">47,4 %</td><td class="n">36,8 %</td></tr>
+<tr><td>Choral 082 (BWV 46.6) — O großer Gott von Macht (9)</td><td class="n">57</td><td class="n">80,7 %</td><td class="n">47,4 %</td><td class="n">38,6 %</td></tr>
+<tr><td>Choral 182 (BWV 14.5) — Wär Gott nicht mit uns diese Zeit (3)</td><td class="n">57</td><td class="n">80,7 %</td><td class="n">45,6 %</td><td class="n">36,8 %</td></tr>
+<tr><td>Choral 369 (BWV 354) — Jesu, der du meine Seele</td><td class="n">57</td><td class="n">80,7 %</td><td class="n">66,7 %</td><td class="n">52,6 %</td></tr>
+<tr><td>Choral 320 (BWV 323) — Gott sei uns gnädig und barmherzig</td><td class="n">26</td><td class="n">80,8 %</td><td class="n">50,0 %</td><td class="n">42,3 %</td></tr>
+<tr><td>Choral 125 (BWV 104.6) — Der Herr ist mein getreuer Hirt (1)</td><td class="n">47</td><td class="n">80,9 %</td><td class="n">76,6 %</td><td class="n">61,7 %</td></tr>
+<tr><td>Choral 190 (BWV 337) — Herr, nun lass in Friede</td><td class="n">47</td><td class="n">80,9 %</td><td class="n">46,8 %</td><td class="n">36,2 %</td></tr>
+<tr><td>Choral 311 (BWV 287) — Dank sei Gott in der Höhe</td><td class="n">47</td><td class="n">80,9 %</td><td class="n">66,0 %</td><td class="n">57,4 %</td></tr>
+<tr><td>Choral 105 (BWV 244.46) — Herzliebster Jesu, was hast du verbrochen (4)</td><td class="n">42</td><td class="n">81,0 %</td><td class="n">35,7 %</td><td class="n">28,6 %</td></tr>
+<tr><td>Choral 238 (BWV 310) — Es wird schier der letzte Tag herkommen</td><td class="n">42</td><td class="n">81,0 %</td><td class="n">52,4 %</td><td class="n">42,9 %</td></tr>
+<tr><td>Choral 037 (BWV 352) — Jesu, der du meine Seele</td><td class="n">58</td><td class="n">81,0 %</td><td class="n">75,9 %</td><td class="n">60,3 %</td></tr>
+<tr><td>Choral 165 (BWV 401) — O Lamm Gottes, unschuldig</td><td class="n">53</td><td class="n">81,1 %</td><td class="n">54,7 %</td><td class="n">45,3 %</td></tr>
+<tr><td>Choral 088 (BWV 28.6) — Helft mir Gotts Güte preisen (6)</td><td class="n">48</td><td class="n">81,3 %</td><td class="n">39,6 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 152 (BWV 154.8) — Meinen Jesum lass ich nicht (6)</td><td class="n">64</td><td class="n">81,3 %</td><td class="n">65,6 %</td><td class="n">54,7 %</td></tr>
+<tr><td>Choral 240 (BWV 396) — Nun sich der Tag geendet hat</td><td class="n">32</td><td class="n">81,3 %</td><td class="n">84,4 %</td><td class="n">68,8 %</td></tr>
+<tr><td>Choral 008 (BWV 40.8) — Freuet euch, ihr Christen alle (4)</td><td class="n">86</td><td class="n">81,4 %</td><td class="n">36,0 %</td><td class="n">26,7 %</td></tr>
+<tr><td>Choral 213 (BWV 405) — O wie selig seid ihr doch, ihr Frommen</td><td class="n">43</td><td class="n">81,4 %</td><td class="n">48,8 %</td><td class="n">39,5 %</td></tr>
+<tr><td>Choral 338 (BWV 145a) — Auf, mein Herz, des Herren Tag (1)</td><td class="n">38</td><td class="n">81,6 %</td><td class="n">71,1 %</td><td class="n">60,5 %</td></tr>
+<tr><td>Choral 023 (BWV 28.6) — Helft mir Gotts Güte preisen (6)</td><td class="n">49</td><td class="n">81,6 %</td><td class="n">36,7 %</td><td class="n">30,6 %</td></tr>
+<tr><td>Choral 277 (BWV 340) — Herzlich lieb hab ich dich, o Herr</td><td class="n">98</td><td class="n">81,6 %</td><td class="n">36,7 %</td><td class="n">29,6 %</td></tr>
+<tr><td>Choral 285 (BWV 257) — Wär Gott nicht mit uns diese Zeit</td><td class="n">49</td><td class="n">81,6 %</td><td class="n">24,5 %</td><td class="n">16,3 %</td></tr>
+<tr><td>Choral 351 (BWV 430) — Wenn mein Stündlein vorhanden ist</td><td class="n">71</td><td class="n">81,7 %</td><td class="n">54,9 %</td><td class="n">40,8 %</td></tr>
+<tr><td>Choral 057 (BWV 404) — O Traurigkeit, o Herzeleid!</td><td class="n">33</td><td class="n">81,8 %</td><td class="n">54,5 %</td><td class="n">39,4 %</td></tr>
+<tr><td>Choral 087 (BWV 56.5) — Du, o schönes Weltgebäude (6)</td><td class="n">44</td><td class="n">81,8 %</td><td class="n">47,7 %</td><td class="n">43,2 %</td></tr>
+<tr><td>Choral 127 (BWV 298) — Dies sind die heilgen zehn Gebot</td><td class="n">44</td><td class="n">81,8 %</td><td class="n">65,9 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 348 (BWV 70.11) — Meinen Jesum lass ich nicht (5)</td><td class="n">55</td><td class="n">81,8 %</td><td class="n">52,7 %</td><td class="n">43,6 %</td></tr>
+<tr><td>Choral 166 (BWV 309) — Es stehn vor Gottes Throne</td><td class="n">61</td><td class="n">82,0 %</td><td class="n">90,2 %</td><td class="n">72,1 %</td></tr>
+<tr><td>Choral 219 (BWV 406) — O wie selig seid ihr doch, ihr Frommen</td><td class="n">50</td><td class="n">82,0 %</td><td class="n">68,0 %</td><td class="n">60,0 %</td></tr>
+<tr><td>Choral 335 (BWV 155.5) — Es ist das Heil uns kommen her (12)</td><td class="n">50</td><td class="n">82,0 %</td><td class="n">38,0 %</td><td class="n">36,0 %</td></tr>
+<tr><td>Choral 170 (BWV 62.6) — Nun komm, der Heiden Heiland (8)</td><td class="n">39</td><td class="n">82,1 %</td><td class="n">76,9 %</td><td class="n">66,7 %</td></tr>
+<tr><td>Choral 371 (BWV 278) — Christ lag in Todesbanden</td><td class="n">67</td><td class="n">82,1 %</td><td class="n">59,7 %</td><td class="n">49,3 %</td></tr>
+<tr><td>Choral 171 (BWV 408) — Schaut, ihr Sünder</td><td class="n">45</td><td class="n">82,2 %</td><td class="n">28,9 %</td><td class="n">20,0 %</td></tr>
+<tr><td>Choral 323 (BWV 172.6) — Wie schön leuchtet der Morgenstern (4)</td><td class="n">62</td><td class="n">82,3 %</td><td class="n">82,3 %</td><td class="n">67,7 %</td></tr>
+<tr><td>Choral 280 (BWV 304) — Eins ist not, ach Herr, dies Eine</td><td class="n">68</td><td class="n">82,4 %</td><td class="n">91,2 %</td><td class="n">73,5 %</td></tr>
+<tr><td>Choral 291 (BWV 94.8) — Was frag ich nach der Welt (7,8)</td><td class="n">51</td><td class="n">82,4 %</td><td class="n">66,7 %</td><td class="n">56,9 %</td></tr>
+<tr><td>Choral 352 (BWV 312) — Es woll uns Gott genädig sein</td><td class="n">85</td><td class="n">82,4 %</td><td class="n">40,0 %</td><td class="n">31,8 %</td></tr>
+<tr><td>Choral 328 (BWV 373) — Liebster Jesu, wir sind hier</td><td class="n">40</td><td class="n">82,5 %</td><td class="n">82,5 %</td><td class="n">65,0 %</td></tr>
+<tr><td>Choral 229 (BWV 350) — Ich danke dir, o Gott in deinem Throne</td><td class="n">86</td><td class="n">82,6 %</td><td class="n">66,3 %</td><td class="n">54,7 %</td></tr>
+<tr><td>Choral 150 (BWV 27.6) — Welt, ade! Ich bin dein müde (1)</td><td class="n">46</td><td class="n">82,6 %</td><td class="n">23,9 %</td><td class="n">21,7 %</td></tr>
+<tr><td>Choral 147 (BWV 427) — Wenn ich in Angst und Not</td><td class="n">52</td><td class="n">82,7 %</td><td class="n">63,5 %</td><td class="n">51,9 %</td></tr>
+<tr><td>Choral 304 (BWV 5.7) — Wo soll ich fliehen hin (11)</td><td class="n">52</td><td class="n">82,7 %</td><td class="n">44,2 %</td><td class="n">40,4 %</td></tr>
+<tr><td>Choral 324 (BWV 81.7) — Jesu, meine Freude (2)</td><td class="n">52</td><td class="n">82,7 %</td><td class="n">69,2 %</td><td class="n">61,5 %</td></tr>
+<tr><td>Choral 331 (BWV 136.6) — Wo soll ich fliehen hin (9)</td><td class="n">52</td><td class="n">82,7 %</td><td class="n">42,3 %</td><td class="n">38,5 %</td></tr>
+<tr><td>Choral 137 (BWV 433) — Wer Gott vertraut, hat wohl gebaut</td><td class="n">81</td><td class="n">82,7 %</td><td class="n">66,7 %</td><td class="n">55,6 %</td></tr>
+<tr><td>Choral 134 (BWV 301) — Du, o schönes Weltgebäude</td><td class="n">58</td><td class="n">82,8 %</td><td class="n">43,1 %</td><td class="n">32,8 %</td></tr>
+<tr><td>Choral 155 (BWV 344) — Hilf, Herr Jesu, lass gelingen</td><td class="n">58</td><td class="n">82,8 %</td><td class="n">67,2 %</td><td class="n">53,4 %</td></tr>
+<tr><td>Choral 242 (BWV 435) — Wie bist du, Seele, in mir so gar betrübt</td><td class="n">58</td><td class="n">82,8 %</td><td class="n">43,1 %</td><td class="n">36,2 %</td></tr>
+<tr><td>Choral 200 (BWV 284) — Christus ist erstanden, hat überwunden</td><td class="n">70</td><td class="n">82,9 %</td><td class="n">21,4 %</td><td class="n">14,3 %</td></tr>
+<tr><td>Choral 367 (BWV 271) — Befiehl du deine Wege</td><td class="n">47</td><td class="n">83,0 %</td><td class="n">44,7 %</td><td class="n">36,2 %</td></tr>
+<tr><td>Choral 274 (BWV 397) — O Ewigkeit, du Donnerwort</td><td class="n">53</td><td class="n">83,0 %</td><td class="n">13,2 %</td><td class="n">13,2 %</td></tr>
+<tr><td>Choral 340 (BWV 272) — Befiehl du deine Wege</td><td class="n">53</td><td class="n">83,0 %</td><td class="n">39,6 %</td><td class="n">34,0 %</td></tr>
+<tr><td>Choral 039 (BWV 259) — Ach, was soll ich Sünder machen</td><td class="n">65</td><td class="n">83,1 %</td><td class="n">46,2 %</td><td class="n">43,1 %</td></tr>
+<tr><td>Choral 035 (BWV 248.53) — Ihr Gestirn, ihr hohlen Lüfte (9)</td><td class="n">42</td><td class="n">83,3 %</td><td class="n">21,4 %</td><td class="n">21,4 %</td></tr>
+<tr><td>Choral 071 (BWV 177.5) — Ich ruf zu dir, Herr Jesu Christ (5)</td><td class="n">72</td><td class="n">83,3 %</td><td class="n">43,1 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 236 (BWV 335) — Herr Jesu Christ, meins Lebens Licht (for B236)</td><td class="n">36</td><td class="n">83,3 %</td><td class="n">58,3 %</td><td class="n">52,8 %</td></tr>
+<tr><td>Choral 316 (BWV 282) — Christus, der ist mein Leben</td><td class="n">36</td><td class="n">83,3 %</td><td class="n">30,6 %</td><td class="n">25,0 %</td></tr>
+<tr><td>Choral 330 (BWV 252) — Nun danket alle Gott</td><td class="n">54</td><td class="n">83,3 %</td><td class="n">66,7 %</td><td class="n">55,6 %</td></tr>
+<tr><td>Choral 370 (BWV 74.8) — Gott Vater, sende deinen Geist (2)</td><td class="n">60</td><td class="n">83,3 %</td><td class="n">63,3 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 096 (BWV 87.7) — Selig ist die Seele (9)</td><td class="n">55</td><td class="n">83,6 %</td><td class="n">69,1 %</td><td class="n">60,0 %</td></tr>
+<tr><td>Choral 164 (BWV 326) — Herr Gott, dich loben alle wir</td><td class="n">55</td><td class="n">83,6 %</td><td class="n">90,9 %</td><td class="n">74,5 %</td></tr>
+<tr><td>Choral 186 (BWV 254) — Ach Gott, erhör mein Seufzen und Wehklagen</td><td class="n">55</td><td class="n">83,6 %</td><td class="n">34,5 %</td><td class="n">29,1 %</td></tr>
+<tr><td>Choral 078 (BWV 244.03) — Herzliebster Jesu, was hast du verbrochen (1)</td><td class="n">43</td><td class="n">83,7 %</td><td class="n">55,8 %</td><td class="n">48,8 %</td></tr>
+<tr><td>Choral 144 (BWV 339) — Herr, wie du willst, so schicks mit mir</td><td class="n">56</td><td class="n">83,9 %</td><td class="n">19,6 %</td><td class="n">19,6 %</td></tr>
+<tr><td>Choral 318 (BWV 339) — Herr, wie du willst, so schicks mit mir</td><td class="n">56</td><td class="n">83,9 %</td><td class="n">19,6 %</td><td class="n">19,6 %</td></tr>
+<tr><td>Choral 034 (BWV 305) — Erbarm dich mein, o Herre Gott</td><td class="n">75</td><td class="n">84,0 %</td><td class="n">58,7 %</td><td class="n">52,0 %</td></tr>
+<tr><td>Choral 064 (BWV 194.06) — Treuer Gott, ich muss dir klagen (6)</td><td class="n">50</td><td class="n">84,0 %</td><td class="n">66,0 %</td><td class="n">56,0 %</td></tr>
+<tr><td>Choral 075 (BWV 291) — Das walt mein Gott, Vater, Sohn und heiliger Geist</td><td class="n">50</td><td class="n">84,0 %</td><td class="n">60,0 %</td><td class="n">48,0 %</td></tr>
+<tr><td>Choral 026 (BWV 20.7=20.11) — O Ewigkeit, du Donnerwort (11)</td><td class="n">44</td><td class="n">84,1 %</td><td class="n">86,4 %</td><td class="n">77,3 %</td></tr>
+<tr><td>Choral 020 (BWV 302) — Ein feste Burg ist unser Gott</td><td class="n">57</td><td class="n">84,2 %</td><td class="n">35,1 %</td><td class="n">29,8 %</td></tr>
+<tr><td>Choral 104 (BWV 88.7) — Wer nur den lieben Gott lässt walten (8)</td><td class="n">38</td><td class="n">84,2 %</td><td class="n">65,8 %</td><td class="n">63,2 %</td></tr>
+<tr><td>Choral 159 (BWV 264) — Als der gütige Gott</td><td class="n">38</td><td class="n">84,2 %</td><td class="n">100,0 %</td><td class="n">84,2 %</td></tr>
+<tr><td>Choral 168 (BWV 341) — Heut ist, o Mensch, ein großer Trauertag</td><td class="n">38</td><td class="n">84,2 %</td><td class="n">23,7 %</td><td class="n">23,7 %</td></tr>
+<tr><td>Choral 284 (BWV 127.5) — Herr Jesu Christ, wahr Mensch und Gott (8)</td><td class="n">57</td><td class="n">84,2 %</td><td class="n">31,6 %</td><td class="n">29,8 %</td></tr>
+<tr><td>Choral 356 (BWV 358) — Jesu, meine Freude</td><td class="n">51</td><td class="n">84,3 %</td><td class="n">56,9 %</td><td class="n">51,0 %</td></tr>
+<tr><td>Choral 319 (BWV 325) — Heilig, heilig German Sanctus]</td><td class="n">77</td><td class="n">84,4 %</td><td class="n">53,2 %</td><td class="n">48,1 %</td></tr>
+<tr><td>Choral 176 (BWV 306) — Erstanden ist der heilge Christ</td><td class="n">45</td><td class="n">84,4 %</td><td class="n">77,8 %</td><td class="n">68,9 %</td></tr>
+<tr><td>Choral 209 (BWV 299) — Dir, dir, Jehova, will ich singen</td><td class="n">45</td><td class="n">84,4 %</td><td class="n">93,3 %</td><td class="n">77,8 %</td></tr>
+<tr><td>Choral 036 (BWV 385) — Nun bitten wir den Heiligen Geist</td><td class="n">58</td><td class="n">84,5 %</td><td class="n">56,9 %</td><td class="n">53,4 %</td></tr>
+<tr><td>Choral 041 (BWV 65.7) — Ich hab in Gottes Herz und Sinn (10)</td><td class="n">65</td><td class="n">84,6 %</td><td class="n">32,3 %</td><td class="n">30,8 %</td></tr>
+<tr><td>Choral 095 (BWV 55.5) — Werde munter mein Gemüte (6)</td><td class="n">52</td><td class="n">84,6 %</td><td class="n">38,5 %</td><td class="n">32,7 %</td></tr>
+<tr><td>Choral 161 (BWV 366) — Ihr Gestirn, ihr hohlen Lüfte</td><td class="n">39</td><td class="n">84,6 %</td><td class="n">38,5 %</td><td class="n">30,8 %</td></tr>
+<tr><td>Choral 194 (BWV 123.6) — Liebster Immanuel, Herzog der Frommen (6)</td><td class="n">39</td><td class="n">84,6 %</td><td class="n">51,3 %</td><td class="n">46,2 %</td></tr>
+<tr><td>Choral 235 (BWV 325) — Heilig, heilig German Sanctus]</td><td class="n">78</td><td class="n">84,6 %</td><td class="n">53,8 %</td><td class="n">48,7 %</td></tr>
+<tr><td>Choral 313 (BWV 112.5) — Der Herr ist mein getreuer Hirt (5)</td><td class="n">52</td><td class="n">84,6 %</td><td class="n">61,5 %</td><td class="n">51,9 %</td></tr>
+<tr><td>Choral 353 (BWV 112.5) — Der Herr ist mein getreuer Hirt</td><td class="n">52</td><td class="n">84,6 %</td><td class="n">61,5 %</td><td class="n">51,9 %</td></tr>
+<tr><td>Choral 359 (BWV 261) — Allein zu dir, Herr Jesu Christ</td><td class="n">72</td><td class="n">84,7 %</td><td class="n">29,2 %</td><td class="n">26,4 %</td></tr>
+<tr><td>Choral 196 (BWV 285) — Da der Herr Christ zu Tische saß</td><td class="n">59</td><td class="n">84,7 %</td><td class="n">66,1 %</td><td class="n">55,9 %</td></tr>
+<tr><td>Choral 138 (BWV 64.8) — Jesu, meine Freude (5)</td><td class="n">46</td><td class="n">84,8 %</td><td class="n">39,1 %</td><td class="n">34,8 %</td></tr>
+<tr><td>Choral 337 (BWV 24.6) — O Gott, du frommer Gott (1)</td><td class="n">66</td><td class="n">84,8 %</td><td class="n">65,2 %</td><td class="n">57,6 %</td></tr>
+<tr><td>Choral 345 (BWV 248.05) — Wie soll ich dich empfangen (1)</td><td class="n">53</td><td class="n">84,9 %</td><td class="n">37,7 %</td><td class="n">30,2 %</td></tr>
+<tr><td>Choral 156 (BWV 3.6) — Ach Gott, wie manches Herzeleid (18)</td><td class="n">40</td><td class="n">85,0 %</td><td class="n">37,5 %</td><td class="n">32,5 %</td></tr>
+<tr><td>Choral 189 (BWV 336) — Herr Jesu Christ, wahr Mensch und Gott</td><td class="n">40</td><td class="n">85,0 %</td><td class="n">67,5 %</td><td class="n">55,0 %</td></tr>
+<tr><td>Choral 299 (BWV 380) — Meinen Jesum lass ich nicht</td><td class="n">60</td><td class="n">85,0 %</td><td class="n">68,3 %</td><td class="n">60,0 %</td></tr>
+<tr><td>Choral 308 (BWV 3.6) — Ach Gott, wie manches Herzeleid</td><td class="n">40</td><td class="n">85,0 %</td><td class="n">37,5 %</td><td class="n">32,5 %</td></tr>
+<tr><td>Choral 296 (BWV 390) — Nun lob, mein Seel, den Herren</td><td class="n">87</td><td class="n">85,1 %</td><td class="n">48,3 %</td><td class="n">41,4 %</td></tr>
+<tr><td>Choral 011 (BWV 41.6) — Jesu, nun sei gepreiset (3)</td><td class="n">94</td><td class="n">85,1 %</td><td class="n">39,4 %</td><td class="n">33,0 %</td></tr>
+<tr><td>Choral 117 (BWV 244.10) — O Welt, sieh hier dein Leben (5)</td><td class="n">47</td><td class="n">85,1 %</td><td class="n">89,4 %</td><td class="n">76,6 %</td></tr>
+<tr><td>Choral 263 (BWV 227.1=227.11) — Jesu, meine Freude (1,6)</td><td class="n">47</td><td class="n">85,1 %</td><td class="n">48,9 %</td><td class="n">40,4 %</td></tr>
+<tr><td>Choral 315 (BWV 399) — O Gott, du frommer Gott</td><td class="n">47</td><td class="n">85,1 %</td><td class="n">63,8 %</td><td class="n">57,4 %</td></tr>
+<tr><td>Choral 084 (BWV 197.05) — Nun bitten wir den Heiligen Geist (3)</td><td class="n">74</td><td class="n">85,1 %</td><td class="n">66,2 %</td><td class="n">59,5 %</td></tr>
+<tr><td>Choral 067 (BWV 39.7) — Kommt, lasst euch den Herren lehren (6)</td><td class="n">54</td><td class="n">85,2 %</td><td class="n">68,5 %</td><td class="n">61,1 %</td></tr>
+<tr><td>Choral 183 (BWV 388) — Nun freut euch, lieben Christen gmein</td><td class="n">54</td><td class="n">85,2 %</td><td class="n">75,9 %</td><td class="n">64,8 %</td></tr>
+<tr><td>Choral 329 (BWV 251) — Sei Lob und Ehr dem höchsten Gut</td><td class="n">54</td><td class="n">85,2 %</td><td class="n">57,4 %</td><td class="n">46,3 %</td></tr>
+<tr><td>Choral 215 (BWV 126.6) — Verleih uns Frieden gnädiglich</td><td class="n">115</td><td class="n">85,2 %</td><td class="n">38,3 %</td><td class="n">33,0 %</td></tr>
+<tr><td>Choral 097 (BWV 169.7) — Nun bitten wir den Heiligen Geist (3)</td><td class="n">61</td><td class="n">85,2 %</td><td class="n">70,5 %</td><td class="n">60,7 %</td></tr>
+<tr><td>Choral 162 (BWV 288) — Das alte Jahr vergangen ist</td><td class="n">61</td><td class="n">85,2 %</td><td class="n">44,3 %</td><td class="n">39,3 %</td></tr>
+<tr><td>Choral 028 (BWV 36.8) — Nun komm, der Heiden Heiland (8)</td><td class="n">34</td><td class="n">85,3 %</td><td class="n">55,9 %</td><td class="n">52,9 %</td></tr>
+<tr><td>Choral 237 (BWV 423) — Was betrübst du dich, mein Herz</td><td class="n">68</td><td class="n">85,3 %</td><td class="n">58,8 %</td><td class="n">51,5 %</td></tr>
+<tr><td>Choral 244 (BWV 357) — Jesu, Jesu, du bist mein</td><td class="n">68</td><td class="n">85,3 %</td><td class="n">66,2 %</td><td class="n">54,4 %</td></tr>
+<tr><td>Choral 252 (BWV 362) — Jesu, nun sei gepreiset</td><td class="n">116</td><td class="n">85,3 %</td><td class="n">31,9 %</td><td class="n">23,3 %</td></tr>
+<tr><td>Choral 065 (BWV 144.3) — Was Gott tut, das ist wohlgetan (1)</td><td class="n">48</td><td class="n">85,4 %</td><td class="n">70,8 %</td><td class="n">60,4 %</td></tr>
+<tr><td>Choral 294 (BWV 113.8) — Herr Jesu Christ, du höchstes Gut (8)</td><td class="n">55</td><td class="n">85,5 %</td><td class="n">65,5 %</td><td class="n">58,2 %</td></tr>
+<tr><td>Choral 122 (BWV 85.6) — Ist Gott mein Schild und Helfersmann (4)</td><td class="n">62</td><td class="n">85,5 %</td><td class="n">40,3 %</td><td class="n">35,5 %</td></tr>
+<tr><td>Choral 006 (BWV 281) — Christus, der ist mein Leben</td><td class="n">35</td><td class="n">85,7 %</td><td class="n">71,4 %</td><td class="n">62,9 %</td></tr>
+<tr><td>Choral 145 (BWV 420) — Warum betrübst du dich, mein Herz</td><td class="n">49</td><td class="n">85,7 %</td><td class="n">46,9 %</td><td class="n">40,8 %</td></tr>
+<tr><td>Choral 314 (BWV 289) — Das alte Jahr vergangen ist</td><td class="n">57</td><td class="n">86,0 %</td><td class="n">36,8 %</td><td class="n">29,8 %</td></tr>
+<tr><td>Choral 038 (BWV 115.6) — Mache dich, mein Geist, bereit (10)</td><td class="n">50</td><td class="n">86,0 %</td><td class="n">70,0 %</td><td class="n">62,0 %</td></tr>
+<tr><td>Choral 256 (BWV 194.06) — Treuer Gott, ich muss dir klagen (6)</td><td class="n">50</td><td class="n">86,0 %</td><td class="n">78,0 %</td><td class="n">66,0 %</td></tr>
+<tr><td>Choral 281 (BWV 89.6) — Wo soll ich fliehen hin (7)</td><td class="n">50</td><td class="n">86,0 %</td><td class="n">48,0 %</td><td class="n">42,0 %</td></tr>
+<tr><td>Choral 347 (BWV 250) — Was Gott tut, das ist wohlgetan</td><td class="n">50</td><td class="n">86,0 %</td><td class="n">60,0 %</td><td class="n">54,0 %</td></tr>
+<tr><td>Choral 080 (BWV 244.44) — Befiehl du deine Wege (1)</td><td class="n">43</td><td class="n">86,0 %</td><td class="n">58,1 %</td><td class="n">53,5 %</td></tr>
+<tr><td>Choral 129 (BWV 369) — Keinen hat Gott verlassen</td><td class="n">43</td><td class="n">86,0 %</td><td class="n">14,0 %</td><td class="n">11,6 %</td></tr>
+<tr><td>Choral 093 (BWV 194.12) — Wach auf, mein Herz, und singe (9,10)</td><td class="n">36</td><td class="n">86,1 %</td><td class="n">47,2 %</td><td class="n">41,7 %</td></tr>
+<tr><td>Choral 187 (BWV 370) — Komm, Gott Schöpfer, heiliger Geist</td><td class="n">36</td><td class="n">86,1 %</td><td class="n">77,8 %</td><td class="n">63,9 %</td></tr>
+<tr><td>Choral 217 (BWV 153.9) — Ach Gott, wie manches Herzeleid (16,17,18)</td><td class="n">36</td><td class="n">86,1 %</td><td class="n">19,4 %</td><td class="n">16,7 %</td></tr>
+<tr><td>Choral 257 (BWV 194.12) — Wach auf, mein Herz, und singe</td><td class="n">36</td><td class="n">86,1 %</td><td class="n">50,0 %</td><td class="n">44,4 %</td></tr>
+<tr><td>Choral 295 (BWV 335) — O Jesu, du mein Bräutigam (for B294)</td><td class="n">36</td><td class="n">86,1 %</td><td class="n">50,0 %</td><td class="n">44,4 %</td></tr>
+<tr><td>Choral 216 (BWV 60.5) — Es ist genug (5)</td><td class="n">65</td><td class="n">86,2 %</td><td class="n">33,8 %</td><td class="n">32,3 %</td></tr>
+<tr><td>Choral 307 (BWV 283) — Christus, der uns selig macht</td><td class="n">87</td><td class="n">86,2 %</td><td class="n">23,0 %</td><td class="n">19,5 %</td></tr>
+<tr><td>Choral 312 (BWV 398) — O Gott, du frommer Gott</td><td class="n">58</td><td class="n">86,2 %</td><td class="n">79,3 %</td><td class="n">69,0 %</td></tr>
+<tr><td>Choral 025 (BWV 148.6) — Auf meinen lieben Gott (5?)</td><td class="n">51</td><td class="n">86,3 %</td><td class="n">62,7 %</td><td class="n">54,9 %</td></tr>
+<tr><td>Choral 232 (BWV 297) — Die Sinn hat sich mit ihrem Glanz</td><td class="n">51</td><td class="n">86,3 %</td><td class="n">45,1 %</td><td class="n">41,2 %</td></tr>
+<tr><td>Choral 248 (BWV 117.4=117.9) — Sei Lob und Ehr dem höchsten Gut (4)</td><td class="n">51</td><td class="n">86,3 %</td><td class="n">33,3 %</td><td class="n">29,4 %</td></tr>
+<tr><td>Choral 268 (BWV 389) — Nun lob, mein Seel, den Herren</td><td class="n">95</td><td class="n">86,3 %</td><td class="n">44,2 %</td><td class="n">40,0 %</td></tr>
+<tr><td>Choral 055 (BWV 110.7) — Wir Christenleut habn jetzund Freud (5)</td><td class="n">44</td><td class="n">86,4 %</td><td class="n">63,6 %</td><td class="n">52,3 %</td></tr>
+<tr><td>Choral 001 (BWV 269) — Aus meines Herzens Grunde</td><td class="n">59</td><td class="n">86,4 %</td><td class="n">100,0 %</td><td class="n">86,4 %</td></tr>
+<tr><td>Choral 218 (BWV 372) — Lass, o Herr, dein Ohr sich neigen</td><td class="n">74</td><td class="n">86,5 %</td><td class="n">45,9 %</td><td class="n">40,5 %</td></tr>
+<tr><td>Choral 279 (BWV 48.3) — Ach Gott und Herr (4)</td><td class="n">37</td><td class="n">86,5 %</td><td class="n">27,0 %</td><td class="n">27,0 %</td></tr>
+<tr><td>Choral 007 (BWV 17.7) — Nun lob, mein Seel, den Herren (3)</td><td class="n">89</td><td class="n">86,5 %</td><td class="n">46,1 %</td><td class="n">40,4 %</td></tr>
+<tr><td>Choral 255 (BWV 64.4) — Was frag ich nach der Welt (1)</td><td class="n">52</td><td class="n">86,5 %</td><td class="n">51,9 %</td><td class="n">44,2 %</td></tr>
+<tr><td>Choral 358 (BWV 10.7) — Meine Seel erhebt den Herren The German Magnificat]</td><td class="n">52</td><td class="n">86,5 %</td><td class="n">17,3 %</td><td class="n">17,3 %</td></tr>
+<tr><td>Choral 227 (BWV 374) — Lobet den Herren, denn er ist sehr freundlich</td><td class="n">82</td><td class="n">86,6 %</td><td class="n">58,5 %</td><td class="n">53,7 %</td></tr>
+<tr><td>Choral 101 (BWV 164.6) — Herr Christ, der einge Gottessohn (5)</td><td class="n">45</td><td class="n">86,7 %</td><td class="n">73,3 %</td><td class="n">66,7 %</td></tr>
+<tr><td>Choral 185 (BWV 387) — Nun freut euch, Gottes Kinder all</td><td class="n">45</td><td class="n">86,7 %</td><td class="n">15,6 %</td><td class="n">13,3 %</td></tr>
+<tr><td>Choral 339 (BWV 179.6) — Ich armer Mensch, ich armer Sünder (1)</td><td class="n">45</td><td class="n">86,7 %</td><td class="n">55,6 %</td><td class="n">48,9 %</td></tr>
+<tr><td>Choral 029 (BWV 32.6) — Weg, mein Herz, mit den Gedanken (12)</td><td class="n">53</td><td class="n">86,8 %</td><td class="n">64,2 %</td><td class="n">56,6 %</td></tr>
+<tr><td>Choral 289 (BWV 392) — Nun ruhen alle Wälder</td><td class="n">53</td><td class="n">86,8 %</td><td class="n">64,2 %</td><td class="n">56,6 %</td></tr>
+<tr><td>Choral 290 (BWV 9.7) — Es ist das Heil uns kommen her (7,8)</td><td class="n">53</td><td class="n">86,8 %</td><td class="n">20,8 %</td><td class="n">17,0 %</td></tr>
+<tr><td>Choral 148 (BWV 414) — Uns ist ein Kindlein heut geborn</td><td class="n">38</td><td class="n">86,8 %</td><td class="n">50,0 %</td><td class="n">44,7 %</td></tr>
+<tr><td>Choral 151 (BWV 379) — Meinen Jesum lass ich nicht</td><td class="n">38</td><td class="n">86,8 %</td><td class="n">78,9 %</td><td class="n">65,8 %</td></tr>
+<tr><td>Choral 157 (BWV 438) — Wo Gott zum Haus nicht gibt sein Gunst</td><td class="n">38</td><td class="n">86,8 %</td><td class="n">81,6 %</td><td class="n">71,1 %</td></tr>
+<tr><td>Choral 003 (BWV 153.1) — Schau, lieber Gott, wie meine Feind (1)</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">71,7 %</td><td class="n">60,9 %</td></tr>
+<tr><td>Choral 114 (BWV 419) — Von Gott will ich nicht lassen</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">39,1 %</td><td class="n">37,0 %</td></tr>
+<tr><td>Choral 223 (BWV 346) — Ich dank dir Gott für all Wohltat</td><td class="n">69</td><td class="n">87,0 %</td><td class="n">43,5 %</td><td class="n">34,8 %</td></tr>
+<tr><td>Choral 260 (BWV 307) — Es ist gewisslich an der Zeit</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">73,9 %</td><td class="n">65,2 %</td></tr>
+<tr><td>Choral 288 (BWV 314) — Gelobet seist du, Jesu Christ</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">45,7 %</td><td class="n">41,3 %</td></tr>
+<tr><td>Choral 350 (BWV 360) — Jesu, meiner Seelen Wonne</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">17,4 %</td><td class="n">17,4 %</td></tr>
+<tr><td>Choral 368 (BWV 248.42) — Hilf, Herr Jesu, lass gelingen (15)</td><td class="n">46</td><td class="n">87,0 %</td><td class="n">67,4 %</td><td class="n">63,0 %</td></tr>
+<tr><td>Choral 115 (BWV 244.25) — Was mein will, das gscheh allzeit (1)</td><td class="n">54</td><td class="n">87,0 %</td><td class="n">33,3 %</td><td class="n">27,8 %</td></tr>
+<tr><td>Choral 210 (BWV 275) — Christe, du Beistand</td><td class="n">62</td><td class="n">87,1 %</td><td class="n">46,8 %</td><td class="n">40,3 %</td></tr>
+<tr><td>Choral 177 (BWV 253) — Ach bleib bei uns, Herr Jesu Christ</td><td class="n">39</td><td class="n">87,2 %</td><td class="n">53,8 %</td><td class="n">46,2 %</td></tr>
+<tr><td>Choral 058 (BWV 174.5) — Herzlich lieb hab ich dich, o Herr (1)</td><td class="n">86</td><td class="n">87,2 %</td><td class="n">48,8 %</td><td class="n">40,7 %</td></tr>
+<tr><td>Choral 276 (BWV 375) — Lobt Gott, ihr Christen, allzugleich</td><td class="n">47</td><td class="n">87,2 %</td><td class="n">80,9 %</td><td class="n">72,3 %</td></tr>
+<tr><td>Choral 198 (BWV 283) — Christus, der uns selig macht</td><td class="n">87</td><td class="n">87,4 %</td><td class="n">26,4 %</td><td class="n">21,8 %</td></tr>
+<tr><td>Choral 214 (BWV 383) — Mitten wir im Leben sind</td><td class="n">111</td><td class="n">87,4 %</td><td class="n">43,2 %</td><td class="n">35,1 %</td></tr>
+<tr><td>Choral 031 (BWV 256) — Ach, lieben Christen, seid getrost</td><td class="n">48</td><td class="n">87,5 %</td><td class="n">25,0 %</td><td class="n">20,8 %</td></tr>
+<tr><td>Choral 201 (BWV 402) — O Mensch, bewein dein Sünde groß</td><td class="n">88</td><td class="n">87,5 %</td><td class="n">37,5 %</td><td class="n">36,4 %</td></tr>
+<tr><td>Choral 250 (BWV 303) — Ein feste Burg ist unser Gott</td><td class="n">64</td><td class="n">87,5 %</td><td class="n">40,6 %</td><td class="n">37,5 %</td></tr>
+<tr><td>Choral 261 (BWV 279) — Christ lag in Todesbanden</td><td class="n">48</td><td class="n">87,5 %</td><td class="n">41,7 %</td><td class="n">39,6 %</td></tr>
+<tr><td>Choral 273 (BWV 80.8) — Ein feste Burg ist unser Gott (4)</td><td class="n">64</td><td class="n">87,5 %</td><td class="n">51,6 %</td><td class="n">45,3 %</td></tr>
+<tr><td>Choral 306 (BWV 402) — O Mensch, bewein dein Sünde groß</td><td class="n">88</td><td class="n">87,5 %</td><td class="n">43,2 %</td><td class="n">39,8 %</td></tr>
+<tr><td>Choral 143 (BWV 368) — In dulci jubilo</td><td class="n">73</td><td class="n">87,7 %</td><td class="n">82,2 %</td><td class="n">71,2 %</td></tr>
+<tr><td>Choral 322 (BWV 428) — Wenn mein Stündlein vorhanden ist</td><td class="n">65</td><td class="n">87,7 %</td><td class="n">53,8 %</td><td class="n">52,3 %</td></tr>
+<tr><td>Choral 002 (BWV 347) — Ich dank dir, lieber Herre</td><td class="n">57</td><td class="n">87,7 %</td><td class="n">68,4 %</td><td class="n">63,2 %</td></tr>
+<tr><td>Choral 079 (BWV 342) — Heut triumphieret Gottes Sohn</td><td class="n">57</td><td class="n">87,7 %</td><td class="n">71,9 %</td><td class="n">64,9 %</td></tr>
+<tr><td>Choral 110 (BWV 102.7) — So wahr ich lebe, spricht dein Gott (6)</td><td class="n">57</td><td class="n">87,7 %</td><td class="n">56,1 %</td><td class="n">47,4 %</td></tr>
+<tr><td>Choral 074 (BWV 244.54) — O Haupt voll Blut und Wunden (1,2)</td><td class="n">41</td><td class="n">87,8 %</td><td class="n">39,0 %</td><td class="n">34,1 %</td></tr>
+<tr><td>Choral 247 (BWV 432) — Wenn wir in höchsten Nöten sein</td><td class="n">41</td><td class="n">87,8 %</td><td class="n">39,0 %</td><td class="n">39,0 %</td></tr>
+<tr><td>Choral 013 (BWV 33.6) — Allein zu dir, Herr Jesu Christ (4)</td><td class="n">66</td><td class="n">87,9 %</td><td class="n">57,6 %</td><td class="n">48,5 %</td></tr>
+<tr><td>Choral 009 (BWV 248.12) — Ermuntre dich, mein schwacher Geist (9)</td><td class="n">58</td><td class="n">87,9 %</td><td class="n">19,0 %</td><td class="n">17,2 %</td></tr>
+<tr><td>Choral 142 (BWV 40.6) — Schwing dich auf zu deinem Gott (2)</td><td class="n">58</td><td class="n">87,9 %</td><td class="n">55,2 %</td><td class="n">46,6 %</td></tr>
+<tr><td>Choral 206 (BWV 412) — So gibst du nun, mein Jesu, gute Nacht!</td><td class="n">58</td><td class="n">87,9 %</td><td class="n">46,6 %</td><td class="n">39,7 %</td></tr>
+<tr><td>Choral 361 (BWV 248.12) — Ermuntre dich, mein schwacher Geist (9)</td><td class="n">58</td><td class="n">87,9 %</td><td class="n">50,0 %</td><td class="n">44,8 %</td></tr>
+<tr><td>Choral 275 (BWV 393) — O Welt, sieh hier dein Leben</td><td class="n">50</td><td class="n">88,0 %</td><td class="n">60,0 %</td><td class="n">52,0 %</td></tr>
+<tr><td>Choral 363 (BWV 395) — O Welt, sieh hier dein Leben</td><td class="n">50</td><td class="n">88,0 %</td><td class="n">70,0 %</td><td class="n">62,0 %</td></tr>
+<tr><td>Choral 014 (BWV 184.5) — O Herre Gott, dein göttlich Wort (8)</td><td class="n">59</td><td class="n">88,1 %</td><td class="n">52,5 %</td><td class="n">45,8 %</td></tr>
+<tr><td>Choral 181 (BWV 319) — Gott hat das Evangelium</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">47,1 %</td><td class="n">37,3 %</td></tr>
+<tr><td>Choral 184 (BWV 4.8) — Christ lag in Todesbanden (7)</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">54,9 %</td><td class="n">45,1 %</td></tr>
+<tr><td>Choral 262 (BWV 2.6) — Ach Gott, vom Himmel sieh darein (6)</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">54,9 %</td><td class="n">49,0 %</td></tr>
+<tr><td>Choral 286 (BWV 270) — Befiehl du deine Wege</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">47,1 %</td><td class="n">39,2 %</td></tr>
+<tr><td>Choral 301 (BWV 114.7) — Ach, lieben Christen, seid getrost (6)</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">39,2 %</td><td class="n">39,2 %</td></tr>
+<tr><td>Choral 354 (BWV 117.4=117.9) — Sei Lob und Ehr dem höchsten Gut</td><td class="n">51</td><td class="n">88,2 %</td><td class="n">31,4 %</td><td class="n">29,4 %</td></tr>
+<tr><td>Choral 188 (BWV 349) — Ich dank dir schon deinen Sohn</td><td class="n">43</td><td class="n">88,4 %</td><td class="n">39,5 %</td><td class="n">34,9 %</td></tr>
+<tr><td>Choral 293 (BWV 69a.6) — Was Gott tut, das ist wohlgetan (6)</td><td class="n">43</td><td class="n">88,4 %</td><td class="n">76,7 %</td><td class="n">69,8 %</td></tr>
+<tr><td>Choral 321 (BWV 40.3) — Wir Christenleut habn jetzund Freud (3)</td><td class="n">52</td><td class="n">88,5 %</td><td class="n">71,2 %</td><td class="n">63,5 %</td></tr>
+<tr><td>Choral 083 (BWV 245.14) — Jesu Leiden, Pein und Tod (10)</td><td class="n">61</td><td class="n">88,5 %</td><td class="n">27,9 %</td><td class="n">26,2 %</td></tr>
+<tr><td>Choral 158 (BWV 294) — Der Tag, der ist so freudenreich</td><td class="n">79</td><td class="n">88,6 %</td><td class="n">81,0 %</td><td class="n">70,9 %</td></tr>
+<tr><td>Choral 360 (BWV 248.35) — Lasst Furcht und Pein (4)</td><td class="n">62</td><td class="n">88,7 %</td><td class="n">85,5 %</td><td class="n">77,4 %</td></tr>
+<tr><td>Choral 119 (BWV 176.6) — Was alle Weisheit in der Welt (8)</td><td class="n">80</td><td class="n">88,8 %</td><td class="n">40,0 %</td><td class="n">33,8 %</td></tr>
+<tr><td>Choral 010 (BWV 38.6) — Aus tiefer Not schrei ich zu dir (5)</td><td class="n">45</td><td class="n">88,9 %</td><td class="n">37,8 %</td><td class="n">35,6 %</td></tr>
+<tr><td>Choral 040 (BWV 255) — Ach Gott und Herr</td><td class="n">36</td><td class="n">88,9 %</td><td class="n">36,1 %</td><td class="n">33,3 %</td></tr>
+<tr><td>Choral 050 (BWV 244.37) — O Welt, sieh hier dein Leben (3)</td><td class="n">45</td><td class="n">88,9 %</td><td class="n">75,6 %</td><td class="n">68,9 %</td></tr>
+<tr><td>Choral 112 (BWV 84.5) — Wer weiss, wie nahe mir mein Ende (12)</td><td class="n">36</td><td class="n">88,9 %</td><td class="n">50,0 %</td><td class="n">47,2 %</td></tr>
+<tr><td>Choral 278 (BWV 436) — Wie schön leuchtet der Morgenstern</td><td class="n">54</td><td class="n">88,9 %</td><td class="n">72,2 %</td><td class="n">63,0 %</td></tr>
+<tr><td>Choral 048 (BWV 26.6) — Ach wie flüchtig, ach wie nichtig (8)</td><td class="n">46</td><td class="n">89,1 %</td><td class="n">45,7 %</td><td class="n">37,0 %</td></tr>
+<tr><td>Choral 021 (BWV 153.5) — Befiehl du deine Wege (5)</td><td class="n">47</td><td class="n">89,4 %</td><td class="n">34,0 %</td><td class="n">31,9 %</td></tr>
+<tr><td>Choral 173 (BWV 400) — O Herzensangst, o Bangigkeit</td><td class="n">47</td><td class="n">89,4 %</td><td class="n">34,0 %</td><td class="n">34,0 %</td></tr>
+<tr><td>Choral 326 (BWV 104.6) — Der Herr ist mein getreuer Hirt</td><td class="n">47</td><td class="n">89,4 %</td><td class="n">76,6 %</td><td class="n">72,3 %</td></tr>
+<tr><td>Choral 342 (BWV 376) — Lobt Gott, ihr Christen, allzugleich</td><td class="n">47</td><td class="n">89,4 %</td><td class="n">70,2 %</td><td class="n">63,8 %</td></tr>
+<tr><td>Choral 195 (BWV 36.4) — Wie schön leuchtet der Morgenstern (6)</td><td class="n">57</td><td class="n">89,5 %</td><td class="n">68,4 %</td><td class="n">59,6 %</td></tr>
+<tr><td>Choral 282 (BWV 25.6) — Treuer Gott, ich muss dir klagen</td><td class="n">57</td><td class="n">89,5 %</td><td class="n">50,9 %</td><td class="n">47,4 %</td></tr>
+<tr><td>Choral 085 (BWV 45.7) — O Gott, du frommer Gott (2)</td><td class="n">58</td><td class="n">89,7 %</td><td class="n">74,1 %</td><td class="n">65,5 %</td></tr>
+<tr><td>Choral 357 (BWV 422) — Warum sollt ich mich denn grämen</td><td class="n">58</td><td class="n">89,7 %</td><td class="n">32,8 %</td><td class="n">29,3 %</td></tr>
+<tr><td>Choral 231 (BWV 296) — Die Nacht ist kommen</td><td class="n">49</td><td class="n">89,8 %</td><td class="n">30,6 %</td><td class="n">26,5 %</td></tr>
+<tr><td>Choral 024 (BWV 415) — Valet will ich dir geben</td><td class="n">50</td><td class="n">90,0 %</td><td class="n">50,0 %</td><td class="n">48,0 %</td></tr>
+<tr><td>Choral 032 (BWV 386) — Nun danket alle Gott</td><td class="n">50</td><td class="n">90,0 %</td><td class="n">78,0 %</td><td class="n">74,0 %</td></tr>
+<tr><td>Choral 044 (BWV 377) — Machs mit mir, Gott, nach deiner Güt</td><td class="n">40</td><td class="n">90,0 %</td><td class="n">55,0 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 051 (BWV 91.6) — Gelobet seist du, Jesu Christ (7)</td><td class="n">50</td><td class="n">90,0 %</td><td class="n">66,0 %</td><td class="n">58,0 %</td></tr>
+<tr><td>Choral 086 (BWV 36.4) — Wie schön leuchtet der Morgenstern (6)</td><td class="n">60</td><td class="n">90,0 %</td><td class="n">66,7 %</td><td class="n">58,3 %</td></tr>
+<tr><td>Choral 106 (BWV 245.28) — Jesu Leiden, Pein und Tod (20)</td><td class="n">60</td><td class="n">90,0 %</td><td class="n">63,3 %</td><td class="n">61,7 %</td></tr>
+<tr><td>Choral 128 (BWV 263) — Alles ist an Gottes Segen</td><td class="n">60</td><td class="n">90,0 %</td><td class="n">46,7 %</td><td class="n">43,3 %</td></tr>
+<tr><td>Choral 167 (BWV 300) — Du großer Schmerzensmann</td><td class="n">60</td><td class="n">90,0 %</td><td class="n">56,7 %</td><td class="n">51,7 %</td></tr>
+<tr><td>Choral 230 (BWV 273) — Christ, der du bist der helle Tag</td><td class="n">50</td><td class="n">90,0 %</td><td class="n">52,0 %</td><td class="n">46,0 %</td></tr>
+<tr><td>Choral 245 (BWV 274) — Christe, der du bist Tag und Licht</td><td class="n">50</td><td class="n">90,0 %</td><td class="n">78,0 %</td><td class="n">72,0 %</td></tr>
+<tr><td>Choral 305 (BWV 36.4) — Wie schön leuchtet der Morgenstern (6)</td><td class="n">60</td><td class="n">90,0 %</td><td class="n">66,7 %</td><td class="n">58,3 %</td></tr>
+<tr><td>Choral 016 (BWV 311) — Es woll uns Gott genädig sein</td><td class="n">71</td><td class="n">90,1 %</td><td class="n">45,1 %</td><td class="n">38,0 %</td></tr>
+<tr><td>Choral 208 (BWV 266) — Als vierzig Tag nach Ostern warn</td><td class="n">61</td><td class="n">90,2 %</td><td class="n">78,7 %</td><td class="n">68,9 %</td></tr>
+<tr><td>Choral 068 (BWV 431) — Wenn wir in höchsten Nöten sein</td><td class="n">51</td><td class="n">90,2 %</td><td class="n">45,1 %</td><td class="n">39,2 %</td></tr>
+<tr><td>Choral 222 (BWV 391) — Nun preiset alle Gottes Barmherzigkeit</td><td class="n">51</td><td class="n">90,2 %</td><td class="n">43,1 %</td><td class="n">39,2 %</td></tr>
+<tr><td>Choral 060 (BWV 133.6) — Ich freue mich in dir (4)</td><td class="n">41</td><td class="n">90,2 %</td><td class="n">48,8 %</td><td class="n">43,9 %</td></tr>
+<tr><td>Choral 136 (BWV 332) — Herr, Jesu Christ, dich zu uns wend</td><td class="n">41</td><td class="n">90,2 %</td><td class="n">68,3 %</td><td class="n">63,4 %</td></tr>
+<tr><td>Choral 334 (BWV 327) — Vor deinen Thron tret ich hiermit</td><td class="n">41</td><td class="n">90,2 %</td><td class="n">48,8 %</td><td class="n">46,3 %</td></tr>
+<tr><td>Choral 061 (BWV 159.5) — Jesu Leiden, Pein und Tod (33)</td><td class="n">73</td><td class="n">90,4 %</td><td class="n">52,1 %</td><td class="n">49,3 %</td></tr>
+<tr><td>Choral 300 (BWV 421) — Warum betrübst du dich, mein Herz</td><td class="n">42</td><td class="n">90,5 %</td><td class="n">33,3 %</td><td class="n">31,0 %</td></tr>
+<tr><td>Choral 139 (BWV 248.33) — Fröhlich soll mein Herze springen (15)</td><td class="n">53</td><td class="n">90,6 %</td><td class="n">56,6 %</td><td class="n">49,1 %</td></tr>
+<tr><td>Choral 098 (BWV 244.15) — O Haupt voll Blut und Wunden (5)</td><td class="n">43</td><td class="n">90,7 %</td><td class="n">48,8 %</td><td class="n">46,5 %</td></tr>
+<tr><td>Choral 146 (BWV 434) — Wer nur den lieben Gott lässt walten</td><td class="n">43</td><td class="n">90,7 %</td><td class="n">48,8 %</td><td class="n">44,2 %</td></tr>
+<tr><td>Choral 249 (BWV 260) — Allein Gott in der Höh sei Ehr</td><td class="n">54</td><td class="n">90,7 %</td><td class="n">53,7 %</td><td class="n">46,3 %</td></tr>
+<tr><td>Choral 254 (BWV 25.6) — Treuer Gott, ich muss dir klagen (12)</td><td class="n">54</td><td class="n">90,7 %</td><td class="n">57,4 %</td><td class="n">55,6 %</td></tr>
+<tr><td>Choral 317 (BWV 156.6) — Herr, wie du willst, so schicks mit mir (1)</td><td class="n">54</td><td class="n">90,7 %</td><td class="n">64,8 %</td><td class="n">57,4 %</td></tr>
+<tr><td>Choral 056 (BWV 121.6) — Christum wir sollen loben schon (8)</td><td class="n">55</td><td class="n">90,9 %</td><td class="n">58,2 %</td><td class="n">54,5 %</td></tr>
+<tr><td>Choral 107 (BWV 245.40) — Herzlich lieb hab ich dich, o Herr (3)</td><td class="n">88</td><td class="n">90,9 %</td><td class="n">83,0 %</td><td class="n">75,0 %</td></tr>
+<tr><td>Choral 365 (BWV 359) — Jesu, meiner Seelen Wonne</td><td class="n">55</td><td class="n">90,9 %</td><td class="n">50,9 %</td><td class="n">47,3 %</td></tr>
+<tr><td>Choral 297 (BWV 78.7) — Jesu, der du meine Seele (12)</td><td class="n">68</td><td class="n">91,2 %</td><td class="n">60,3 %</td><td class="n">54,4 %</td></tr>
+<tr><td>Choral 004 (BWV 86.6) — Es ist das Heil uns kommen her (11)</td><td class="n">46</td><td class="n">91,3 %</td><td class="n">34,8 %</td><td class="n">32,6 %</td></tr>
+<tr><td>Choral 027 (BWV 308) — Es spricht der Unweisen Mund wohl</td><td class="n">46</td><td class="n">91,3 %</td><td class="n">71,7 %</td><td class="n">69,6 %</td></tr>
+<tr><td>Choral 063 (BWV 245.11) — O Welt, sieh hier dein Leben (3,4)</td><td class="n">47</td><td class="n">91,5 %</td><td class="n">29,8 %</td><td class="n">29,8 %</td></tr>
+<tr><td>Choral 233 (BWV 154.3) — Jesu, meiner Seelen Wonne (2)</td><td class="n">48</td><td class="n">91,7 %</td><td class="n">54,2 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 341 (BWV 37.6) — Ich dank dir, lieber Herre (4)</td><td class="n">72</td><td class="n">91,7 %</td><td class="n">66,7 %</td><td class="n">59,7 %</td></tr>
+<tr><td>Choral 045 (BWV 108.6) — Gott Vater, sende deinen Geist (10)</td><td class="n">73</td><td class="n">91,8 %</td><td class="n">64,4 %</td><td class="n">61,6 %</td></tr>
+<tr><td>Choral 113 (BWV 245.37) — Christus, der uns selig macht (8)</td><td class="n">61</td><td class="n">91,8 %</td><td class="n">34,4 %</td><td class="n">32,8 %</td></tr>
+<tr><td>Choral 325 (BWV 83.5) — Mit Fried und Freud ich fahr dahin (4)</td><td class="n">49</td><td class="n">91,8 %</td><td class="n">51,0 %</td><td class="n">44,9 %</td></tr>
+<tr><td>Choral 310 (BWV 245.22) — Durch dein Gefängis, Gottes Sohn</td><td class="n">37</td><td class="n">91,9 %</td><td class="n">54,1 %</td><td class="n">48,6 %</td></tr>
+<tr><td>Choral 124 (BWV 268) — Auf, auf, mein Herz, und du, mein ganzer Sinn</td><td class="n">62</td><td class="n">91,9 %</td><td class="n">17,7 %</td><td class="n">16,1 %</td></tr>
+<tr><td>Choral 052 (BWV 429) — Wenn mein Stündlein vorhanden ist</td><td class="n">75</td><td class="n">92,0 %</td><td class="n">54,7 %</td><td class="n">49,3 %</td></tr>
+<tr><td>Choral 081 (BWV 245.15) — Christus, der uns selig macht (1)</td><td class="n">63</td><td class="n">92,1 %</td><td class="n">39,7 %</td><td class="n">36,5 %</td></tr>
+<tr><td>Choral 140 (BWV 367) — In allen meinen Taten</td><td class="n">51</td><td class="n">92,2 %</td><td class="n">47,1 %</td><td class="n">43,1 %</td></tr>
+<tr><td>Choral 089 (BWV 244.62) — O Haupt voll Blut und Wunden (9)</td><td class="n">52</td><td class="n">92,3 %</td><td class="n">23,1 %</td><td class="n">23,1 %</td></tr>
+<tr><td>Choral 332 (BWV 418) — Von Gott will ich nicht lassen</td><td class="n">66</td><td class="n">92,4 %</td><td class="n">30,3 %</td><td class="n">28,8 %</td></tr>
+<tr><td>Choral 053 (BWV 122.6) — Das neugeborne Kindelein (4)</td><td class="n">40</td><td class="n">92,5 %</td><td class="n">47,5 %</td><td class="n">47,5 %</td></tr>
+<tr><td>Choral 102 (BWV 43.11) — Du Lebensfürst, Herr Jesu Christ (1, 13)</td><td class="n">40</td><td class="n">92,5 %</td><td class="n">70,0 %</td><td class="n">65,0 %</td></tr>
+<tr><td>Choral 178 (BWV 122.6) — Das neugeborne Kindelein (4)</td><td class="n">40</td><td class="n">92,5 %</td><td class="n">47,5 %</td><td class="n">47,5 %</td></tr>
+<tr><td>Choral 303 (BWV 96.6) — Herr Christ, der einge Gottessohn (5)</td><td class="n">40</td><td class="n">92,5 %</td><td class="n">57,5 %</td><td class="n">55,0 %</td></tr>
+<tr><td>Choral 054 (BWV 151.5) — Lobt Gott, ihr Christen, allzugleich (8)</td><td class="n">42</td><td class="n">92,9 %</td><td class="n">73,8 %</td><td class="n">69,0 %</td></tr>
+<tr><td>Choral 069 (BWV 226.2) — Komm, Heiliger Geist, Herre Gott (3)</td><td class="n">112</td><td class="n">92,9 %</td><td class="n">67,9 %</td><td class="n">63,4 %</td></tr>
+<tr><td>Choral 160 (BWV 64.2) — Gelobet seist du, Jesu Christ (7)</td><td class="n">42</td><td class="n">92,9 %</td><td class="n">50,0 %</td><td class="n">45,2 %</td></tr>
+<tr><td>Choral 336 (BWV 258) — Wo Gott der Herr nicht bei uns hält</td><td class="n">48</td><td class="n">93,8 %</td><td class="n">37,5 %</td><td class="n">35,4 %</td></tr>
+<tr><td>Choral 292 (BWV 101.7) — Nimm von uns, Herr, du treuer Gott (7)</td><td class="n">50</td><td class="n">94,0 %</td><td class="n">42,0 %</td><td class="n">38,0 %</td></tr>
+<tr><td>Choral 042 (BWV 67.7) — Du Friedefürst, Herr Jesu Christ (1)</td><td class="n">34</td><td class="n">94,1 %</td><td class="n">91,2 %</td><td class="n">85,3 %</td></tr>
+<tr><td>Choral 118 (BWV 244.32) — In dich hab ich gehoffet, Herr (5)</td><td class="n">51</td><td class="n">94,1 %</td><td class="n">84,3 %</td><td class="n">80,4 %</td></tr>
+<tr><td>Choral 204 (BWV 166.6) — Wer weiss, wie nahe mir mein Ende (1)</td><td class="n">36</td><td class="n">94,4 %</td><td class="n">69,4 %</td><td class="n">66,7 %</td></tr>
+<tr><td>Choral 047 (BWV 416) — Vater unser im Himmelreich</td><td class="n">55</td><td class="n">94,5 %</td><td class="n">50,9 %</td><td class="n">49,1 %</td></tr>
+<tr><td>Choral 072 (BWV 6.6) — Erhalt uns, Herr, bei deinem Wort (2)</td><td class="n">38</td><td class="n">94,7 %</td><td class="n">52,6 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 108 (BWV 245.26) — Valet will ich dir geben (3)</td><td class="n">39</td><td class="n">94,9 %</td><td class="n">69,2 %</td><td class="n">64,1 %</td></tr>
+<tr><td>Choral 192 (BWV 321) — Gottlob, es geht nunmehr zum Ende</td><td class="n">39</td><td class="n">94,9 %</td><td class="n">89,7 %</td><td class="n">87,2 %</td></tr>
+<tr><td>Choral 327 (BWV 190.7) — Jesu, nun sei gepreiset (2)</td><td class="n">59</td><td class="n">94,9 %</td><td class="n">22,0 %</td><td class="n">22,0 %</td></tr>
+<tr><td>Choral 094 (BWV 47.5) — Warum betrübst du dich, mein Herz (11)</td><td class="n">40</td><td class="n">95,0 %</td><td class="n">67,5 %</td><td class="n">65,0 %</td></tr>
+<tr><td>Choral 059 (BWV 245.03) — Herzliebster Jesu, was hast du verbrochen (7)</td><td class="n">44</td><td class="n">95,5 %</td><td class="n">54,5 %</td><td class="n">50,0 %</td></tr>
+<tr><td>Choral 017 (BWV 145.5) — Erschienen ist der herrlich Tag (14)</td><td class="n">46</td><td class="n">95,7 %</td><td class="n">21,7 %</td><td class="n">21,7 %</td></tr>
+<tr><td>Choral 103 (BWV 13.6) — In allen meinen Taten (15)</td><td class="n">46</td><td class="n">95,7 %</td><td class="n">78,3 %</td><td class="n">76,1 %</td></tr>
+<tr><td>Choral 355 (BWV 44.7) — In allen meinen Taten (15)</td><td class="n">47</td><td class="n">95,7 %</td><td class="n">42,6 %</td><td class="n">40,4 %</td></tr>
+<tr><td>Choral 234 (BWV 320) — Gott lebet noch</td><td class="n">93</td><td class="n">96,8 %</td><td class="n">69,9 %</td><td class="n">68,8 %</td></tr>
+<tr><td>Choral 066 (BWV 280) — Christ unser Herr zum Jordan kam</td><td class="n">63</td><td class="n">96,8 %</td><td class="n">39,7 %</td><td class="n">39,7 %</td></tr>
+<tr><td>Choral 012 (BWV 65.2) — Ein Kind geborn zu Bethlehem (4)</td><td class="n">40</td><td class="n">97,5 %</td><td class="n">35,0 %</td><td class="n">35,0 %</td></tr>
+<tr><td>Choral 191 (BWV 73.5) — Von Gott will ich nicht lassen (9)</td><td class="n">40</td><td class="n">97,5 %</td><td class="n">42,5 %</td><td class="n">42,5 %</td></tr>
+</table></div>
+</details>
+<p class="muted">Écartés (8) car les mesures de la partition ne correspondent pas à celles de l'analyse : 043, 062, 121, 179, 253, 272, 333, 344.</p>
+</div>
+</section>
+<section>
+<h2>Méthode</h2>
+<ul>
+<li>Chaque morceau est joué à tempo constant, toutes les voix sur un seul canal (mode d'analyse Complète), sans pédale, avec les réglages par défaut de l'application et le style indiqué.</li>
+<li>Pour chaque accord de l'expert, on retient ce que l'application affiche le plus longtemps pendant sa durée, en laissant d'abord 120 ms à l'application pour valider l'accord.</li>
+<li>Accord juste : même fondamentale et même type d'accord parfait (majeur, mineur, diminué, augmenté). La basse et le renversement ne comptent pas. Sixtes augmentées : mêmes notes.</li>
+<li>Les chiffrages des experts sont traduits en notes selon les conventions de music21, référence de ces corpus (en mineur, vi et vii sur les degrés hauts, VI et VII sur les degrés naturels ; X/Y dans la tonalité de Y).</li>
+<li>Les deux corpus d'experts ne sont pas indépendants de toute convention : leur accord mesure une limite raisonnable, pas une vérité absolue.</li>
+</ul>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://github.com/MarkGotham/When-in-Rome" target="_blank" rel="noopener">When in Rome</a> (Gotham, Micchi, Nápoles López, Sailor), analyses en chiffrage romain, licence CC BY-SA 4.0.</li>
+<li><a href="https://github.com/MarkGotham/Chorale-Corpus" target="_blank" rel="noopener">Chorale-Corpus</a> pour les partitions des chorals, et le Bach Chorales Melody-Harmony Corpus (BCMH) pour la seconde analyse.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>
