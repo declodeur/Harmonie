@@ -93,6 +93,7 @@ fun HistoryPanel(
         modifier,
         help = Help.HISTORY,
         chips = chips,
+        watermark = if (history.isEmpty()) "Passé" else null,
         action = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 LegendItem(Palette.tonic, "Tonique")

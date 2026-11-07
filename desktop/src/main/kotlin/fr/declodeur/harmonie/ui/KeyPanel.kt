@@ -88,7 +88,10 @@ internal fun KeyPanel(
     path: List<ChordCandidate> = emptyList(),
     chips: (@Composable () -> Unit)? = null,
 ) {
-    Panel("Tonalité probable", modifier, help = Help.KEY, chips = chips) {
+    Panel(
+        "Tonalité probable", modifier, help = Help.KEY, chips = chips,
+        watermark = if (estimate == null) "Couleur" else null, watermarkColors = RAINBOW_WATERMARK,
+    ) {
         val current = estimate?.current
         if (estimate == null || current == null) {
             Text("Jouez quelques accords…", fontSize = 18.sp, color = Palette.muted)

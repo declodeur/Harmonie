@@ -79,6 +79,7 @@ fun PredictionPanel(
         modifier,
         help = Help.PREDICTIONS,
         chips = chips,
+        watermark = if (nodes.isEmpty()) "Futur" else null,
         action = { Text("$source · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
     ) {
         if (nodes.isEmpty()) {

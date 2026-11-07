@@ -98,7 +98,10 @@ internal fun CurrentChordPanel(
     showScale: Boolean = true,
     chips: (@Composable () -> Unit)? = null,
 ) {
-    Panel("Accord courant", modifier, help = Help.CURRENT_CHORD, chips = chips) {
+    Panel(
+        "Accord courant", modifier, help = Help.CURRENT_CHORD, chips = chips,
+        watermark = if (result?.best == null) "Présent" else null,
+    ) {
       // Espacement souple : les lignes s'écartent quand le cadre a de la place, se resserrent sinon ;
       // défilement à la molette seulement si même resserrées elles ne tiennent pas
       BoxWithConstraints(Modifier.fillMaxSize()) {

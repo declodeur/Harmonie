@@ -41,6 +41,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.unit.sp
 
 /** Petite bulle « ? » qui affiche une aide au survol. */
@@ -114,6 +120,10 @@ fun Panel(
     action: (@Composable () -> Unit)? = null,
     /** Interrupteurs d'affichage, juste après le titre (« Tension », « Durées »…). */
     chips: (@Composable () -> Unit)? = null,
+    /** Filigrane du cadre vide (« Présent », « Futur »…), null quand le cadre affiche quelque chose. */
+    watermark: String? = null,
+    /** Une couleur par lettre du filigrane (« Couleur » en arc-en-ciel) ; sinon une seule teinte. */
+    watermarkColors: List<Color>? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
@@ -122,6 +132,11 @@ fun Panel(
         color = Palette.surface,
         border = BorderStroke(1.dp, Palette.border),
     ) {
+      Box {
+        // Derrière le contenu, sous la barre de titre ; n'occupe aucune place dans la mise en page
+        if (watermark != null) {
+            Watermark(watermark, watermarkColors, Modifier.matchParentSize().padding(top = 44.dp, bottom = 8.dp, start = 16.dp, end = 16.dp))
+        }
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Titre de cadre : plus grand et en demi-gras, en couleur de texte (les libellés de
@@ -148,6 +163,40 @@ fun Panel(
             Spacer(Modifier.height(8.dp))
             content()
         }
+      }
+    }
+}
+
+/** Teinte du filigrane : à peine plus claire que le fond du cadre. */
+private fun watermarkTint(c: Color, amount: Float) = lerp(Palette.surface, c, amount)
+
+/** Arc-en-ciel discret, une couleur par lettre de « Couleur » (rouge, orange, jaune, vert, bleu, indigo, violet). */
+val RAINBOW_WATERMARK: List<Color> = listOf(
+    Color(0xFFFF4D4D), Color(0xFFFF9F43), Color(0xFFFFE066), Color(0xFF5BD67A),
+    Color(0xFF4DA3FF), Color(0xFF6C6CFF), Color(0xFFB36BFF),
+).map { watermarkTint(it, 0.16f) }
+
+/** Mot en filigrane, aussi grand que le cadre le permet, centré. */
+@Composable
+private fun Watermark(text: String, colors: List<Color>?, modifier: Modifier) {
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        // Largeur moyenne d'une lettre ≈ 0,6 × la taille de la police
+        val byWidth = maxWidth.value / (text.length * 0.6f)
+        val byHeight = maxHeight.value * 0.6f
+        val size = minOf(byWidth, byHeight, 240f).coerceAtLeast(12f)
+        val plain = watermarkTint(Palette.text, 0.07f)
+        Text(
+            buildAnnotatedString {
+                text.forEachIndexed { i, ch ->
+                    withStyle(SpanStyle(color = colors?.getOrNull(i % colors.size) ?: plain)) { append(ch) }
+                }
+            },
+            fontSize = with(LocalDensity.current) { size.dp.toSp() },
+            lineHeight = with(LocalDensity.current) { (size * 1.1f).dp.toSp() },
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
 
