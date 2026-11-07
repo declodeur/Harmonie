@@ -41,6 +41,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -103,7 +105,8 @@ private fun HelpIcon(modifier: Modifier) {
 @Composable
 fun Label(text: String, help: String? = null) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text, fontSize = 12.sp, color = Palette.muted)
+        // Peut passer à la ligne (libellés des réglages), mais jamais au milieu d'un mot coupé à une lettre
+        Text(text, fontSize = 12.sp, color = Palette.muted, modifier = Modifier.weight(1f, fill = false))
         if (help != null) {
             Spacer(Modifier.width(6.dp))
             HelpBubble(help)
@@ -112,6 +115,7 @@ fun Label(text: String, help: String? = null) {
 }
 
 /** Carte de l'écran principal. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Panel(
     title: String,
@@ -138,7 +142,7 @@ fun Panel(
             Watermark(watermark, watermarkColors, Modifier.matchParentSize().padding(top = 44.dp, bottom = 8.dp, start = 16.dp, end = 16.dp))
         }
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            val titleBlock: @Composable () -> Unit = {
                 // Titre de cadre : plus grand et en demi-gras, en couleur de texte (les libellés de
                 // réglages restent petits et discrets)
                 Text(
@@ -148,17 +152,28 @@ fun Panel(
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.3.sp,
                     color = Palette.text,
+                    maxLines = 1,
+                    softWrap = false,
                 )
-                if (help != null) {
-                    Spacer(Modifier.width(8.dp))
-                    HelpBubble(help)
-                }
+                if (help != null) HelpBubble(help)
                 if (chips != null) {
-                    Spacer(Modifier.width(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
+                    Spacer(Modifier.width(2.dp))
+                    chips()
                 }
-                Spacer(Modifier.weight(1f))
-                action?.invoke()
+            }
+            if (action == null) {
+                // Sans action à droite : les interrupteurs passent sous le titre si le cadre est étroit
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) { titleBlock() }
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    titleBlock()
+                    // La place restante revient à l'action (légendes, boutons) : elle s'enroule au lieu de déborder
+                    Box(Modifier.weight(1f).padding(start = 6.dp), contentAlignment = Alignment.CenterEnd) { action() }
+                }
             }
             Spacer(Modifier.height(8.dp))
             content()
@@ -229,9 +244,15 @@ fun <T> Selector(
                     Text(
                         text, fontSize = 14.sp, color = selectedColor ?: Color.Unspecified,
                         fontWeight = if (selectedColor != null) FontWeight.SemiBold else null,
+                        maxLines = 1, softWrap = false,
+                    )
+                } else {
+                    Text(
+                        placeholder, fontSize = 14.sp, color = placeholderColor ?: Color.Unspecified,
+                        fontWeight = if (placeholderColor != null) FontWeight.SemiBold else null,
+                        maxLines = 1, softWrap = false,
                     )
                 }
-                else Text(placeholder, fontSize = 14.sp, color = placeholderColor ?: Color.Unspecified, fontWeight = if (placeholderColor != null) FontWeight.SemiBold else null)
                 Spacer(Modifier.width(6.dp))
                 Text("▾", fontSize = 12.sp)
             }
@@ -264,9 +285,23 @@ fun ToggleChip(label: String, on: Boolean, onToggle: (Boolean) -> Unit) {
             fontSize = 12.sp,
             lineHeight = 16.sp,
             color = if (on) Palette.accent else Palette.muted,
+            maxLines = 1,
+            softWrap = false,
             modifier = Modifier.padding(horizontal = 9.dp, vertical = 2.dp),
         )
     }
+}
+
+/** Légendes d'un cadre : sur une ligne si la place le permet, sinon sur deux ou plus, alignées à droite. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun LegendFlow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    FlowRow(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.End),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) { content() }
 }
 
 /** Petit carré de couleur suivi d'un texte, pour les légendes. */
@@ -277,7 +312,7 @@ fun LegendItem(color: Color, text: String) {
             Surface(color = color, shape = RoundedCornerShape(2.dp), modifier = Modifier.size(10.dp)) {}
         }
         Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = Palette.muted)
+        Text(text, fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
     }
 }
 
@@ -287,6 +322,6 @@ fun LegendOutline(color: Color, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(12.dp).border(2.dp, color, RoundedCornerShape(2.dp)))
         Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = Palette.muted)
+        Text(text, fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
     }
 }

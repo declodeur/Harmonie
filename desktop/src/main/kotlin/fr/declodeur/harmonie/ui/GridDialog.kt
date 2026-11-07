@@ -28,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -62,7 +64,7 @@ fun GridDialog(build: (byDuration: Boolean, groupRepeats: Boolean) -> List<GridS
             shape = RoundedCornerShape(16.dp),
             color = Palette.surface,
             border = BorderStroke(1.dp, Palette.border),
-            modifier = Modifier.width(MARK_W * 2 + CELL_W * ChordGrid.PER_LINE + 80.dp),
+            modifier = Modifier.widthIn(max = MARK_W * 2 + CELL_W * ChordGrid.PER_LINE + 120.dp).fillMaxWidth(0.96f),
         ) {
             Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -80,7 +82,11 @@ fun GridDialog(build: (byDuration: Boolean, groupRepeats: Boolean) -> List<GridS
                     Box(Modifier.weight(1.2f)) { SwitchSetting("Une case par durée (≈ mesure)", Help.GRID_DURATION, byDuration) { byDuration = it } }
                 }
                 Spacer(Modifier.height(16.dp))
-                Column(Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState())) {
+                // La grille défile (verticalement et, si la fenêtre est étroite, horizontalement) ; les boutons restent visibles
+                Column(
+                    Modifier.weight(1f, fill = false).heightIn(max = 520.dp)
+                        .verticalScroll(rememberScrollState()).horizontalScroll(rememberScrollState()),
+                ) {
                     if (sections.isEmpty()) {
                         Text("Jouez quelques accords : la grille du morceau s'affichera ici.", fontSize = 14.sp, color = Palette.muted)
                     }
@@ -101,9 +107,9 @@ fun GridDialog(build: (byDuration: Boolean, groupRepeats: Boolean) -> List<GridS
                         copied = true
                     }) { Text(if (copied) "Texte copié" else "Copier le texte") }
                     Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = { printText(text) }) { Text("Imprimer / PDF") }
+                    TextButton(onClick = { printText(text) }) { Text("Imprimer / PDF", maxLines = 1, softWrap = false) }
                     Spacer(Modifier.weight(1f))
-                    OutlinedButton(onClick = onClose) { Text("Fermer") }
+                    OutlinedButton(onClick = onClose) { Text("Fermer", maxLines = 1, softWrap = false) }
                 }
             }
         }

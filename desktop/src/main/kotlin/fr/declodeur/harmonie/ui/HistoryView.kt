@@ -95,21 +95,25 @@ fun HistoryPanel(
         chips = chips,
         watermark = if (history.isEmpty()) "Passé" else null,
         action = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                LegendItem(Palette.tonic, "Tonique")
-                LegendItem(Palette.subdominant, "Sous-dominante")
-                LegendItem(Palette.dominant, "Dominante")
-                LegendItem(Palette.muted, "Chromatique")
-                LegendGlyph(Glyph.ARROW, "Résolution")
-                LegendGlyph(Glyph.DASHED_ARROW, "Subst. tritonique")
-                LegendGlyph(Glyph.BRACKET, "II-V")
-                LegendGlyph(Glyph.DASHED_BOX, "Arpégé")
-                if (display.showTension) LegendGlyph(Glyph.TENSION, "Tension")
-                if (display.showDurations) LegendGlyph(Glyph.DURATION, "Durée")
-                Text("vi = ii : pivot", fontSize = 12.sp, color = Palette.muted)
-                Text("VI? : fonction provisoire", fontSize = 12.sp, color = Palette.muted)
-                TextButton(onClick = onGrid) { Text("Grille", fontSize = 13.sp) }
-                TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp) }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Légendes sur plusieurs lignes si la fenêtre est étroite ; les boutons restent visibles
+                LegendFlow(Modifier.weight(1f, fill = false)) {
+                    LegendItem(Palette.tonic, "Tonique")
+                    LegendItem(Palette.subdominant, "Sous-dominante")
+                    LegendItem(Palette.dominant, "Dominante")
+                    LegendItem(Palette.muted, "Chromatique")
+                    LegendGlyph(Glyph.ARROW, "Résolution")
+                    LegendGlyph(Glyph.DASHED_ARROW, "Subst. tritonique")
+                    LegendGlyph(Glyph.BRACKET, "II-V")
+                    LegendGlyph(Glyph.DASHED_BOX, "Arpégé")
+                    if (display.showTension) LegendGlyph(Glyph.TENSION, "Tension")
+                    if (display.showDurations) LegendGlyph(Glyph.DURATION, "Durée")
+                    Text("vi = ii : pivot", fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
+                    Text("VI? : fonction provisoire", fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
+                }
+                Spacer(Modifier.width(8.dp))
+                TextButton(onClick = onGrid) { Text("Grille", fontSize = 13.sp, maxLines = 1, softWrap = false) }
+                TextButton(onClick = onClear) { Text("Effacer", fontSize = 13.sp, maxLines = 1, softWrap = false) }
             }
         },
     ) {
@@ -467,6 +471,6 @@ fun LegendGlyph(glyph: Glyph, text: String) {
             }
         }
         Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = Palette.muted)
+        Text(text, fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
     }
 }

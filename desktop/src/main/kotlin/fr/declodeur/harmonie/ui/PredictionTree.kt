@@ -80,7 +80,12 @@ fun PredictionPanel(
         help = Help.PREDICTIONS,
         chips = chips,
         watermark = if (nodes.isEmpty()) "Futur" else null,
-        action = { Text("$source · ${style.label}", fontSize = 12.sp, color = Palette.muted) },
+        action = {
+            Text(
+                "$source · ${style.label}", fontSize = 12.sp, color = Palette.muted, maxLines = 1,
+                softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            )
+        },
     ) {
         if (nodes.isEmpty()) {
             Text("Jouez quelques accords…", fontSize = 15.sp, color = Palette.muted)

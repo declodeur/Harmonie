@@ -14,6 +14,10 @@ import fr.declodeur.harmonie.ui.App
 
 private val ICON_SIZES = listOf(16, 20, 24, 32, 40, 48, 64, 128, 256)
 
+/** Taille minimale de la fenêtre (unités d'écran mises à l'échelle, comme les dp). */
+private const val MIN_WIDTH = 1180
+private const val MIN_HEIGHT = 720
+
 private fun iconBytes(size: Int): ByteArray? =
     Thread.currentThread().contextClassLoader?.getResourceAsStream("icons/harmonie-$size.png")?.use { it.readBytes() }
 
@@ -38,6 +42,8 @@ fun main() = application {
         // Plusieurs tailles : Windows choisit la version simplifiée pour la barre de titre et la barre des tâches
         LaunchedEffect(Unit) {
             window.iconImages = ICON_SIZES.mapNotNull { size -> iconImage(size) }
+            // En dessous, les cadres n'ont plus la place d'afficher leurs boutons et légendes
+            window.minimumSize = java.awt.Dimension(MIN_WIDTH, MIN_HEIGHT)
         }
         App(controller)
     }

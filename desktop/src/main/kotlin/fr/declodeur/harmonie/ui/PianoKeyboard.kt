@@ -174,7 +174,7 @@ fun ScaleLegend(text: String, avoid: Boolean = false, tonic: Boolean = false) {
             else drawCircle(Palette.scaleMarkOnBlack, radius = (if (tonic) 4.5.dp else 3.dp).toPx(), center = c)
         }
         Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = Palette.muted)
+        Text(text, fontSize = 12.sp, color = Palette.muted, maxLines = 1, softWrap = false)
     }
 }
 

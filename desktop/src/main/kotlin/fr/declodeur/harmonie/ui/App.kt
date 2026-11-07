@@ -188,7 +188,7 @@ private fun TopBar(
                 placeholderColor = NO_INPUT_RED,
             )
             Spacer(Modifier.width(4.dp))
-            TextButton(onClick = onRefresh) { Text("↻ Actualiser", fontSize = 13.sp) }
+            TextButton(onClick = onRefresh) { Text("↻ Actualiser", fontSize = 13.sp, maxLines = 1, softWrap = false) }
         }
         Selector(
             label = "Analyse",
@@ -214,9 +214,11 @@ private fun TopBar(
             "Harmonie ${BuildInfo.VERSION} · build ${BuildInfo.BUILD}",
             fontSize = 12.sp,
             color = Palette.muted,
+            maxLines = 1,
+            softWrap = false,
             modifier = Modifier.padding(bottom = 10.dp),
         )
-        OutlinedButton(onClick = onOpenSettings) { Text("Réglages", fontSize = 13.sp) }
+        OutlinedButton(onClick = onOpenSettings) { Text("Réglages", fontSize = 13.sp, maxLines = 1, softWrap = false) }
     }
 }
 
@@ -235,7 +237,8 @@ private fun KeyboardPanel(
         help = Help.KEYBOARD,
         chips = { ToggleChip("Gamme", showScale, onShowScale) },
         action = {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              LegendFlow(Modifier.weight(1f, fill = false)) {
                 LegendItem(Palette.root, "Fondamentale")
                 LegendItem(Palette.chordTone, "Note de l'accord")
                 LegendItem(Palette.tension, "Tension")
@@ -248,7 +251,9 @@ private fun KeyboardPanel(
                     ScaleLegend("Gamme (gros : tonique)", tonic = true)
                     ScaleLegend("À éviter", avoid = true)
                 }
-                OutlinedButton(onClick = onReleaseAll) { Text("Relâcher tout", fontSize = 12.sp) }
+              }
+                Spacer(Modifier.width(12.dp))
+                OutlinedButton(onClick = onReleaseAll) { Text("Relâcher tout", fontSize = 12.sp, maxLines = 1, softWrap = false) }
             }
         },
     ) {

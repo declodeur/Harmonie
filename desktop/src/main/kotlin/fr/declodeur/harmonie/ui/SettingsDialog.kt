@@ -50,6 +50,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.sp
@@ -110,19 +111,22 @@ internal fun SettingsDialog(
             shape = RoundedCornerShape(16.dp),
             color = Palette.surface,
             border = BorderStroke(1.dp, Palette.border),
-            modifier = Modifier.width(1000.dp),
+            // Jamais plus grande que la fenêtre : le contenu défile, les boutons du bas restent visibles
+            modifier = Modifier.widthIn(max = 1000.dp).fillMaxWidth(0.96f),
         ) {
             Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
                 Text("Réglages", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
                 TabBar(tab) { tab = it }
                 Spacer(Modifier.height(16.dp))
-                Row(Modifier.height(TAB_CONTENT_H), horizontalArrangement = Arrangement.spacedBy(36.dp)) {
-                    when (tab) {
-                        SettingsTab.RECOGNITION -> RecognitionTab(settings, onChange)
-                        SettingsTab.ANALYSIS -> AnalysisTab(settings, onChange)
-                        SettingsTab.KEY -> KeyTab(settings, onChange)
-                        SettingsTab.DISPLAY -> DisplayTab(settings, onChange)
+                Box(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    Row(Modifier.height(TAB_CONTENT_H), horizontalArrangement = Arrangement.spacedBy(36.dp)) {
+                        when (tab) {
+                            SettingsTab.RECOGNITION -> RecognitionTab(settings, onChange)
+                            SettingsTab.ANALYSIS -> AnalysisTab(settings, onChange)
+                            SettingsTab.KEY -> KeyTab(settings, onChange)
+                            SettingsTab.DISPLAY -> DisplayTab(settings, onChange)
+                        }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -422,7 +426,7 @@ private fun BottomActions(
         // Remise à zéro en deux temps : un clic de trop ne doit pas effacer des réglages choisis
         var confirmDefaults by remember { mutableStateOf(false) }
         if (!confirmDefaults) {
-            TextButton(onClick = { confirmDefaults = true }) { Text("Réglages par défaut") }
+            TextButton(onClick = { confirmDefaults = true }) { Text("Réglages par défaut", maxLines = 1, softWrap = false) }
             HelpBubble(Help.DEFAULT_SETTINGS)
         } else {
             Text("Remettre tous les réglages à leur valeur par défaut ?", fontSize = 14.sp, color = Palette.warning)
@@ -432,12 +436,12 @@ private fun BottomActions(
                 onChange(AnalysisSettings(style = settings.style, mode = settings.mode, chordChannel = settings.chordChannel))
                 confirmDefaults = false
             }) { Text("Oui, tout remettre") }
-            TextButton(onClick = { confirmDefaults = false }) { Text("Annuler") }
+            TextButton(onClick = { confirmDefaults = false }) { Text("Annuler", maxLines = 1, softWrap = false) }
         }
         Spacer(Modifier.width(16.dp))
-        TextButton(onClick = onResetLayout) { Text("Réinitialiser la disposition de l'écran") }
+        TextButton(onClick = onResetLayout) { Text("Réinitialiser la disposition de l'écran", maxLines = 1, softWrap = false) }
         HelpBubble(Help.LAYOUT)
         Spacer(Modifier.weight(1f))
-        OutlinedButton(onClick = onClose) { Text("Fermer") }
+        OutlinedButton(onClick = onClose) { Text("Fermer", maxLines = 1, softWrap = false) }
     }
 }
