@@ -55,6 +55,7 @@ object SettingsCodec {
         int("chordChannel", 0..15, { it.chordChannel }) { copy(chordChannel = it) },
         int("stabilityMs", 20..200, { it.stabilityMs }) { copy(stabilityMs = it) },
         bool("includeSustain", { it.includeSustain }) { copy(includeSustain = it) },
+        bool("recomputeOnRelease", { it.recomputeOnRelease }) { copy(recomputeOnRelease = it) },
         int("slashMinGap", 0..24, { it.slashMinGap }) { copy(slashMinGap = it) },
         bool("keepRootPositionReading", { it.bassOptions.keepRootPositionReading }) { v -> bass { copy(keepRootPositionReading = v) } },
         bool("keepFullReadingWhenUpperIncomplete", { it.bassOptions.keepFullReadingWhenUpperIncomplete }) { v ->

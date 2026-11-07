@@ -180,13 +180,14 @@ class HarmonieEngine(
     }
 
     /**
-     * Valide un accord quand les notes sont stables depuis [AnalysisSettings.stabilityMs] et qu'une note a
-     * été attaquée : lecture des notes, puis enregistrement (tonalité, historique, suites probables).
+     * Valide un accord quand les notes sont stables depuis [AnalysisSettings.stabilityMs] : lecture des
+     * notes, puis enregistrement (tonalité, historique, suites probables). Règle : dès que la liste des
+     * notes change (attaque, relâchement d'une touche ou de la pédale), l'accord est recalculé.
      */
     private fun commitIfStable(nowMs: Long): Boolean {
         if (!pending || nowMs - lastChangeMs < settings.stabilityMs) return false
         pending = false
-        if (!attackSinceCommit) return false
+        if (!attackSinceCommit) return settings.recomputeOnRelease && recomputeAfterRelease(nowMs)
         val set = analysisSet.ifEmpty { peakSet }
         if (set.isEmpty()) return false
         if (keepsCurrentChord(set, nowMs)) {
@@ -197,6 +198,26 @@ class HarmonieEngine(
         val result = readChord(set, nowMs) ?: return false
         attackSinceCommit = false
         peakSet = emptySet()
+        record(result, set, nowMs)
+        return true
+    }
+
+    /**
+     * Des notes ont été relâchées sans nouvelle attaque (touches, pédale de sustain) : l'accord est relu
+     * sur les notes qui restent. Tout relâché : le dernier accord reste affiché. Une ou deux notes de
+     * l'accord, ou une lecture impossible : l'accord en cours continue. Même accord (octave relâchée,
+     * note doublée) : seules les notes affichées changent, sans compter un nouvel accord.
+     */
+    private fun recomputeAfterRelease(nowMs: Long): Boolean {
+        val set = analysisSet
+        if (set.isEmpty() || set == committedNotes || current == null) return false
+        if (keepsCurrentChord(set, nowMs)) return false
+        val result = readChord(set, nowMs)?.takeIf { it.best != null } ?: return false
+        if (result.best?.symbol == current?.best?.symbol) {
+            committedNotes = set
+            current = result
+            return true
+        }
         record(result, set, nowMs)
         return true
     }

@@ -71,6 +71,51 @@ class HarmonieEngineTest {
     }
 
     @Test
+    fun releasingThePedalRecomputesTheChord() {
+        // C7 tenu par la pédale ; on rejoue Do Mi Sol puis on lève la pédale : il reste Do majeur
+        val e = HarmonieEngine(AnalysisSettings(includeSustain = true))
+        e.controlChange(0, 64, 127, 0)
+        for (n in listOf(48, 52, 55, 58)) e.noteOn(0, n, 90, 0)
+        e.tick(100)
+        assertEquals("C7", e.symbol())
+        for (n in listOf(48, 52, 55, 58)) e.noteOff(0, n, 200)
+        e.noteOn(0, 60, 90, 300); e.noteOn(0, 64, 90, 300); e.noteOn(0, 67, 90, 300)
+        e.tick(400)
+        assertEquals("C7", e.symbol())
+        e.controlChange(0, 64, 0, 500)
+        e.tick(600)
+        assertEquals("C", e.symbol())
+        assertEquals(listOf("C7", "C"), e.snapshot().history.map { it.chord.best?.symbol })
+    }
+
+    @Test
+    fun releasingAKeyRecomputesTheChord() {
+        val e = HarmonieEngine()
+        for (n in listOf(48, 55, 64, 69)) e.noteOn(0, n, 90, 0) // C6 (Do Sol Mi La)
+        e.tick(100)
+        assertEquals("C6", e.symbol())
+        e.noteOff(0, 69, 200)
+        e.tick(300)
+        assertEquals("C", e.symbol())
+        // Octave relâchée : même accord, pas de nouvelle entrée dans l'historique
+        e.noteOn(0, 60, 90, 400)
+        e.tick(500)
+        e.noteOff(0, 60, 600)
+        e.tick(700)
+        assertEquals(listOf("C6", "C"), e.snapshot().history.map { it.chord.best?.symbol })
+    }
+
+    @Test
+    fun recomputeOnReleaseCanBeTurnedOff() {
+        val e = HarmonieEngine(AnalysisSettings(recomputeOnRelease = false))
+        for (n in listOf(48, 52, 55, 58)) e.noteOn(0, n, 90, 0)
+        e.tick(100)
+        e.noteOff(0, 58, 200)
+        e.tick(300)
+        assertEquals("C7", e.symbol())
+    }
+
+    @Test
     fun sustainedNotesCanBeExcluded() {
         val e = HarmonieEngine(AnalysisSettings(includeSustain = false))
         e.controlChange(0, 64, 127, 0)

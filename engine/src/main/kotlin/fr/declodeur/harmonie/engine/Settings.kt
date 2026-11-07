@@ -79,6 +79,8 @@ data class AnalysisSettings(
     val showCirclePath: Boolean = true,
     /** Affichage : lignes de la gamme de l'accord dans le cadre « Accord courant ». */
     val showScaleLines: Boolean = true,
+    /** Recalculer l'accord quand des notes sont relâchées (pédale comprise), pas seulement à une attaque. */
+    val recomputeOnRelease: Boolean = true,
     /** Calcul de la courbe de tension. */
     val tensionModel: TensionModel = TensionModel.TONAL_SPACE,
 )

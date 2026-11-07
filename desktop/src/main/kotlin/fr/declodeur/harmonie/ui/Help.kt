@@ -96,6 +96,13 @@ object Help {
         "Si activé, les notes tenues par la pédale de sustain font partie de l'accord. Désactivez-le si vous " +
             "jouez beaucoup avec la pédale et que des notes de l'accord précédent perturbent la reconnaissance."
 
+    const val RECOMPUTE_ON_RELEASE =
+        "Dès que la liste des notes change, l'accord est recalculé : quand vous relâchez une touche ou levez " +
+            "la pédale de sustain, l'accord est relu sur les notes qui restent (C7 devient C si le si bémol s'éteint). " +
+            "Exceptions : tout relâché, le dernier accord reste affiché ; s'il ne reste qu'une ou deux notes de " +
+            "l'accord, il continue (voir « Une ou deux notes de l'accord ne le remplacent pas »). Désactivé, seule une " +
+            "nouvelle attaque change l'accord."
+
     const val KEY =
         "Tonalité la plus probable d'après ce qui a été joué récemment, et cercle des quintes des 24 " +
             "tonalités : majeures sur l'anneau extérieur, relatives mineures à l'intérieur. Deux tonalités " +

@@ -186,6 +186,9 @@ private fun RowScope.RecognitionTab(settings: AnalysisSettings, onChange: (Analy
         SwitchSetting("Inclure les notes tenues par la pédale", Help.SUSTAIN, settings.includeSustain) {
             onChange(settings.copy(includeSustain = it))
         }
+        SwitchSetting("Recalculer l'accord quand des notes sont relâchées", Help.RECOMPUTE_ON_RELEASE, settings.recomputeOnRelease) {
+            onChange(settings.copy(recomputeOnRelease = it))
+        }
         val bo = settings.bassOptions
         SwitchSetting("Basse fondamentale : lecture complète (Am7 plutôt que C/A)", Help.KEEP_ROOT_POSITION, bo.keepRootPositionReading) {
             onChange(settings.copy(bassOptions = bo.copy(keepRootPositionReading = it)))
